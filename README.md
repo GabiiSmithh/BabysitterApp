@@ -10,6 +10,7 @@ Find a babysitter for your child
 - senha
 - telefone
 - data de nascimento
+- roles [tutor,baba]
 
 ### Tutor
 - endereço
