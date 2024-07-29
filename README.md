@@ -30,7 +30,7 @@ Find a babysitter for your child
 
 ### Serviço
 - id da baba
-- id do usuario
+- id do tutor
 - data de inicio
 - data de fim
 - valor
