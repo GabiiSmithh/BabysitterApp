@@ -1,3 +1,4 @@
+import 'package:client/babysitter/screen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -37,7 +38,10 @@ class HomeScreen extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Navigate to babysitter sign-in page
+                Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => BabysitterSignUpPage()),
+                    );
               },
               child: Text('Sign in as Babysitter'),
             ),
