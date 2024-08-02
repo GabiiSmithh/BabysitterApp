@@ -1,3 +1,4 @@
+import 'package:client/babysitter/screen.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui'; // Importar para usar ImageFilter
 
@@ -98,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       cursorColor: _cursorColor, // Define a cor do cursor
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.email), // Ícone de email
-                        labelText: 'Email',
+                        labelText: 'Digite seu Email',
                         labelStyle: TextStyle(
                             color: Colors.grey[600]), // Cor da label padrão
                         filled: true, // Habilita a cor de fundo
@@ -142,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       obscureText: true, // Oculta o texto para o campo de senha
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.lock), // Ícone de senha
-                        labelText: 'Password',
+                        labelText: 'Digite sua Senha',
                         labelStyle: TextStyle(
                             color: Colors.grey[600]), // Cor da label padrão
                         filled: true, // Habilita a cor de fundo
@@ -234,7 +235,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                       child: GestureDetector(
                         onTap: () {
-                          // Ação ao clicar
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => BabysitterSignUpPage(),
+                            ),
+                          );
                         },
                         child: Text(
                           'Cadastrar-se como Babá',
