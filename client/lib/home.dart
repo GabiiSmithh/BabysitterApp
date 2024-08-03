@@ -1,6 +1,8 @@
-import 'package:client/babysitter/screen.dart';
+import 'package:client/babysitter/babysitter_list.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui'; // Importar para usar ImageFilter
+import 'package:client/babysitter/screen.dart'; // Importar para o redirecionamento
 
 void main() {
   runApp(MyApp());
@@ -29,6 +31,69 @@ class _HomeScreenState extends State<HomeScreen> {
   final Color _cursorColor = Color.fromARGB(255, 182, 46, 92); // Cor magenta
   bool _isMouseOverBabysitter = false;
   bool _isMouseOverParent = false;
+
+  void _showLoginPopup() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        backgroundColor: Color.fromARGB(255, 255, 203, 214), // Cor rosa para o container
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Text('Parabéns!!'),
+            IconButton(
+              icon: Icon(Icons.close),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text('Login realizado com sucesso!'),
+            SizedBox(height: 10.0), // Espaçamento entre as linhas
+            RichText(
+              text: TextSpan(
+                children: <TextSpan>[
+                  TextSpan(
+                    text: 'Para acessar os cadastros, ',
+                    style: TextStyle(color: Colors.black), // Cor do texto
+                  ),
+                  TextSpan(
+                    text: 'clique aqui',
+                    style: TextStyle(
+                      color: _cursorColor, // Cor do link
+                      decoration: TextDecoration.underline, // Sublinhado
+                      fontWeight: FontWeight.bold, // Destaca o texto
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => BabysitterListPage(),
+                          ),
+                        );
+                      },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: <Widget>[
+          // O botão "Ir para Cadastro" foi removido
+        ],
+      );
+    },
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       cursorColor: _cursorColor, // Define a cor do cursor
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.email), // Ícone de email
-                        labelText: 'Digite seu Email',
+                        labelText: 'Email',
                         labelStyle: TextStyle(
                             color: Colors.grey[600]), // Cor da label padrão
                         filled: true, // Habilita a cor de fundo
@@ -143,7 +208,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       obscureText: true, // Oculta o texto para o campo de senha
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.lock), // Ícone de senha
-                        labelText: 'Digite sua Senha',
+                        labelText: 'Senha',
                         labelStyle: TextStyle(
                             color: Colors.grey[600]), // Cor da label padrão
                         filled: true, // Habilita a cor de fundo
@@ -174,9 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 80.0),
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Ação do botão
-                      },
+                      onPressed: _showLoginPopup,
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                             _cursorColor, // Define a cor sólida do botão

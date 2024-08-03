@@ -1,6 +1,8 @@
+import 'package:client/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:flutter/gestures.dart'; // Adicione esta importação para GestureDetector
 
 class BabysitterSignUpPage extends StatefulWidget {
   @override
@@ -25,6 +27,8 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
   final phoneController = MaskedTextController(mask: '(00) 00000-0000');
   final birthDateController = TextEditingController();
 
+  bool _showPopup = false; // Variável para controlar a visibilidade do popup
+
   @override
   void initState() {
     super.initState();
@@ -43,217 +47,310 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 215, 229),
-      body: Column(
+      body: Stack(
         children: [
-          Container(
-            width: double.infinity,
-            height: 70.0,
-            decoration: BoxDecoration(
-              color: _topContainerColor, // Cor sólida
-              borderRadius: BorderRadius.only(
-                bottomLeft:
-                    Radius.circular(50.0), // Extremidade esquerda arredondada
-              ),
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  left: 16.0,
-                  top: 12.0,
-                  child: IconButton(
-                    icon:
-                        Icon(Icons.arrow_back, color: Colors.white, size: 30.0),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+          Column(
+            children: [
+              Container(
+                width: double.infinity,
+                height: 70.0,
+                decoration: BoxDecoration(
+                  color: _topContainerColor, // Cor sólida
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(
+                        50.0), // Extremidade esquerda arredondada
                   ),
                 ),
-                Center(
-                  child: Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      'Cadastre-se como Babá',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: ListView(
+                child: Stack(
                   children: [
-                    _buildTextField(
-                      label: 'Nome',
-                      icon: Icons.person,
-                      onChanged: (value) {
-                        setState(() {
-                          name = value;
-                        });
-                      },
-                      validator: (value) {
-                        return value!.isEmpty
-                            ? 'Por favor, digite seu nome'
-                            : null;
-                      },
-                    ),
-                    _buildDropdownField(
-                      label: 'Gênero',
-                      items: ['Homem', 'Mulher', 'Outro'],
-                      onChanged: (value) {
-                        setState(() {
-                          gender = value!;
-                        });
-                      },
-                      validator: (value) {
-                        return value == null
-                            ? 'Por favor, selecione seu gênero'
-                            : null;
-                      },
-                    ),
-                    _buildTextField(
-                      label: 'Email',
-                      icon: Icons.email,
-                      keyboardType: TextInputType.emailAddress,
-                      onChanged: (value) {
-                        setState(() {
-                          email = value;
-                        });
-                      },
-                      validator: (value) {
-                        return value!.isEmpty
-                            ? 'Por favor, digite seu email'
-                            : null;
-                      },
-                    ),
-                    _buildTextField(
-                      label: 'Senha',
-                      icon: Icons.lock,
-                      obscureText: true,
-                      onChanged: (value) {
-                        setState(() {
-                          password = value;
-                        });
-                      },
-                      validator: (value) {
-                        return value!.isEmpty
-                            ? 'Por favor, digite sua senha'
-                            : null;
-                      },
-                    ),
-                    _buildTextField(
-                      label: 'Confirmar Senha',
-                      icon: Icons.lock,
-                      obscureText: true,
-                      onChanged: (value) {
-                        setState(() {
-                          confirmPassword = value;
-                        });
-                      },
-                      validator: (value) {
-                        if (value!.isEmpty) {
-                          return 'Por favor, confirme sua senha';
-                        }
-                        if (value != password) {
-                          return 'As senhas não coincidem';
-                        }
-                        return null;
-                      },
-                    ),
-                    _buildTextField(
-                      label: 'Telefone',
-                      icon: Icons.phone,
-                      keyboardType: TextInputType.phone,
-                      controller: phoneController,
-                      onChanged: (value) {
-                        setState(() {
-                          phoneNumber = value;
-                        });
-                      },
-                      validator: (value) {
-                        return _validatePhoneNumber(value);
-                      },
-                    ),
-                    _buildTextField(
-                      label: 'Experiência (em anos)',
-                      icon: Icons.timer,
-                      keyboardType: TextInputType.number,
-                      onChanged: (value) {
-                        setState(() {
-                          experienceTime = value;
-                        });
-                      },
-                      validator: (value) {
-                        return value!.isEmpty
-                            ? 'Por favor, digite seu tempo de experiência'
-                            : null;
-                      },
-                    ),
-                    _buildTextField(
-                      label: 'Data de Nascimento (DD/MM/AAAA)',
-                      icon: Icons.calendar_today,
-                      keyboardType: TextInputType.datetime,
-                      controller: birthDateController,
-                      onChanged: (value) {
-                        setState(() {
-                          birthDate = _parseDate(value) ?? DateTime.now();
-                        });
-                      },
-                      validator: (value) {
-                        return _validateDate(value);
-                      },
-                    ),
-                    SizedBox(height: 20.0),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // Save the form data
-                          _formKey.currentState!.save();
-                          // Process the sign-up data here
-                          print('Nome: $name');
-                          print('Gênero: $gender');
-                          print('Email: $email');
-                          print('Senha: $password');
-                          print('Telefone: $phoneNumber');
-                          print('Experiência: $experienceTime');
-                          print('Data de Nascimento: $birthDate');
-                          // Show success message or navigate to another page
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _cursorColor,
-                        elevation: 5,
-                        padding: EdgeInsets.symmetric(
-                            vertical: 14.0, horizontal: 24.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30.0),
-                        ),
+                    Positioned(
+                      left: 16.0,
+                      top: 12.0,
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_back,
+                            color: Colors.white, size: 30.0),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
                       ),
-                      child: Text(
-                        'Cadastrar-se',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.bold,
+                    ),
+                    Center(
+                      child: Align(
+                        alignment: Alignment.center,
+                        child: Text(
+                          'Cadastre-se como Babá',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Form(
+                    key: _formKey,
+                    child: ListView(
+                      children: [
+                        _buildTextField(
+                          label: 'Nome',
+                          icon: Icons.person,
+                          onChanged: (value) {
+                            setState(() {
+                              name = value;
+                            });
+                          },
+                          validator: (value) {
+                            return value!.isEmpty
+                                ? 'Por favor, digite seu nome'
+                                : null;
+                          },
+                        ),
+                        _buildDropdownField(
+                          label: 'Gênero',
+                          items: ['Homem', 'Mulher', 'Outro'],
+                          onChanged: (value) {
+                            setState(() {
+                              gender = value!;
+                            });
+                          },
+                          validator: (value) {
+                            return value == null
+                                ? 'Por favor, selecione seu gênero'
+                                : null;
+                          },
+                        ),
+                        _buildTextField(
+                          label: 'Email',
+                          icon: Icons.email,
+                          keyboardType: TextInputType.emailAddress,
+                          onChanged: (value) {
+                            setState(() {
+                              email = value;
+                            });
+                          },
+                          validator: (value) {
+                            return value!.isEmpty
+                                ? 'Por favor, digite seu email'
+                                : null;
+                          },
+                        ),
+                        _buildTextField(
+                          label: 'Senha',
+                          icon: Icons.lock,
+                          obscureText: true,
+                          onChanged: (value) {
+                            setState(() {
+                              password = value;
+                            });
+                          },
+                          validator: (value) {
+                            return value!.isEmpty
+                                ? 'Por favor, digite sua senha'
+                                : null;
+                          },
+                        ),
+                        _buildTextField(
+                          label: 'Confirmar Senha',
+                          icon: Icons.lock,
+                          obscureText: true,
+                          onChanged: (value) {
+                            setState(() {
+                              confirmPassword = value;
+                            });
+                          },
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Por favor, confirme sua senha';
+                            }
+                            if (value != password) {
+                              return 'As senhas não coincidem';
+                            }
+                            return null;
+                          },
+                        ),
+                        _buildTextField(
+                          label: 'Telefone',
+                          icon: Icons.phone,
+                          keyboardType: TextInputType.phone,
+                          controller: phoneController,
+                          onChanged: (value) {
+                            setState(() {
+                              phoneNumber = value;
+                            });
+                          },
+                          validator: (value) {
+                            return _validatePhoneNumber(value);
+                          },
+                        ),
+                        _buildTextField(
+                          label: 'Experiência (em anos)',
+                          icon: Icons.timer,
+                          keyboardType: TextInputType.number,
+                          onChanged: (value) {
+                            setState(() {
+                              experienceTime = value;
+                            });
+                          },
+                          validator: (value) {
+                            return value!.isEmpty
+                                ? 'Por favor, digite seu tempo de experiência'
+                                : null;
+                          },
+                        ),
+                        _buildTextField(
+                          label: 'Data de Nascimento (DD/MM/AAAA)',
+                          icon: Icons.calendar_today,
+                          keyboardType: TextInputType.datetime,
+                          controller: birthDateController,
+                          onChanged: (value) {
+                            setState(() {
+                              birthDate = _parseDate(value) ?? DateTime.now();
+                            });
+                          },
+                          validator: (value) {
+                            return _validateDate(value);
+                          },
+                        ),
+                        SizedBox(height: 20.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              // Save the form data
+                              _formKey.currentState!.save();
+                              // Process the sign-up data here
+                              print('Nome: $name');
+                              print('Gênero: $gender');
+                              print('Email: $email');
+                              print('Senha: $password');
+                              print('Telefone: $phoneNumber');
+                              print('Experiência: $experienceTime');
+                              print('Data de Nascimento: $birthDate');
+                              // Show success message
+                              _showSuccessPopup();
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _cursorColor,
+                            elevation: 5,
+                            padding: EdgeInsets.symmetric(
+                                vertical: 14.0, horizontal: 24.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          child: Text(
+                            'Cadastrar-se',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
+          if (_showPopup) // Exibe o container apenas se _showPopup for true
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: Center(
+                  child: Container(
+                    padding: EdgeInsets.all(20.0),
+                    margin: EdgeInsets.symmetric(horizontal: 20.0),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(
+                          255, 255, 215, 229), // Cor de fundo do container
+                      borderRadius: BorderRadius.circular(20.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: Offset(0, 5),
+                        ),
+                      ],
+                    ),
+                    child: Stack(
+                      children: [
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Cadastro realizado com sucesso!',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 10.0),
+                            Text.rich(
+                              TextSpan(
+                                text: 'Para ir a tela de login ',
+                                style: TextStyle(fontSize: 16.0),
+                                children: [
+                                  TextSpan(
+                                    text: 'clique aqui',
+                                    style: TextStyle(
+                                      color: _cursorColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    recognizer: TapGestureRecognizer()
+                                      ..onTap = () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) => HomeScreen(),
+                                          ),
+                                        );
+                                      },
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(height: 20.0),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: IconButton(
+                                icon: Icon(Icons.close, color: Colors.black),
+                                onPressed: () {
+                                  setState(() {
+                                    _showPopup = false;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
+  }
+
+  void _showSuccessPopup() {
+    setState(() {
+      _showPopup = true;
+    });
   }
 
   Widget _buildTextField({
@@ -402,5 +499,19 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
       // Handle parsing error
     }
     return null;
+  }
+}
+
+class ListaBabysitterPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Lista de Babysitters'),
+      ),
+      body: Center(
+        child: Text('Aqui estará a lista de babysitters.'),
+      ),
+    );
   }
 }
