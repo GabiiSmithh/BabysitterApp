@@ -24,7 +24,7 @@ export class ExpressBabysitterHandler {
         try {
             const babysitters = await this.babysitterService.list();
 
-            babysitters.array.forEach(babysitter => {
+            babysitters.forEach(babysitter => {
                 delete babysitter.password;
             });
 
