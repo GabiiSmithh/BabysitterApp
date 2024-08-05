@@ -11,6 +11,8 @@ export class ExpressBabysitterHandler {
                 return res.status(404).json({ message: 'Babysitter not found.' });
             }
 
+            delete babysitter.password;
+
             return res.status(200).json(babysitter);
         } catch (error) {
             // TODO: return correct status for different cases
@@ -21,6 +23,10 @@ export class ExpressBabysitterHandler {
     async list(_, res) {
         try {
             const babysitters = await this.babysitterService.list();
+
+            babysitters.array.forEach(babysitter => {
+                delete babysitter.password;
+            });
 
             return res.status(200).json(babysitters);
         } catch (error) {
@@ -64,6 +70,8 @@ export class ExpressBabysitterHandler {
             };
 
             const updatedBabysitter = await this.babysitterService.update(updateBabysitterDTO);
+
+            delete updatedBabysitter.password;
 
             return res.status(200).json(updatedBabysitter);
         } catch (error) {
