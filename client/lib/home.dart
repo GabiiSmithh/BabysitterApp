@@ -1,8 +1,8 @@
 import 'package:client/babysitter/babysitter_list.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui'; // Importar para usar ImageFilter
-import 'package:client/babysitter/screen.dart'; // Importar para o redirecionamento
+import 'dart:ui'; 
+import 'package:client/babysitter/screen.dart'; 
 
 void main() {
   runApp(MyApp());
@@ -129,7 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       filter: ImageFilter.blur(
                           sigmaX: 10.0, sigmaY: 10.0), // Desfoca a imagem
                       child: Image.asset(
-                        'assets/images/babysitter.png', // Caminho para a sua imagem
+                        'images/babysitter.png', // Caminho para a sua imagem
                         width: 150.0, // Largura da imagem
                         height: 150.0, // Altura da imagem
                         fit: BoxFit
