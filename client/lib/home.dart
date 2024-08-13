@@ -1,4 +1,5 @@
 import 'package:client/babysitter/babysitter_list.dart';
+import 'package:client/babysitting-services/list_services_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui'; 
@@ -76,7 +77,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ..onTap = () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => BabysitterListPage(),
+                            builder: (context) => BabysittingRequestsPage(),
                           ),
                         );
                       },
