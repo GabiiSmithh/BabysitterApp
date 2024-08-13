@@ -1,8 +1,8 @@
-import 'package:client/home.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
-import 'package:flutter/gestures.dart'; // Adicione esta importação para GestureDetector
 
 class BabysitterSignUpPage extends StatefulWidget {
   @override
@@ -24,7 +24,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
   final Color _topContainerColor =
       Color.fromARGB(255, 182, 46, 92); // Cor sólida
 
-  final phoneController = MaskedTextController(mask: '(00) 00000-0000');
+  final phoneController = MaskedTextController(mask: '(00)00000-0000');
   final birthDateController = TextEditingController();
 
   bool _showPopup = false; // Variável para controlar a visibilidade do popup
@@ -42,6 +42,64 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
       }
     });
   }
+
+Future<void> _registerBabysitter() async {
+  final url = Uri.parse('http://201.23.18.202:3333/babysitters');
+  
+  // Remove todos os caracteres que não são dígitos
+  final cleanedPhoneNumber = phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
+
+  final response = await http.post(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: json.encode({
+      'name': name,
+      'gender': gender,
+      'email': email,
+      'password': password,
+      'cellphone': cleanedPhoneNumber,
+      'birth_date': "${birthDate.toIso8601String()}",
+      'experience_months': int.tryParse(experienceTime) ?? 0,
+    }),
+  );
+  
+
+  if (response.statusCode == 201) {
+    // Cadastro realizado com sucesso
+    _showSuccessPopup();
+  } else {
+    // Falha no cadastro
+    _showFailurePopup(response.body);
+  }
+}
+
+void _showSuccessPopup() {
+  setState(() {
+    _showPopup = true;
+  });
+}
+
+void _showFailurePopup(String message) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Erro'),
+        content: Text('Falha no cadastro: $message'),
+        actions: [
+          TextButton(
+            child: Text('OK'),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +160,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                           icon: Icons.person,
                           onChanged: (value) {
                             setState(() {
-                              name = value;
+                              name = value!;
                             });
                           },
                           validator: (value) {
@@ -131,7 +189,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                           keyboardType: TextInputType.emailAddress,
                           onChanged: (value) {
                             setState(() {
-                              email = value;
+                              email = value!;
                             });
                           },
                           validator: (value) {
@@ -146,7 +204,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                           obscureText: true,
                           onChanged: (value) {
                             setState(() {
-                              password = value;
+                              password = value!;
                             });
                           },
                           validator: (value) {
@@ -161,7 +219,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                           obscureText: true,
                           onChanged: (value) {
                             setState(() {
-                              confirmPassword = value;
+                              confirmPassword = value!;
                             });
                           },
                           validator: (value) {
@@ -181,7 +239,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                           controller: phoneController,
                           onChanged: (value) {
                             setState(() {
-                              phoneNumber = value;
+                              phoneNumber = value!;
                             });
                           },
                           validator: (value) {
@@ -194,7 +252,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
                             setState(() {
-                              experienceTime = value;
+                              experienceTime = value!;
                             });
                           },
                           validator: (value) {
@@ -210,7 +268,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                           controller: birthDateController,
                           onChanged: (value) {
                             setState(() {
-                              birthDate = _parseDate(value) ?? DateTime.now();
+                              birthDate = _parseDate(value!) ?? DateTime.now();
                             });
                           },
                           validator: (value) {
@@ -219,20 +277,12 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                         ),
                         SizedBox(height: 20.0),
                         ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               // Save the form data
                               _formKey.currentState!.save();
                               // Process the sign-up data here
-                              print('Nome: $name');
-                              print('Gênero: $gender');
-                              print('Email: $email');
-                              print('Senha: $password');
-                              print('Telefone: $phoneNumber');
-                              print('Experiência: $experienceTime');
-                              print('Data de Nascimento: $birthDate');
-                              // Show success message
-                              _showSuccessPopup();
+                             await _registerBabysitter();
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -261,11 +311,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
             ],
           ),
           if (_showPopup) // Exibe o container apenas se _showPopup for true
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
+            Positioned.fill(
               child: Container(
                 color: Colors.black.withOpacity(0.5),
                 child: Center(
@@ -273,8 +319,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                     padding: EdgeInsets.all(20.0),
                     margin: EdgeInsets.symmetric(horizontal: 20.0),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(
-                          255, 255, 215, 229), // Cor de fundo do container
+                      color: Color.fromARGB(255, 255, 215, 229), // Cor de fundo do container
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
@@ -285,56 +330,41 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                         ),
                       ],
                     ),
-                    child: Stack(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Cadastro realizado com sucesso!',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                              ),
+                        Text(
+                          'Cadastro realizado com sucesso!',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 20.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _showPopup = false;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _cursorColor,
+                            elevation: 5,
+                            padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 24.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
                             ),
-                            SizedBox(height: 10.0),
-                            Text.rich(
-                              TextSpan(
-                                text: 'Para ir a tela de login ',
-                                style: TextStyle(fontSize: 16.0),
-                                children: [
-                                  TextSpan(
-                                    text: 'clique aqui',
-                                    style: TextStyle(
-                                      color: _cursorColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () {
-                                        Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) => HomeScreen(),
-                                          ),
-                                        );
-                                      },
-                                  ),
-                                ],
-                              ),
+                          ),
+                          child: Text(
+                            'OK',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16.0,
+                              fontWeight: FontWeight.bold,
                             ),
-                            SizedBox(height: 20.0),
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: IconButton(
-                                icon: Icon(Icons.close, color: Colors.black),
-                                onPressed: () {
-                                  setState(() {
-                                    _showPopup = false;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
@@ -347,64 +377,72 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
     );
   }
 
-  void _showSuccessPopup() {
-    setState(() {
-      _showPopup = true;
-    });
+
+  DateTime? _parseDate(String dateStr) {
+    try {
+      final parts = dateStr.split('/');
+      if (parts.length == 3) {
+        return DateTime(
+          int.parse(parts[2]),
+          int.parse(parts[1]),
+          int.parse(parts[0]),
+        );
+      }
+    } catch (e) {
+      // Handle parse error
+    }
+    return null;
+  }
+
+  String? _validateDate(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, digite uma data válida';
+    }
+    final date = _parseDate(value);
+    if (date == null || date.isAfter(DateTime.now())) {
+      return 'Data inválida';
+    }
+    return null;
+  }
+
+  String? _validatePhoneNumber(String? value) {
+    final cleanedValue = value?.replaceAll(RegExp(r'[^\d]'), '');
+    if (cleanedValue?.length != 11) {
+      return 'Número de telefone inválido. Deve ter 11 dígitos.';
+    }
+    if (value == null || value.isEmpty) {
+      return 'Por favor, digite seu telefone';
+    }
+    return null;
   }
 
   Widget _buildTextField({
     required String label,
-    bool obscureText = false,
-    TextInputType keyboardType = TextInputType.text,
-    required Function(String) onChanged,
-    required String? Function(String?) validator,
     required IconData icon,
+    bool obscureText = false,
     TextEditingController? controller,
+    required FormFieldSetter<String> onChanged,
+    required FormFieldValidator<String> validator,
+    TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3), // Cor do sombreado
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 5), // Deslocamento do sombreado
-            ),
-          ],
-        ),
-        child: TextFormField(
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: TextStyle(color: Colors.grey[700]),
-            filled: true,
-            fillColor: Colors.grey[200],
-            prefixIcon: Icon(icon, color: _cursorColor),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              borderSide: BorderSide(color: _cursorColor),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              borderSide: BorderSide.none,
-            ),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        onChanged: onChanged,
+        validator: validator,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          obscureText: obscureText,
-          keyboardType: keyboardType,
-          onChanged: onChanged,
-          validator: validator,
-          style: TextStyle(color: Colors.black),
-          cursorColor: _cursorColor,
-          controller: controller,
-          inputFormatters: inputFormatters,
         ),
+        cursorColor: _cursorColor,
+        inputFormatters: inputFormatters,
       ),
     );
   }
@@ -412,105 +450,26 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
   Widget _buildDropdownField({
     required String label,
     required List<String> items,
-    required Function(String?) onChanged,
-    required String? Function(String?) validator,
+    required FormFieldSetter<String?> onChanged,
+    required FormFieldValidator<String?> validator,
   }) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Container(
-        decoration: BoxDecoration(
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3), // Cor do sombreado
-              spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 5), // Deslocamento do sombreado
-            ),
-          ],
-        ),
-        child: DropdownButtonFormField<String>(
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: TextStyle(color: Colors.grey[700]),
-            filled: true,
-            fillColor: Colors.grey[200],
-            prefixIcon: Icon(Icons.arrow_drop_down, color: _cursorColor),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              borderSide: BorderSide(color: _cursorColor),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(30.0),
-              borderSide: BorderSide.none,
-            ),
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: DropdownButtonFormField<String>(
+        items: items.map((item) {
+          return DropdownMenuItem<String>(
+            value: item,
+            child: Text(item),
+          );
+        }).toList(),
+        onChanged: onChanged,
+        validator: validator,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
           ),
-          dropdownColor:
-              Color.fromARGB(255, 255, 203, 214), // Cor de fundo do dropdown
-          items: items.map((item) {
-            return DropdownMenuItem<String>(
-              value: item,
-              child: Text(item),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          validator: validator,
-          style: TextStyle(color: Colors.black),
         ),
-      ),
-    );
-  }
-
-  String? _validatePhoneNumber(String? value) {
-    final phonePattern = RegExp(r'^\(\d{2}\) \d{5}-\d{4}$');
-    if (value == null || value.isEmpty) {
-      return 'Por favor, digite seu telefone';
-    }
-    if (!phonePattern.hasMatch(value)) {
-      return 'Número de telefone inválido';
-    }
-    return null;
-  }
-
-  String? _validateDate(String? value) {
-    final datePattern = RegExp(r'^\d{2}/\d{2}/\d{4}$');
-    if (value == null || value.isEmpty) {
-      return 'Por favor, digite sua data de nascimento';
-    }
-    if (!datePattern.hasMatch(value)) {
-      return 'Data inválida. Use o formato DD/MM/AAAA';
-    }
-    return null;
-  }
-
-  DateTime? _parseDate(String value) {
-    try {
-      final parts = value.split('/');
-      if (parts.length == 3) {
-        final day = int.parse(parts[0]);
-        final month = int.parse(parts[1]);
-        final year = int.parse(parts[2]);
-        return DateTime(year, month, day);
-      }
-    } catch (e) {
-      // Handle parsing error
-    }
-    return null;
-  }
-}
-
-class ListaBabysitterPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Lista de Babysitters'),
-      ),
-      body: Center(
-        child: Text('Aqui estará a lista de babysitters.'),
       ),
     );
   }
