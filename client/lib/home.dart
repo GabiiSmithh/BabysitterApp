@@ -1,9 +1,9 @@
-import 'package:client/babysitter/babysitter_list.dart';
 import 'package:client/babysitting-services/list_services_screen.dart';
+import 'package:client/babysitting-services/create_service_screen.dart'; // Adicionado para o tutor
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui'; 
-import 'package:client/babysitter/screen.dart'; 
+import 'dart:ui';
+import 'package:client/babysitter/screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -32,69 +32,88 @@ class _HomeScreenState extends State<HomeScreen> {
   final Color _cursorColor = Color.fromARGB(255, 182, 46, 92); // Cor magenta
   bool _isMouseOverBabysitter = false;
   bool _isMouseOverParent = false;
+  bool _isBabysitter = false; // Adicionado para controle dos check-marks
+  bool _isTutor = false; // Adicionado para controle dos check-marks
 
   void _showLoginPopup() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        backgroundColor: Color.fromARGB(255, 255, 203, 214), // Cor rosa para o container
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text('Parabéns!!'),
-            IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text('Login realizado com sucesso!'),
-            SizedBox(height: 10.0), // Espaçamento entre as linhas
-            RichText(
-              text: TextSpan(
-                children: <TextSpan>[
-                  TextSpan(
-                    text: 'Para acessar os cadastros, ',
-                    style: TextStyle(color: Colors.black), // Cor do texto
-                  ),
-                  TextSpan(
-                    text: 'clique aqui',
-                    style: TextStyle(
-                      color: _cursorColor, // Cor do link
-                      decoration: TextDecoration.underline, // Sublinhado
-                      fontWeight: FontWeight.bold, // Destaca o texto
-                    ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => BabysittingRequestsPage(),
-                          ),
-                        );
-                      },
-                  ),
-                ],
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          backgroundColor:
+              Color.fromARGB(255, 255, 203, 214), // Cor rosa para o container
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('Parabéns!!'),
+              IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          // O botão "Ir para Cadastro" foi removido
-        ],
-      );
-    },
-  );
-}
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text('Login realizado com sucesso!'),
+              SizedBox(height: 10.0), // Espaçamento entre as linhas
+              RichText(
+                text: TextSpan(
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: 'Para acessar os cadastros, ',
+                      style: TextStyle(color: Colors.black), // Cor do texto
+                    ),
+                    TextSpan(
+                      text: 'clique aqui',
+                      style: TextStyle(
+                        color: _cursorColor, // Cor do link
+                        decoration: TextDecoration.underline, // Sublinhado
+                        fontWeight: FontWeight.bold, // Destaca o texto
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => _isBabysitter
+                                  ? BabysittingRequestsPage()
+                                  : CreateServicePage(), // Ajusta para a página correta
+                            ),
+                          );
+                        },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
+  void _handleLogin() {
+    if (_isBabysitter) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => BabysittingRequestsPage(),
+        ),
+      );
+    } else if (_isTutor) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => CreateServicePage(),
+        ),
+      );
+    } else {
+      // Talvez exibir uma mensagem de erro ou alerta
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -235,33 +254,79 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(color: Colors.black), // Cor do texto
                     ),
                   ),
-                  SizedBox(height: 20.0), // Espaçamento antes do botão
+                  SizedBox(
+                      height:
+                          10.0), // Espaçamento entre os campos e os check-marks
+                  Center(
+                    child: Column(
+                      mainAxisAlignment:
+                          MainAxisAlignment.center, // Centraliza os check-marks
+                      children: <Widget>[
+                        CheckboxListTile(
+                          title: Text('Entrar como Babá'),
+                          value: _isBabysitter,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              _isBabysitter = value ?? false;
+                              if (_isBabysitter) {
+                                _isTutor = false;
+                              }
+                            });
+                          },
+                          controlAffinity: ListTileControlAffinity.leading,
+                          contentPadding: EdgeInsets.zero,
+                          dense: true, // Torna o check-box menor
+                          activeColor: Color.fromARGB(255, 182, 46, 92),
+                          checkColor: Colors.white,
+                        ),
+                        CheckboxListTile(
+                          title: Text('Entrar como Responsável'),
+                          value: _isTutor,
+                          onChanged: (bool? value) {
+                            setState(() {
+                              _isTutor = value ?? false;
+                              if (_isTutor) {
+                                _isBabysitter = false;
+                              }
+                            });
+                          },
+                          controlAffinity: ListTileControlAffinity.leading,
+                          contentPadding: EdgeInsets.zero,
+                          dense: true, // Torna o check-box menor
+                          activeColor: Color.fromARGB(255, 182, 46, 92),
+                          checkColor: Colors.white,
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20.0, // Espaçamento entre os check-marks e o botão
+                  ),
                   Container(
                     width: double.infinity,
-                    padding: EdgeInsets.symmetric(horizontal: 80.0),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: 60.0), // Ajusta a largura do botão
                     child: ElevatedButton(
-                      onPressed: _showLoginPopup,
+                      onPressed: _handleLogin,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            _cursorColor, // Define a cor sólida do botão
-                        elevation: 0, // Remove a elevação do botão
+                        backgroundColor: _cursorColor,
+                        elevation: 0,
                         padding: EdgeInsets.symmetric(
-                            vertical: 12.0), // Ajusta o padding interno
+                            vertical: 18.0), // Botão "mais gordinho"
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(20.0), // Borda arredondada
+                          borderRadius: BorderRadius.circular(20.0),
                         ),
-                        minimumSize: Size(100, 50), // Tamanho mínimo do botão
-                        side: BorderSide.none, // Remove a borda do botão
+                        minimumSize: Size(double.infinity, 50),
+                        side: BorderSide.none,
                       ).copyWith(
-                        shadowColor: MaterialStateProperty.all(
-                            Colors.transparent), // Remove a sombra padrão
+                        shadowColor:
+                            MaterialStateProperty.all(Colors.transparent),
                       ),
                       child: Text(
                         'Fazer Login',
                         style: TextStyle(
-                          color: Colors.white, // Cor do texto do botão
-                          fontSize: 14.0, // Tamanho da fonte
+                          color: Colors.white,
+                          fontSize: 16.0, // Tamanho da fonte do botão
                         ),
                       ),
                     ),

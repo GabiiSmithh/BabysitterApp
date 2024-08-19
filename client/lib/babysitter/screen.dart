@@ -43,63 +43,63 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
     });
   }
 
-Future<void> _registerBabysitter() async {
-  final url = Uri.parse('http://201.23.18.202:3333/babysitters');
-  
-  // Remove todos os caracteres que não são dígitos
-  final cleanedPhoneNumber = phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
+  Future<void> _registerBabysitter() async {
+    final url = Uri.parse('http://201.23.18.202:3333/babysitters');
 
-  final response = await http.post(
-    url,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: json.encode({
-      'name': name,
-      'gender': gender,
-      'email': email,
-      'password': password,
-      'cellphone': cleanedPhoneNumber,
-      'birth_date': "${birthDate.toIso8601String()}",
-      'experience_months': int.tryParse(experienceTime) ?? 0,
-    }),
-  );
-  
+    // Remove todos os caracteres que não são dígitos
+    final cleanedPhoneNumber =
+        phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
 
-  if (response.statusCode == 201) {
-    // Cadastro realizado com sucesso
-    _showSuccessPopup();
-  } else {
-    // Falha no cadastro
-    _showFailurePopup(response.body);
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'name': name,
+        'gender': gender,
+        'email': email,
+        'password': password,
+        'cellphone': cleanedPhoneNumber,
+        'birth_date': "${birthDate.toIso8601String()}",
+        'experience_months': int.tryParse(experienceTime) ?? 0,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      // Cadastro realizado com sucesso
+      _showSuccessPopup();
+    } else {
+      // Falha no cadastro
+      _showFailurePopup(response.body);
+    }
   }
-}
 
-void _showSuccessPopup() {
-  setState(() {
-    _showPopup = true;
-  });
-}
+  void _showSuccessPopup() {
+    setState(() {
+      _showPopup = true;
+    });
+  }
 
-void _showFailurePopup(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Erro'),
-        content: Text('Falha no cadastro: $message'),
-        actions: [
-          TextButton(
-            child: Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
+  void _showFailurePopup(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Erro'),
+          content: Text('Falha no cadastro: $message'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -282,7 +282,7 @@ void _showFailurePopup(String message) {
                               // Save the form data
                               _formKey.currentState!.save();
                               // Process the sign-up data here
-                             await _registerBabysitter();
+                              await _registerBabysitter();
                             }
                           },
                           style: ElevatedButton.styleFrom(
@@ -319,7 +319,8 @@ void _showFailurePopup(String message) {
                     padding: EdgeInsets.all(20.0),
                     margin: EdgeInsets.symmetric(horizontal: 20.0),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 255, 215, 229), // Cor de fundo do container
+                      color: Color.fromARGB(
+                          255, 255, 215, 229), // Cor de fundo do container
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
@@ -352,7 +353,8 @@ void _showFailurePopup(String message) {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _cursorColor,
                             elevation: 5,
-                            padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 24.0),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 14.0, horizontal: 24.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0),
                             ),
@@ -376,7 +378,6 @@ void _showFailurePopup(String message) {
       ),
     );
   }
-
 
   DateTime? _parseDate(String dateStr) {
     try {

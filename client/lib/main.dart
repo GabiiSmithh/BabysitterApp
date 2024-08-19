@@ -1,27 +1,31 @@
-// import 'package:app/login_screen.dart';
-import 'package:client/home.dart';
 import 'package:flutter/material.dart';
-// import 'package:app/api_service.dart';
+import 'package:client/home.dart'; //login
+import 'package:client/babysitter/screen.dart'; //cadastro de babá
+import 'package:client/babysitting-services/list_services_screen.dart'; // Lista de serviços criados
+import 'package:client/babysitting-services/create_service_screen.dart'; // Criar um serviço
+import 'package:client/babysitter/babysitter_profile.dart'; // Perfil da babá
 
 void main() {
-  // ApiService.initialize('http://localhost:3000');
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Babysitter App',
       theme: ThemeData(
-        scaffoldBackgroundColor: Colors.grey[300],
-        colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blue),
-        useMaterial3: true,
+        primarySwatch: Colors.pink,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home:  HomeScreen(),
-      routes: {"/home": (context) => HomeScreen()} ,
+      home: HomeScreen(), // Tela inicial
+      routes: {
+        '/services': (context) => CreateServicePage(), // Rota para a tela de criar serviço
+        '/login': (context) => HomeScreen(), // Rota para a tela de login
+        '/cadastro': (context) => BabysitterSignUpPage(), // Rota para a tela de cadastro
+        '/profile': (context) => BabysitterProfilePage(), // Rota para a tela de perfil da babá
+        '/requests': (context) => BabysittingRequestsPage(), // Rota para a tela de solicitações
+      },
     );
   }
 }
