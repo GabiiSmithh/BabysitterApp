@@ -10,10 +10,6 @@ export class BabysitterService {
         return this.babysitterRepository.getByID(id);
     }
 
-    async getByEmail(email) {
-        return this.babysitterRepository.getByEmail(email);
-    }
-
     async list() {
         return this.babysitterRepository.list();
     }
