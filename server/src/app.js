@@ -82,19 +82,19 @@ app.get('/', (_, res) => {
 app.get('/babysitters/:user_id', babysitterHandler.getByID.bind(babysitterHandler));
 app.get('/babysitters', babysitterHandler.list.bind(babysitterHandler));
 app.post('/babysitters', babysitterHandler.create.bind(babysitterHandler));
-app.patch('/babysitters/:user_id', authMiddleware.authenticate.bind(authMiddleware), babysitterHandler.update.bind(babysitterHandler));
+app.patch('/babysitters/:user_id', babysitterHandler.update.bind(babysitterHandler));
 
 // tutor endpoints
 app.get('/tutors/:user_id', tutorHandler.getByID.bind(tutorHandler));
 app.get('/tutors', tutorHandler.list.bind(tutorHandler));
 app.post('/tutors', tutorHandler.create.bind(tutorHandler));
-app.patch('/tutors/:user_id', authMiddleware.authenticate.bind(authMiddleware), tutorHandler.update.bind(tutorHandler));
+app.patch('/tutors/:user_id', tutorHandler.update.bind(tutorHandler));
 
 // service endpoints
 app.get('/services/:service_id', serviceHandler.getByID.bind(serviceHandler));
 app.get('/services', serviceHandler.list.bind(serviceHandler));
 app.post('/services', serviceHandler.create.bind(serviceHandler));
-app.patch('/services/:service_id', authMiddleware.authenticate.bind(authMiddleware), serviceHandler.update.bind(serviceHandler));
+app.patch('/services/:service_id', serviceHandler.update.bind(serviceHandler));
 
 // auth endpoints
 app.post('/auth/login', authHandler.login.bind(authHandler));
