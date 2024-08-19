@@ -1,8 +1,8 @@
-import 'package:client/babysitting-services/list_services_screen.dart';
-import 'package:client/babysitting-services/create_service_screen.dart'; // Adicionado para o tutor
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:client/common/api_service.dart'; // Importa o ApiService
+import 'package:client/babysitting-services/list_services_screen.dart';
+import 'package:client/babysitting-services/create_service_screen.dart';
 import 'package:client/babysitter/screen.dart';
 
 void main() {
@@ -30,88 +30,74 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final Color _cursorColor = Color.fromARGB(255, 182, 46, 92); // Cor magenta
-  bool _isMouseOverBabysitter = false;
-  bool _isMouseOverParent = false;
-  bool _isBabysitter = false; // Adicionado para controle dos check-marks
-  bool _isTutor = false; // Adicionado para controle dos check-marks
+  bool _isBabysitter = false; // Controle dos check-marks
+  bool _isTutor = false; // Controle dos check-marks
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
-  void _showLoginPopup() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
+  void _handleLogin() async {
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    try {
+      final response = await ApiService.post(
+        '/auth/login', // Caminho para o endpoint de login
+        {
+          'email': email,
+          'password': password,
+        },
+      );
+
+      final userRole =
+          response['role']; // Supondo que a resposta inclui o papel do usuário
+
+      if (_isBabysitter && userRole == 'babysitter') {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => BabysittingRequestsPage(),
           ),
-          backgroundColor:
-              Color.fromARGB(255, 255, 203, 214), // Cor rosa para o container
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Text('Parabéns!!'),
-              IconButton(
-                icon: Icon(Icons.close),
+        );
+      } else if (_isTutor && userRole == 'tutor') {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => CreateServicePage(),
+          ),
+        );
+      } else {
+        // Se o papel retornado não corresponder ao selecionado, exiba uma mensagem de erro
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Erro'),
+            content: Text('Tipo de usuário inválido ou não selecionado.'),
+            actions: <Widget>[
+              TextButton(
+                child: Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text('Login realizado com sucesso!'),
-              SizedBox(height: 10.0), // Espaçamento entre as linhas
-              RichText(
-                text: TextSpan(
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: 'Para acessar os cadastros, ',
-                      style: TextStyle(color: Colors.black), // Cor do texto
-                    ),
-                    TextSpan(
-                      text: 'clique aqui',
-                      style: TextStyle(
-                        color: _cursorColor, // Cor do link
-                        decoration: TextDecoration.underline, // Sublinhado
-                        fontWeight: FontWeight.bold, // Destaca o texto
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => _isBabysitter
-                                  ? BabysittingRequestsPage()
-                                  : CreateServicePage(), // Ajusta para a página correta
-                            ),
-                          );
-                        },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
         );
-      },
-    );
-  }
-
-  void _handleLogin() {
-    if (_isBabysitter) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => BabysittingRequestsPage(),
+      }
+    } catch (e) {
+      // Exibe uma mensagem de erro
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text('Erro'),
+          content: Text('Falha na autenticação. Verifique suas credenciais.'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
         ),
       );
-    } else if (_isTutor) {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => CreateServicePage(),
-        ),
-      );
-    } else {
-      // Talvez exibir uma mensagem de erro ou alerta
     }
   }
 
@@ -181,6 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     child: TextField(
+                      controller: _emailController,
                       cursorColor: _cursorColor, // Define a cor do cursor
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.email), // Ícone de email
@@ -224,6 +211,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     child: TextField(
+                      controller: _passwordController,
                       cursorColor: _cursorColor, // Define a cor do cursor
                       obscureText: true, // Oculta o texto para o campo de senha
                       decoration: InputDecoration(
@@ -254,181 +242,161 @@ class _HomeScreenState extends State<HomeScreen> {
                       style: TextStyle(color: Colors.black), // Cor do texto
                     ),
                   ),
-                  SizedBox(
-                      height:
-                          10.0), // Espaçamento entre os campos e os check-marks
-                  Center(
-                    child: Column(
-                      mainAxisAlignment:
-                          MainAxisAlignment.center, // Centraliza os check-marks
-                      children: <Widget>[
-                        CheckboxListTile(
-                          title: Text('Entrar como Babá'),
-                          value: _isBabysitter,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              _isBabysitter = value ?? false;
-                              if (_isBabysitter) {
-                                _isTutor = false;
-                              }
-                            });
-                          },
-                          controlAffinity: ListTileControlAffinity.leading,
-                          contentPadding: EdgeInsets.zero,
-                          dense: true, // Torna o check-box menor
-                          activeColor: Color.fromARGB(255, 182, 46, 92),
-                          checkColor: Colors.white,
+                  SizedBox(height: 20.0), // Espaçamento antes dos checkboxes
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Row(
+                          children: <Widget>[
+                            Checkbox(
+                              value: _isBabysitter,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  _isBabysitter = value ?? false;
+                                  if (_isBabysitter) {
+                                    _isTutor =
+                                        false; // Desmarca o outro checkbox
+                                  }
+                                });
+                              },
+                              activeColor: _cursorColor,
+                              checkColor: Colors.white,
+                            ),
+                            Text('Babá'),
+                          ],
                         ),
-                        CheckboxListTile(
-                          title: Text('Entrar como Responsável'),
-                          value: _isTutor,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              _isTutor = value ?? false;
-                              if (_isTutor) {
-                                _isBabysitter = false;
-                              }
-                            });
-                          },
-                          controlAffinity: ListTileControlAffinity.leading,
-                          contentPadding: EdgeInsets.zero,
-                          dense: true, // Torna o check-box menor
-                          activeColor: Color.fromARGB(255, 182, 46, 92),
-                          checkColor: Colors.white,
+                      ),
+                      Expanded(
+                        child: Row(
+                          children: <Widget>[
+                            Checkbox(
+                              value: _isTutor,
+                              onChanged: (bool? value) {
+                                setState(() {
+                                  _isTutor = value ?? false;
+                                  if (_isTutor) {
+                                    _isBabysitter =
+                                        false; // Desmarca o outro checkbox
+                                  }
+                                });
+                              },
+                              activeColor: _cursorColor,
+                              checkColor: Colors.white,
+                            ),
+                            Text('Tutor'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20.0), // Espaçamento antes do botão
+                  ElevatedButton(
+                    onPressed: _handleLogin,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _cursorColor,
+                      padding: EdgeInsets.symmetric(
+                          vertical: 25.0,
+                          horizontal:
+                              40.0), // Aumente esses valores para deixar o botão mais gordinho
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(30.0), // Arredonda as bordas
+                      ),
+                    ),
+                    child: Text(
+                      'Fazer Login',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18.0, // Tamanho da fonte
+                      ),
+                    ),
+                  ),
+
+                  Spacer(), // Empurra o texto para baixo
+                  Container(
+                    alignment: Alignment.bottomCenter,
+                    padding: EdgeInsets.all(20.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          'Ainda não possui uma conta?',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          BabysitterSignUpPage(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Cadastrar-se como Babá',
+                                  style: TextStyle(
+                                    color: _cursorColor,
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: _cursorColor,
+                                    decorationThickness: 2.0,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 10.0),
+                            Text(
+                              'ou',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 16.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(width: 10.0),
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () {
+                                  // Navigator.push(
+                                  //context,
+                                  //MaterialPageRoute(
+                                  //builder: (context) => ResponsibleSignUpPage(),
+                                  // ),
+                                  //);
+                                },
+                                child: Text(
+                                  'Cadastrar-se como Responsável',
+                                  style: TextStyle(
+                                    color: _cursorColor,
+                                    fontSize: 16.0,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: _cursorColor,
+                                    decorationThickness: 2.0,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(
-                    height: 20.0, // Espaçamento entre os check-marks e o botão
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.symmetric(
-                        horizontal: 60.0), // Ajusta a largura do botão
-                    child: ElevatedButton(
-                      onPressed: _handleLogin,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: _cursorColor,
-                        elevation: 0,
-                        padding: EdgeInsets.symmetric(
-                            vertical: 18.0), // Botão "mais gordinho"
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                        ),
-                        minimumSize: Size(double.infinity, 50),
-                        side: BorderSide.none,
-                      ).copyWith(
-                        shadowColor:
-                            MaterialStateProperty.all(Colors.transparent),
-                      ),
-                      child: Text(
-                        'Fazer Login',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0, // Tamanho da fonte do botão
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
-            ),
-          ),
-          Container(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              children: <Widget>[
-                Text(
-                  'Ainda não possui uma conta?',
-                  style: TextStyle(
-                    color: Colors.black, // Cor do texto
-                    fontSize: 16.0, // Tamanho da fonte
-                    fontWeight: FontWeight.bold, // Destaca o texto
-                  ),
-                ),
-                SizedBox(height: 10.0), // Espaçamento entre o texto e os links
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    MouseRegion(
-                      onEnter: (_) {
-                        setState(() {
-                          _isMouseOverBabysitter = true;
-                        });
-                      },
-                      onExit: (_) {
-                        setState(() {
-                          _isMouseOverBabysitter = false;
-                        });
-                      },
-                      child: GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => BabysitterSignUpPage(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          'Cadastrar-se como Babá',
-                          style: TextStyle(
-                            color: _cursorColor, // Cor do texto clicável
-                            fontSize: 16.0, // Tamanho da fonte
-                            fontWeight: FontWeight.bold, // Destaca o texto
-                            decoration: _isMouseOverBabysitter
-                                ? TextDecoration.underline
-                                : TextDecoration.none,
-                            decorationColor: _cursorColor, // Cor do sublinhado
-                            decorationThickness: 2.0, // Espessura do sublinhado
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 10.0), // Espaçamento entre os links
-                    Text(
-                      'ou',
-                      style: TextStyle(
-                        color: Colors.black, // Cor do texto
-                        fontSize: 16.0, // Tamanho da fonte
-                        fontWeight: FontWeight.bold, // Destaca o texto
-                      ),
-                    ),
-                    SizedBox(width: 10.0), // Espaçamento entre os links
-                    MouseRegion(
-                      onEnter: (_) {
-                        setState(() {
-                          _isMouseOverParent = true;
-                        });
-                      },
-                      onExit: (_) {
-                        setState(() {
-                          _isMouseOverParent = false;
-                        });
-                      },
-                      child: GestureDetector(
-                        onTap: () {
-                          // Ação ao clicar
-                        },
-                        child: Text(
-                          'Cadastrar-se como Responsável',
-                          style: TextStyle(
-                            color: _cursorColor, // Cor do texto clicável
-                            fontSize: 16.0, // Tamanho da fonte
-                            fontWeight: FontWeight.bold, // Destaca o texto
-                            decoration: _isMouseOverParent
-                                ? TextDecoration.underline
-                                : TextDecoration.none,
-                            decorationColor: _cursorColor, // Cor do sublinhado
-                            decorationThickness: 2.0, // Espessura do sublinhado
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ),
           ),
         ],
