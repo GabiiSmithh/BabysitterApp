@@ -1,10 +1,10 @@
 // import 'package:app/login_screen.dart';
+import 'package:client/common/api_service.dart';
 import 'package:client/home.dart';
 import 'package:flutter/material.dart';
-// import 'package:app/api_service.dart';
 
 void main() {
-  // ApiService.initialize('http://localhost:3000');
+  ApiService.initialize('http://localhost:3000');
   runApp(const MyApp());
 }
 
