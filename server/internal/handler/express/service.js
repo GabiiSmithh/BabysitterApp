@@ -62,6 +62,10 @@ export class ExpressServiceHandler {
 
             const updatedService = await this.serviceService.update(updateServiceDTO);
 
+            if (!updatedService) {
+                return res.status(404).json({ message: 'Service not found.' });
+            }
+
             return res.status(200).json(updatedService);
         } catch (error) {
             // TODO: return correct status for different cases

@@ -71,6 +71,10 @@ export class ExpressBabysitterHandler {
 
             const updatedBabysitter = await this.babysitterService.update(updateBabysitterDTO);
 
+            if (!updateBabysitterDTO) {
+                return res.status(404).json({ message: 'Babysitter not found.' });
+            }
+
             delete updatedBabysitter.password;
 
             return res.status(200).json(updatedBabysitter);

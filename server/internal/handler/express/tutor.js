@@ -73,6 +73,10 @@ export class ExpressTutorHandler {
 
             const updatedTutor = await this.tutorService.update(updateTutorDTO);
 
+            if (!updatedTutor) {
+                return res.status(404).json({ message: 'Tutor not found.' });
+            }
+
             delete updatedTutor.password;
 
             return res.status(200).json(updatedTutor);
