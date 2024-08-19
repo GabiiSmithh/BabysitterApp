@@ -1,3 +1,4 @@
+import 'package:client/babysitting-services/create_service_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -196,6 +197,16 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
                 },
               ),
             ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CreateServicePage()),
+          );
+        },
+        backgroundColor: Color.fromARGB(255, 182, 46, 92),
+        child: Icon(Icons.add),
+      ),
     );
   }
 
