@@ -1,9 +1,11 @@
 import 'package:client/babysitter/babysitter_list.dart';
 import 'package:client/babysitting-services/list_services_screen.dart';
+import 'package:client/common/auth_service.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'dart:ui'; 
-import 'package:client/babysitter/screen.dart'; 
+import 'dart:ui';
+import 'package:client/babysitter/screen.dart';
+import 'package:http/http.dart';
 
 void main() {
   runApp(MyApp());
@@ -33,68 +35,113 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isMouseOverBabysitter = false;
   bool _isMouseOverParent = false;
 
-  void _showLoginPopup() {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        backgroundColor: Color.fromARGB(255, 255, 203, 214), // Cor rosa para o container
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: <Widget>[
-            Text('Parabéns!!'),
-            IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text('Login realizado com sucesso!'),
-            SizedBox(height: 10.0), // Espaçamento entre as linhas
-            RichText(
-              text: TextSpan(
-                children: <TextSpan>[
-                  TextSpan(
-                    text: 'Para acessar os cadastros, ',
-                    style: TextStyle(color: Colors.black), // Cor do texto
-                  ),
-                  TextSpan(
-                    text: 'clique aqui',
-                    style: TextStyle(
-                      color: _cursorColor, // Cor do link
-                      decoration: TextDecoration.underline, // Sublinhado
-                      fontWeight: FontWeight.bold, // Destaca o texto
-                    ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => BabysittingRequestsPage(),
-                          ),
-                        );
-                      },
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          // O botão "Ir para Cadastro" foi removido
-        ],
-      );
-    },
-  );
-}
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
 
+  void login() async {
+    String email = _emailController.text;
+    String password = _passwordController.text;
+
+    try {
+      await AuthService.login(email, password);
+      _showLoginPopup();
+    } catch (e) {
+      _showLoginPopupFail();
+    }
+  }
+
+  void _showLoginPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          backgroundColor:
+              Color.fromARGB(255, 255, 203, 214), // Cor rosa para o container
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('Parabéns!!'),
+              IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Text('Login realizado com sucesso!'),
+              SizedBox(height: 10.0), // Espaçamento entre as linhas
+              RichText(
+                text: TextSpan(
+                  children: <TextSpan>[
+                    TextSpan(
+                      text: 'Para acessar os cadastros, ',
+                      style: TextStyle(color: Colors.black), // Cor do texto
+                    ),
+                    TextSpan(
+                      text: 'clique aqui',
+                      style: TextStyle(
+                        color: _cursorColor, // Cor do link
+                        decoration: TextDecoration.underline, // Sublinhado
+                        fontWeight: FontWeight.bold, // Destaca o texto
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => BabysittingRequestsPage(),
+                            ),
+                          );
+                        },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            // O botão "Ir para Cadastro" foi removido
+          ],
+        );
+      },
+    );
+  }
+
+  void _showLoginPopupFail() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20.0),
+          ),
+          backgroundColor:
+              Color.fromARGB(255, 255, 203, 214), // Cor rosa para o container
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text('Usuário ou senha inválidos, tente novamente.'),
+              IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            // O botão "Ir para Cadastro" foi removido
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     child: TextField(
+                      controller: _emailController,
                       cursorColor: _cursorColor, // Define a cor do cursor
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.email), // Ícone de email
@@ -205,6 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     child: TextField(
+                      controller: _passwordController,
                       cursorColor: _cursorColor, // Define a cor do cursor
                       obscureText: true, // Oculta o texto para o campo de senha
                       decoration: InputDecoration(
@@ -240,7 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(horizontal: 80.0),
                     child: ElevatedButton(
-                      onPressed: _showLoginPopup,
+                      onPressed: login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                             _cursorColor, // Define a cor sólida do botão
