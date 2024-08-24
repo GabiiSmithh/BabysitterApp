@@ -1,3 +1,4 @@
+import 'package:client/babysitting-services/components/request_card.dart';
 import 'package:client/babysitting-services/model.dart';
 import 'package:client/babysitting-services/service.dart';
 import 'package:flutter/material.dart';
@@ -125,121 +126,15 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
             itemCount: requests.length,
             itemBuilder: (context, index) {
               final request = requests[index];
-              return Container(
-                margin: const EdgeInsets.only(bottom: 16.0),
-                child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15.0),
-                  ),
-                  elevation: 4.0,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(16.0),
-                        decoration: BoxDecoration(
-                          color: Colors.pink[100], // Tom de rosa claro
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(15.0),
-                            topRight: Radius.circular(15.0),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                request.tutorId,
-                                style: TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.child_care,
-                                    color: Colors.pinkAccent),
-                                SizedBox(width: 8.0),
-                                Text(
-                                  '${request.childrenCount} Crianças',
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8.0),
-                            Row(
-                              children: [
-                                Icon(Icons.calendar_today,
-                                    color: Colors.pinkAccent),
-                                SizedBox(width: 8.0),
-                                Text(
-                                  'Início: ${_formatDateTime(request.startDate)}',
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8.0),
-                            Row(
-                              children: [
-                                Icon(Icons.calendar_today_outlined,
-                                    color: Colors.pinkAccent),
-                                SizedBox(width: 8.0),
-                                Text(
-                                  'Término: ${_formatDateTime(request.endDate)}',
-                                  style: TextStyle(
-                                    fontSize: 16.0,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 16.0),
-                            ElevatedButton(
-                              onPressed: () {
-                                // Handle accepting the request
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Solicitação Aceita')),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Color.fromARGB(255, 182, 46, 92),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 14.0, horizontal: 24.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30.0),
-                                ),
-                              ),
-                              child: Text(
-                                'Candidatar-se',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14.0,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              return RequestCard(
+                tutorName: request.tutorId,
+                childrenCount: request.childrenCount,
+                startDate: request.startDate,
+                endDate: request.endDate,
+                address: request.address,
+                value: request.value.toInt(),
+                id: request.id,
+                onAccept: () => {print("Aceitado")},
               );
             },
           )),
