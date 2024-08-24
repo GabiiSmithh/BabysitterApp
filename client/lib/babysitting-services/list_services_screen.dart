@@ -1,4 +1,5 @@
-import 'package:client/babysitting-services/create_service_screen.dart';
+import 'package:client/babysitting-services/model.dart';
+import 'package:client/babysitting-services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -10,7 +11,7 @@ class BabysittingRequestsPage extends StatefulWidget {
 }
 
 class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
-  List<BabysittingRequest> requests = [];
+  List<BabysittingService> requests = [];
 
   @override
   void initState() {
@@ -19,19 +20,15 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
   }
 
   Future<void> fetchRequests() async {
-    final url = Uri.parse('http://201.23.18.202:3333/services');
-    final response = await http.get(url);
+    try {
+      final data = await BabySittingService.getBabySittingServiceList();
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
       setState(() {
-        requests =
-            data.map((json) => BabysittingRequest.fromJson(json)).toList();
+        requests = data;
       });
-    } else {
-      // Handle error
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load requests')),
+        const SnackBar(content: Text('Failed to load requests')),
       );
     }
   }
@@ -151,7 +148,7 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
                           children: [
                             Expanded(
                               child: Text(
-                                "request.tutorName",
+                                request.tutorId,
                                 style: TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.bold,
@@ -173,7 +170,7 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
                                     color: Colors.pinkAccent),
                                 SizedBox(width: 8.0),
                                 Text(
-                                  '1 Crianças',
+                                  '${request.childrenCount} Crianças',
                                   style: TextStyle(
                                     fontSize: 16.0,
                                     color: Colors.black54,
@@ -251,40 +248,5 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
 
   String _formatDateTime(DateTime dateTime) {
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} às ${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
-  }
-}
-
-class BabysittingRequest {
-  final String id;
-  final String? babysitterId;
-  final String tutorId;
-  final DateTime startDate;
-  final DateTime endDate;
-  final double value;
-  final int childrenCount;
-  final String address;
-
-  BabysittingRequest({
-    required this.id,
-    this.babysitterId,
-    required this.tutorId,
-    required this.startDate,
-    required this.endDate,
-    required this.value,
-    required this.childrenCount,
-    required this.address,
-  });
-
-  factory BabysittingRequest.fromJson(Map<String, dynamic> json) {
-    return BabysittingRequest(
-      id: json['id'],
-      babysitterId: json['babysitterId'],
-      tutorId: json['tutorId'],
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
-      value: json['value'].toDouble(),
-      childrenCount: json['childrenCount'],
-      address: json['address'],
-    );
   }
 }
