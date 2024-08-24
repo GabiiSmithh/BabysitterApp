@@ -1,6 +1,6 @@
 import 'dart:ui';
+import 'package:client/common/auth_service.dart';
 import 'package:flutter/material.dart';
-import 'package:client/common/api_service.dart'; 
 import 'package:client/babysitting-services/list_services_screen.dart';
 import 'package:client/babysitting-services/create_service_screen.dart';
 import 'package:client/babysitter/screen.dart';
@@ -29,9 +29,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Color _cursorColor = Color.fromARGB(255, 182, 46, 92); // Cor magenta
-  bool _isBabysitter = false; // Controle dos check-marks
-  bool _isTutor = false; // Controle dos check-marks
+  final Color _cursorColor = Color.fromARGB(255, 182, 46, 92); 
+  bool _isBabysitter = false; 
+  bool _isTutor = false; 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -40,14 +40,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final password = _passwordController.text;
 
     try {
-      final response = await ApiService.post(
-        'auth/login', 
-        {
-          'email': email,
-          'password': password,
-        },
+      await AuthService.login(
+        email,
+        password,
       );
-
 
       if (_isBabysitter) {
         Navigator.of(context).push(
@@ -62,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       } else {
-        // Se o papel retornado não corresponder ao selecionado, exiba uma mensagem de erro
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
@@ -103,41 +98,41 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:
-          const Color.fromARGB(255, 255, 215, 229), // Define o fundo rosa bebê
+          const Color.fromARGB(255, 255, 215, 229),
       body: Column(
         children: <Widget>[
           Container(
             decoration: BoxDecoration(
-              color: _cursorColor, // Cor magenta
+              color: _cursorColor, 
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(
-                    100.0), // Arredonda o canto inferior esquerdo
+                    100.0),
                 bottomRight: Radius.circular(
-                    0.0), // Remove o arredondamento do canto inferior direito
+                    0.0), 
               ),
             ),
             height: MediaQuery.of(context).size.height *
-                0.4, // Ajusta a altura para ocupar mais espaço
-            width: double.infinity, // Ocupa toda a largura da tela
+                0.4,
+            width: double.infinity, 
             child: Center(
               child: Container(
-                width: 150.0, // Largura do fundo circular
-                height: 150.0, // Altura do fundo circular
+                width: 150.0, 
+                height: 150.0, 
                 decoration: BoxDecoration(
-                  color: Colors.white, // Fundo branco
-                  shape: BoxShape.circle, // Forma circular
+                  color: Colors.white, 
+                  shape: BoxShape.circle, 
                 ),
                 child: Center(
                   child: ClipOval(
                     child: BackdropFilter(
                       filter: ImageFilter.blur(
-                          sigmaX: 10.0, sigmaY: 10.0), // Desfoca a imagem
+                          sigmaX: 10.0, sigmaY: 10.0), 
                       child: Image.asset(
-                        'images/babysitter.png', // Caminho para a sua imagem
-                        width: 150.0, // Largura da imagem
-                        height: 150.0, // Altura da imagem
+                        'images/babysitter.png', 
+                        width: 150.0, 
+                        height: 150.0,
                         fit: BoxFit
-                            .cover, // Ajusta a imagem para cobrir o círculo
+                            .cover, 
                       ),
                     ),
                   ),
@@ -152,95 +147,95 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 children: <Widget>[
                   AnimatedContainer(
-                    duration: Duration(milliseconds: 300),
-                    margin: EdgeInsets.only(bottom: 10.0),
-                    decoration: BoxDecoration(
+                    duration: const Duration(milliseconds: 300),
+                    margin: const EdgeInsets.only(bottom: 10.0),
+                    decoration: const BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black26, // Cor da sombra
-                          blurRadius: 10.0, // Desfoque da sombra
+                          color: Colors.black26, 
+                          blurRadius: 10.0, 
                           offset: Offset(2,
-                              4), // Deslocamento da sombra (abaixo e para a direita)
+                              4), 
                         ),
                       ],
                     ),
                     child: TextField(
                       controller: _emailController,
-                      cursorColor: _cursorColor, // Define a cor do cursor
+                      cursorColor: _cursorColor, 
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.email), // Ícone de email
+                        prefixIcon: const Icon(Icons.email), 
                         labelText: 'Email',
                         labelStyle: TextStyle(
-                            color: Colors.grey[600]), // Cor da label padrão
-                        filled: true, // Habilita a cor de fundo
-                        fillColor: Colors.grey[200], // Cor de fundo cinza claro
+                            color: Colors.grey[600]), 
+                        filled: true,
+                        fillColor: Colors.grey[200], 
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                              30.0), // Arredonda as bordas
-                          borderSide: BorderSide.none, // Remove a borda padrão
+                              30.0), 
+                          borderSide: BorderSide.none, 
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                              30.0), // Arredonda as bordas
+                              30.0),
                           borderSide: BorderSide(
                               color:
-                                  _cursorColor), // Borda magenta quando em foco
+                                  _cursorColor),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                              30.0), // Arredonda as bordas
-                          borderSide: BorderSide.none, // Remove a borda padrão
+                              30.0), 
+                          borderSide: BorderSide.none,
                         ),
                       ),
-                      style: TextStyle(color: Colors.black), // Cor do texto
+                      style: TextStyle(color: Colors.black), 
                     ),
                   ),
-                  SizedBox(height: 10.0), // Espaçamento entre os campos
+                  SizedBox(height: 10.0),
                   AnimatedContainer(
                     duration: Duration(milliseconds: 300),
                     decoration: BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black26, // Cor da sombra
-                          blurRadius: 10.0, // Desfoque da sombra
+                          color: Colors.black26,
+                          blurRadius: 10.0, 
                           offset: Offset(2,
-                              4), // Deslocamento da sombra (abaixo e para a direita)
+                              4),
                         ),
                       ],
                     ),
                     child: TextField(
                       controller: _passwordController,
-                      cursorColor: _cursorColor, // Define a cor do cursor
-                      obscureText: true, // Oculta o texto para o campo de senha
+                      cursorColor: _cursorColor,
+                      obscureText: true,
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.lock), // Ícone de senha
+                        prefixIcon: Icon(Icons.lock), 
                         labelText: 'Senha',
                         labelStyle: TextStyle(
-                            color: Colors.grey[600]), // Cor da label padrão
-                        filled: true, // Habilita a cor de fundo
-                        fillColor: Colors.grey[200], // Cor de fundo cinza claro
+                            color: Colors.grey[600]),
+                        filled: true, 
+                        fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                              30.0), // Arredonda as bordas
-                          borderSide: BorderSide.none, // Remove a borda padrão
+                              30.0),
+                          borderSide: BorderSide.none, 
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                              30.0), // Arredonda as bordas
+                              30.0), 
                           borderSide: BorderSide(
                               color:
-                                  _cursorColor), // Borda magenta quando em foco
+                                  _cursorColor),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(
-                              30.0), // Arredonda as bordas
-                          borderSide: BorderSide.none, // Remove a borda padrão
+                              30.0), 
+                          borderSide: BorderSide.none, 
                         ),
                       ),
-                      style: TextStyle(color: Colors.black), // Cor do texto
+                      style: TextStyle(color: Colors.black), 
                     ),
                   ),
-                  SizedBox(height: 20.0), // Espaçamento antes dos checkboxes
+                  SizedBox(height: 20.0), 
                   Row(
                     children: <Widget>[
                       Expanded(
@@ -253,7 +248,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   _isBabysitter = value ?? false;
                                   if (_isBabysitter) {
                                     _isTutor =
-                                        false; // Desmarca o outro checkbox
+                                        false; 
                                   }
                                 });
                               },
@@ -274,7 +269,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   _isTutor = value ?? false;
                                   if (_isTutor) {
                                     _isBabysitter =
-                                        false; // Desmarca o outro checkbox
+                                        false; 
                                   }
                                 });
                               },
@@ -287,7 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20.0), // Espaçamento antes do botão
+                  SizedBox(height: 20.0), 
                   ElevatedButton(
                     onPressed: _handleLogin,
                     style: ElevatedButton.styleFrom(
@@ -295,22 +290,22 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: EdgeInsets.symmetric(
                           vertical: 25.0,
                           horizontal:
-                              40.0), // Aumente esses valores para deixar o botão mais gordinho
+                              40.0), 
                       shape: RoundedRectangleBorder(
                         borderRadius:
-                            BorderRadius.circular(30.0), // Arredonda as bordas
+                            BorderRadius.circular(30.0), 
                       ),
                     ),
                     child: Text(
                       'Fazer Login',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18.0, // Tamanho da fonte
+                        fontSize: 18.0, 
                       ),
                     ),
                   ),
 
-                  Spacer(), // Empurra o texto para baixo
+                  Spacer(), 
                   Container(
                     alignment: Alignment.bottomCenter,
                     padding: EdgeInsets.all(20.0),
