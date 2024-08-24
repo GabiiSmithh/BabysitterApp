@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:client/common/api_service.dart'; // Importa o ApiService
+import 'package:client/common/api_service.dart'; 
 import 'package:client/babysitting-services/list_services_screen.dart';
 import 'package:client/babysitting-services/create_service_screen.dart';
 import 'package:client/babysitter/screen.dart';
@@ -41,23 +41,21 @@ class _HomeScreenState extends State<HomeScreen> {
 
     try {
       final response = await ApiService.post(
-        '/auth/login', // Caminho para o endpoint de login
+        'auth/login', 
         {
           'email': email,
           'password': password,
         },
       );
 
-      final userRole =
-          response['role']; // Supondo que a resposta inclui o papel do usuário
 
-      if (_isBabysitter && userRole == 'babysitter') {
+      if (_isBabysitter) {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => BabysittingRequestsPage(),
           ),
         );
-      } else if (_isTutor && userRole == 'tutor') {
+      } else if (_isTutor) {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) => CreateServicePage(),

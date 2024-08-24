@@ -1,4 +1,7 @@
+import 'package:client/babysitting-services/create_service_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class BabysittingRequestsPage extends StatefulWidget {
   @override
@@ -7,26 +10,31 @@ class BabysittingRequestsPage extends StatefulWidget {
 }
 
 class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
-  final List<BabysittingRequest> requests = [
-    BabysittingRequest(
-      tutorName: 'Joao Teste',
-      numberOfChildren: 2,
-      startDate: DateTime(2024, 8, 14, 9, 0),
-      endDate: DateTime(2024, 8, 14, 17, 0),
-    ),
-    BabysittingRequest(
-      tutorName: 'Joao Teste 2',
-      numberOfChildren: 1,
-      startDate: DateTime(2024, 8, 15, 8, 30),
-      endDate: DateTime(2024, 8, 15, 12, 30),
-    ),
-    BabysittingRequest(
-      tutorName: 'Alice Maria',
-      numberOfChildren: 3,
-      startDate: DateTime(2024, 8, 16, 14, 0),
-      endDate: DateTime(2024, 8, 16, 20, 0),
-    ),
-  ];
+  List<BabysittingRequest> requests = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchRequests();
+  }
+
+  Future<void> fetchRequests() async {
+    final url = Uri.parse('http://201.23.18.202:3333/services');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        requests =
+            data.map((json) => BabysittingRequest.fromJson(json)).toList();
+      });
+    } else {
+      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load requests')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -115,136 +123,137 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: requests.length,
-          itemBuilder: (context, index) {
-            final request = requests[index];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 16.0),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15.0),
-                ),
-                elevation: 4.0,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Colors.pink[100], // Tom de rosa claro
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(15.0),
-                          topRight: Radius.circular(15.0),
+          padding: const EdgeInsets.all(16.0),
+          child: ListView.builder(
+            itemCount: requests.length,
+            itemBuilder: (context, index) {
+              final request = requests[index];
+              return Container(
+                margin: const EdgeInsets.only(bottom: 16.0),
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15.0),
+                  ),
+                  elevation: 4.0,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        decoration: BoxDecoration(
+                          color: Colors.pink[100], // Tom de rosa claro
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(15.0),
+                            topRight: Radius.circular(15.0),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.pinkAccent,
+                              child: Text(
+                                "request.tutorName[0]", // Inicial do nome
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            SizedBox(width: 12.0),
+                            Expanded(
+                              child: Text(
+                                "request.tutorName",
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.pinkAccent,
-                            child: Text(
-                              request.tutorName[0], // Inicial do nome
-                              style: TextStyle(color: Colors.white),
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(Icons.child_care,
+                                    color: Colors.pinkAccent),
+                                SizedBox(width: 8.0),
+                                Text(
+                                  '1 Crianças',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          SizedBox(width: 12.0),
-                          Expanded(
-                            child: Text(
-                              request.tutorName,
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
+                            SizedBox(height: 8.0),
+                            Row(
+                              children: [
+                                Icon(Icons.calendar_today,
+                                    color: Colors.pinkAccent),
+                                SizedBox(width: 8.0),
+                                Text(
+                                  'Início: ${_formatDateTime(request.startDate)}',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 8.0),
+                            Row(
+                              children: [
+                                Icon(Icons.calendar_today_outlined,
+                                    color: Colors.pinkAccent),
+                                SizedBox(width: 8.0),
+                                Text(
+                                  'Término: ${_formatDateTime(request.endDate)}',
+                                  style: TextStyle(
+                                    fontSize: 16.0,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 16.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                // Handle accepting the request
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Solicitação Aceita')),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Color.fromARGB(255, 182, 46, 92),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 14.0, horizontal: 24.0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                              ),
+                              child: Text(
+                                'Candidatar-se',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 14.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.child_care, color: Colors.pinkAccent),
-                              SizedBox(width: 8.0),
-                              Text(
-                                '${request.numberOfChildren} Crianças',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8.0),
-                          Row(
-                            children: [
-                              Icon(Icons.calendar_today,
-                                  color: Colors.pinkAccent),
-                              SizedBox(width: 8.0),
-                              Text(
-                                'Início: ${_formatDateTime(request.startDate)}',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 8.0),
-                          Row(
-                            children: [
-                              Icon(Icons.calendar_today_outlined,
-                                  color: Colors.pinkAccent),
-                              SizedBox(width: 8.0),
-                              Text(
-                                'Término: ${_formatDateTime(request.endDate)}',
-                                style: TextStyle(
-                                  fontSize: 16.0,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 16.0),
-                          ElevatedButton(
-                            onPressed: () {
-                              // Handle accepting the request
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Solicitação Aceita')),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(255, 182, 46, 92),
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 14.0, horizontal: 24.0),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30.0),
-                              ),
-                            ),
-                            child: Text(
-                              'Candidatar-se',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 14.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
-      ),
+              );
+            },
+          )),
     );
   }
 
@@ -254,15 +263,36 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
 }
 
 class BabysittingRequest {
-  final String tutorName;
-  final int numberOfChildren;
+  final String id;
+  final String? babysitterId;
+  final String tutorId;
   final DateTime startDate;
   final DateTime endDate;
+  final double value;
+  final int childrenCount;
+  final String address;
 
   BabysittingRequest({
-    required this.tutorName,
-    required this.numberOfChildren,
+    required this.id,
+    this.babysitterId,
+    required this.tutorId,
     required this.startDate,
     required this.endDate,
+    required this.value,
+    required this.childrenCount,
+    required this.address,
   });
+
+  factory BabysittingRequest.fromJson(Map<String, dynamic> json) {
+    return BabysittingRequest(
+      id: json['id'],
+      babysitterId: json['babysitterId'],
+      tutorId: json['tutorId'],
+      startDate: DateTime.parse(json['startDate']),
+      endDate: DateTime.parse(json['endDate']),
+      value: json['value'].toDouble(),
+      childrenCount: json['childrenCount'],
+      address: json['address'],
+    );
+  }
 }
