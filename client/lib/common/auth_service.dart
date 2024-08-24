@@ -10,7 +10,6 @@ class AuthService {
       };
       final response = await ApiService.post('auth/login', payload);
       final token = response['token']; 
-      print('rtoken >>>>>>>>>>>>>>> $token');
       if (token != null) {
         ApiService.setAuthorizationToken(token);
         return token;
