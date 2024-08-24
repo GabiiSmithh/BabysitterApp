@@ -149,14 +149,6 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
                         ),
                         child: Row(
                           children: [
-                            CircleAvatar(
-                              backgroundColor: Colors.pinkAccent,
-                              child: Text(
-                                "request.tutorName[0]", // Inicial do nome
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            SizedBox(width: 12.0),
                             Expanded(
                               child: Text(
                                 "request.tutorName",
