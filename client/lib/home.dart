@@ -1,10 +1,9 @@
 import 'dart:ui';
+import 'package:client/babysitter-register/screen.dart';
 import 'package:client/common/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:client/babysitting-services/list_services_screen.dart';
 import 'package:client/babysitting-services/create_service_screen.dart';
-import 'package:client/babysitter/screen.dart';
-
 void main() {
   runApp(MyApp());
 }

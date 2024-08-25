@@ -1,4 +1,4 @@
-import 'package:client/babysitter/service.dart';
+import 'package:client/babysitter-register/service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
@@ -57,7 +57,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
         'experience_months': int.tryParse(experienceTime) ?? 0,
       };
 
-      await BabySitterService.createBabySitter(payload);
+      await BabySitterRegisterService.createBabySitter(payload);
       _showSuccessPopup();
 
       Navigator.of(context).pushNamed('/my-services');

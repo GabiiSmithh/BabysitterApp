@@ -1,17 +1,6 @@
 import 'package:client/common/api_service.dart';
 
 class BabySitterService {
-  static Future createBabySitter(
-    payload,
-  ) async {
-    try {
-      await ApiService.post('babysitters', payload);
-    } catch (e) {
-      print('Error creating BabySitter: $e');
-      rethrow;
-    }
-  }
-
   static Future updateBabySitter(String id, String phone, String experienceTime) async {
     try {
       final payload = {
