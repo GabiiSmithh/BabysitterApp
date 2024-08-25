@@ -2,8 +2,6 @@ import 'package:client/babysitting-services/components/request_card.dart';
 import 'package:client/babysitting-services/model.dart';
 import 'package:client/babysitting-services/service.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class BabysittingRequestsPage extends StatefulWidget {
   @override
@@ -12,7 +10,7 @@ class BabysittingRequestsPage extends StatefulWidget {
 }
 
 class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
-  List<BabysittingService> services = [];
+  List<BabySittingServiceData> services = [];
 
   @override
   void initState() {
@@ -24,6 +22,7 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
     try {
       final data = await BabySittingService.getBabySittingServiceList();
 
+      print("data: $data");
       setState(() {
         services = data;
       });

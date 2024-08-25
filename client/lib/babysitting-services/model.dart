@@ -1,16 +1,16 @@
-class BabysittingService {
+class BabySittingServiceData {
   final String id;
   final String? babysitterId;
   final String tutorId;
   final DateTime startDate;
   final DateTime endDate;
-  final double value;
+  final int value;
   final int childrenCount;
   final String address;
 
-  BabysittingService({
+  const BabySittingServiceData({
     required this.id,
-    this.babysitterId,
+    required this.babysitterId,
     required this.tutorId,
     required this.startDate,
     required this.endDate,
@@ -19,14 +19,14 @@ class BabysittingService {
     required this.address,
   });
 
-  factory BabysittingService.fromJson(Map<String, dynamic> json) {
-    return BabysittingService(
+  factory BabySittingServiceData.fromJson(Map<String, dynamic> json) {
+    return BabySittingServiceData(
       id: json['id'],
       babysitterId: json['babysitterId'],
       tutorId: json['tutorId'],
       startDate: DateTime.parse(json['startDate']),
       endDate: DateTime.parse(json['endDate']),
-      value: json['value'].toDouble(),
+      value: json['value'],
       childrenCount: json['childrenCount'],
       address: json['address'],
     );

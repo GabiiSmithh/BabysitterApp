@@ -15,7 +15,8 @@ class ApiService {
     _defaultHeaders['Authorization'] = token;
   }
 
-  static Future<Map<String, dynamic>> get(String path, {Map<String, String>? headers}) async {
+  static Future<dynamic> get(String path,
+      {Map<String, String>? headers}) async {
     final response = await http.get(
       Uri.parse('$_baseUrl/$path'),
       headers: {..._defaultHeaders, ...?headers},
@@ -28,7 +29,9 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> post(String path, Map<String, dynamic> payload, {Map<String, String>? headers}) async {
+  static Future<Map<String, dynamic>> post(
+      String path, Map<String, dynamic> payload,
+      {Map<String, String>? headers}) async {
     final response = await http.post(
       Uri.parse('$_baseUrl/$path'),
       headers: {..._defaultHeaders, ...?headers},
@@ -42,7 +45,9 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> put(String path, Map<String, dynamic> payload, {Map<String, String>? headers}) async {
+  static Future<Map<String, dynamic>> put(
+      String path, Map<String, dynamic> payload,
+      {Map<String, String>? headers}) async {
     final response = await http.put(
       Uri.parse('$_baseUrl/$path'),
       headers: {..._defaultHeaders, ...?headers},
@@ -56,7 +61,9 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>> patch(String path, Map<String, dynamic> payload, {Map<String, String>? headers}) async {
+  static Future<Map<String, dynamic>> patch(
+      String path, Map<String, dynamic> payload,
+      {Map<String, String>? headers}) async {
     final response = await http.patch(
       Uri.parse('$_baseUrl/$path'),
       headers: {..._defaultHeaders, ...?headers},
@@ -70,7 +77,8 @@ class ApiService {
     }
   }
 
-  static Future<void> delete(String path, {Map<String, String>? headers}) async {
+  static Future<void> delete(String path,
+      {Map<String, String>? headers}) async {
     final response = await http.delete(
       Uri.parse('$_baseUrl/$path'),
       headers: {..._defaultHeaders, ...?headers},
