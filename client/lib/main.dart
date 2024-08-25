@@ -1,4 +1,6 @@
 import 'package:client/common/api_service.dart';
+import 'package:client/my-services/screen.dart';
+import 'package:client/profile/screen.dart';
 import 'package:flutter/material.dart';
 import 'package:client/home.dart'; 
 import 'package:client/babysitter/screen.dart'; 
@@ -24,8 +26,9 @@ class MyApp extends StatelessWidget {
         '/services': (context) => CreateServicePage(), 
         '/login': (context) => HomeScreen(), 
         '/cadastro': (context) => BabysitterSignUpPage(), 
-        //'/profile': (context) => BabysitterProfilePage(), 
+        '/profile': (context) => ProfileScreen(), 
         '/requests': (context) => BabysittingRequestsPage(),
+        '/my-services':(context) => MyServicesScreen(),
       },
     );
   }
