@@ -1,5 +1,4 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:client/babysitter/service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
@@ -44,34 +43,26 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
   }
 
   Future<void> _registerBabysitter() async {
-    final url = Uri.parse('http://201.23.18.202:3333/babysitters');
+    try {
+      final cleanedPhoneNumber =
+          phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
 
-    // Remove todos os caracteres que não são dígitos
-    final cleanedPhoneNumber =
-        phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
+      final payload = {
         'name': name,
         'gender': gender,
         'email': email,
         'password': password,
         'cellphone': cleanedPhoneNumber,
-        'birth_date': "${birthDate.toIso8601String()}",
+        'birth_date': birthDate.toIso8601String(),
         'experience_months': int.tryParse(experienceTime) ?? 0,
-      }),
-    );
+      };
 
-    if (response.statusCode == 201) {
-      // Cadastro realizado com sucesso
+      await BabySitterService.createBabySitter(payload);
       _showSuccessPopup();
-    } else {
-      // Falha no cadastro
-      _showFailurePopup(response.body);
+
+      Navigator.of(context).pushNamed('/my-services');
+    } catch (e) {
+      _showFailurePopup(e.toString());
     }
   }
 

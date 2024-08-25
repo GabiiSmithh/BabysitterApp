@@ -2,26 +2,10 @@ import 'package:client/common/api_service.dart';
 
 class BabySitterService {
   static Future createBabySitter(
-    String name,
-    String email,
-    String gender,
-    String password,
-    String phone,
-    String dateOfBirth,
-    String experienceTime
+    payload,
   ) async {
     try {
-      final payload = {
-        'name': name,
-        'email': email,
-        'gender': gender,
-        'password': password,
-        'phone': phone,
-        'date_of_birth': dateOfBirth,
-        'experience_time': experienceTime
-      };
-      final response = await ApiService.post('babysitter', payload);
-      return response['data'][0];
+      await ApiService.post('babysitters', payload);
     } catch (e) {
       print('Error creating BabySitter: $e');
       rethrow;
@@ -34,7 +18,7 @@ class BabySitterService {
         'phone': phone,
         'experience_time': experienceTime
       };
-      final response = await ApiService.patch('babysitter/$id', payload);
+      final response = await ApiService.patch('babysitters/$id', payload);
       return response['data'][0];
     } catch (e) {
       print('Error updating BabySitter: $e');
