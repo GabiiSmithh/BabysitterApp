@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:intl/intl.dart';
+import 'service.dart';
 
 class CreateServicePage extends StatefulWidget {
   @override
@@ -11,7 +10,6 @@ class CreateServicePage extends StatefulWidget {
 class _CreateServicePageState extends State<CreateServicePage> {
   final _formKey = GlobalKey<FormState>();
 
-  // Initial values for the form fields
   Map<String, dynamic> formData = {
     'tutor_id': '',
     'start_date': '',
@@ -71,9 +69,7 @@ class _CreateServicePageState extends State<CreateServicePage> {
             });
           },
           validator: (value) {
-            return value!.isEmpty
-                ? 'Por favor, digite o ID do tutor'
-                : null;
+            return value!.isEmpty ? 'Por favor, digite o ID do tutor' : null;
           },
         );
       } else if (key == 'start_date') {
@@ -127,9 +123,7 @@ class _CreateServicePageState extends State<CreateServicePage> {
             });
           },
           validator: (value) {
-            return value!.isEmpty
-                ? 'Por favor, digite o valor'
-                : null;
+            return value!.isEmpty ? 'Por favor, digite o valor' : null;
           },
         );
       } else if (key == 'children_count') {
@@ -158,9 +152,7 @@ class _CreateServicePageState extends State<CreateServicePage> {
             });
           },
           validator: (value) {
-            return value!.isEmpty
-                ? 'Por favor, digite o endereço'
-                : null;
+            return value!.isEmpty ? 'Por favor, digite o endereço' : null;
           },
         );
       } else {
@@ -196,29 +188,15 @@ class _CreateServicePageState extends State<CreateServicePage> {
   }
 
   void _createService() async {
-    final url = Uri.parse('http://201.23.18.202:3333/services');
-    final body = json.encode(formData);
-
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: body,
+      await BabySittingService.createService(formData);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Serviço Criado com Sucesso!')),
       );
-
-      if (response.statusCode == 201) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Serviço Criado com Sucesso!')),
-        );
-        Navigator.of(context).pop();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Falha ao criar serviço.')),
-        );
-      }
+      Navigator.of(context).pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: $e')),
+        SnackBar(content: Text('Falha ao criar serviço: $e')),
       );
     }
   }
