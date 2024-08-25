@@ -12,24 +12,24 @@ class BabysittingRequestsPage extends StatefulWidget {
 }
 
 class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
-  List<BabysittingService> requests = [];
+  List<BabysittingService> services = [];
 
   @override
   void initState() {
     super.initState();
-    fetchRequests();
+    getServices();
   }
 
-  Future<void> fetchRequests() async {
+  Future<void> getServices() async {
     try {
       final data = await BabySittingService.getBabySittingServiceList();
 
       setState(() {
-        requests = data;
+        services = data;
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load requests')),
+        const SnackBar(content: Text('Failed to load services')),
       );
     }
   }
@@ -66,10 +66,10 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
               switch (value) {
                 case 'profile':
                   Navigator.of(context)
-                      .pushNamed('/profile'); // Navega para a página de perfil
+                      .pushNamed('/profile'); 
                   break;
                 case 'services':
-                  Navigator.of(context).pushNamed('/services');
+                  Navigator.of(context).pushNamed('/my-services');
                   break;
                 case 'settings':
                   Navigator.of(context).pushNamed('/settings');
@@ -123,9 +123,9 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
       body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: ListView.builder(
-            itemCount: requests.length,
+            itemCount: services.length,
             itemBuilder: (context, index) {
-              final request = requests[index];
+              final request = services[index];
               return RequestCard(
                 tutorName: request.tutorId,
                 childrenCount: request.childrenCount,
