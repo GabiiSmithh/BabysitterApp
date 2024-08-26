@@ -6,15 +6,20 @@ class ApiService {
   static final Map<String, String> _defaultHeaders = {
     'Content-Type': 'application/json; charset=UTF-8',
   };
+  static List<String> _roles = ['babysitter', 'tutor'];
 
   static void initialize(String baseUrl) {
     _baseUrl = baseUrl;
   }
 
-  static void setAuthorizationToken(String token) {
+  static void setAuthorizationTokenAndRoles(String token, List<String> roles) {
     _defaultHeaders['Authorization'] = token;
+    _roles = roles;
   }
 
+  static List<String> getRoles() {
+    return _roles;
+  }
   static Future<dynamic> get(String path,
       {Map<String, String>? headers}) async {
     final response = await http.get(

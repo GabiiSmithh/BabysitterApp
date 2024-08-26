@@ -10,8 +10,10 @@ class AuthService {
       };
       final response = await ApiService.post('auth/login', payload);
       final token = response['token']; 
+      // final roles = response['roles'];
+      final roles = ['babysitter'];
       if (token != null) {
-        ApiService.setAuthorizationToken(token);
+        ApiService.setAuthorizationTokenAndRoles(token, roles);
         return token;
       } else {
         throw Exception('Token not found in response');
