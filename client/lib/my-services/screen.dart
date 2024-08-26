@@ -1,8 +1,9 @@
-
+import 'package:client/common/app_bar.dart';
 import 'package:client/my-services/components/my_service_card.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
 class MyServicesScreen extends StatefulWidget {
   @override
   _MyServicesScreenState createState() => _MyServicesScreenState();
@@ -18,7 +19,8 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _fetchServices() async {
-    final response = await http.get(Uri.parse('http://201.23.18.202:3333/services'));
+    final response =
+        await http.get(Uri.parse('http://201.23.18.202:3333/services'));
 
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
@@ -31,22 +33,11 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 182, 46, 92),
-        title: Text(
-          'Meus Serviços',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+      appBar: CustomAppBar(
+        title: 'Meus Serviços',
+        onBackButtonPressed: () {
+          Navigator.of(context).pop();
+        },
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _servicesFuture,

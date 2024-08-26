@@ -1,3 +1,4 @@
+import 'package:client/common/app_bar.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -13,16 +14,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _cellphoneController = TextEditingController();
-  final TextEditingController _childrenCountController = TextEditingController();
+  final TextEditingController _childrenCountController =
+      TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = 'User Name'; 
+    _nameController.text = 'User Name';
     _emailController.text = 'user@example.com';
-    _addressController.text = '123 Street Name, City'; 
-    _cellphoneController.text = '1234567890'; 
-    _childrenCountController.text = '2'; 
+    _addressController.text = '123 Street Name, City';
+    _cellphoneController.text = '1234567890';
+    _childrenCountController.text = '2';
   }
 
   @override
@@ -46,22 +48,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 182, 46, 92),
-        title: Text(
-          'Editar Perfil',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+      appBar: CustomAppBar(
+        title: 'Editar Perfil',
+        onBackButtonPressed: () {
+          Navigator.of(context).pop();
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -131,7 +122,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: _saveProfile,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 182, 46, 92),
-                    padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 40.0),
+                    padding:
+                        EdgeInsets.symmetric(vertical: 14.0, horizontal: 40.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
