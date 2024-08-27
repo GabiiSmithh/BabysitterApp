@@ -69,10 +69,9 @@ export class TutorRepository {
                 });
 
                 await trx('user_has_roles').insert({
-                    user_id: babysitter.id,
+                    user_id: tutor.id,
                     role_name: 'tutor'
                 });
-    
             });
             return tutor;
         } catch (error) {
