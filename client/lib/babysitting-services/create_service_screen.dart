@@ -1,3 +1,4 @@
+import 'package:client/common/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'service.dart';
@@ -28,22 +29,11 @@ class _CreateServicePageState extends State<CreateServicePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 215, 229),
-      appBar: AppBar(
-        backgroundColor: _cursorColor,
-        title: Text(
-          'Criar Novo Serviço',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+      appBar: CustomAppBar(
+        title: 'Criar novo serviço',
+        onBackButtonPressed: () {
+          Navigator.of(context).pop();
+        },
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

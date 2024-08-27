@@ -1,6 +1,8 @@
+import 'package:client/common/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:client/common/api_service.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
+class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback? onBackButtonPressed;
 
@@ -11,11 +13,50 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }) : super(key: key);
 
   @override
+  _CustomAppBarState createState() => _CustomAppBarState();
+
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+}
+
+class _CustomAppBarState extends State<CustomAppBar> {
+  bool _hasBothRoles = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkRoles();
+  }
+
+  void _checkRoles() {
+    try {
+      final roles = ApiService.getRoles();
+      setState(() {
+        _hasBothRoles = roles.contains('babysitter') && roles.contains('tutor');
+      });
+    } catch (e) {
+      print('Error fetching roles: $e');
+    }
+  }
+
+  void _switchProfile(BuildContext context) {
+    setState(() {
+      if (AuthService.getCurrentProfileType() == 'Babá') {
+        AuthService.setCurrentProfileType('Responsável');
+        Navigator.of(context).pushNamed('/services');
+      } else {
+        AuthService.setCurrentProfileType('Babá');
+        Navigator.of(context).pushNamed('/requests');
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Color.fromARGB(255, 182, 46, 92),
       title: Text(
-        title,
+        widget.title,
         style: TextStyle(
           color: Colors.white,
           fontSize: 16.0,
@@ -24,11 +65,24 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: onBackButtonPressed ?? () {
-          Navigator.of(context).pop();
-        },
+        onPressed: widget.onBackButtonPressed ??
+            () {
+              Navigator.of(context).pop();
+            },
       ),
       actions: [
+        if (_hasBothRoles)
+          TextButton(
+            onPressed: () {
+              _switchProfile(context);
+            },
+            child: Text(
+              AuthService.getCurrentProfileType() == 'Babá'
+                  ? 'Trocar para Responsável'
+                  : 'Trocar para Babá',
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
         PopupMenuButton<String>(
           icon: CircleAvatar(
             backgroundColor: Colors.white,
@@ -92,7 +146,4 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
-
-  @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
