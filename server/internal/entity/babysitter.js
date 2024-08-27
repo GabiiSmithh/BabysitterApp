@@ -9,10 +9,11 @@ export class Babysitter extends User {
         password,
         cellphone,
         birthDate,
+        roles,
         experienceMonths,
         rating
     }) {
-        super({ id, name, gender, email, password, cellphone, birthDate });
+        super({ id, name, gender, email, password, cellphone, birthDate, roles });
         this.experienceMonths = experienceMonths;
         this.rating = rating;
     }

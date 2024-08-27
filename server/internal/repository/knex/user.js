@@ -14,6 +14,11 @@ export class UserRepository {
             return null;
         }
 
+        const userRoles = await this.db('user_has_roles as ur')
+            .select('r.name')
+            .leftJoin('role as r', 'ur.role_name', 'r.name')
+            .where('ur.user_id', foundUsers[0].id);
+
         return new User({
             id: foundUsers[0].id,
             birthDate: foundUsers[0].birth_date,
@@ -22,6 +27,7 @@ export class UserRepository {
             name: foundUsers[0].name,
             email: foundUsers[0].email,
             password: foundUsers[0].password,
+            roles: userRoles.map(role => role.name),
         });
     }
 }

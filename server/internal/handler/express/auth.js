@@ -19,7 +19,7 @@ export class ExpressAuthHandler {
 
             const token = this.authService.generateToken(user);
             
-            return res.status(200).json({ token });
+            return res.status(200).json({ token, roles: user.roles });
         } catch (error) {
             // TODO: return correct status for different cases
             return res.status(400).json({ message: error.message });

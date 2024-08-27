@@ -69,6 +69,11 @@ export class TutorRepository {
                 });
             });
 
+            await trx('user_has_roles').insert({
+                user_id: babysitter.id,
+                role_name: 'tutor'
+            });
+
             return tutor;
         } catch (error) {
             if (error.code === 'ER_DUP_ENTRY') {

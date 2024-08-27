@@ -42,6 +42,23 @@ export class ServiceRepository {
         }));
     }
 
+    async listByTutorId(tutorId) {
+        const foundServices = await this.db('service as s')
+            .select('*')
+            .where('s.tutor_id', tutorId);
+
+        return foundServices.map(foundService => new Service({
+            id: foundService.id,
+            babysitterId: foundService.babysitter_id,
+            tutorId: foundService.tutor_id,
+            startDate: foundService.start_date,
+            endDate: foundService.end_date,
+            value: foundService.value,
+            childrenCount: foundService.children_count,
+            address: foundService.address,
+        }));
+    }
+
     async create(service) {
         try {
             await this.db('service').insert({

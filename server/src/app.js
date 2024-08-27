@@ -49,6 +49,10 @@ const knexDbConnection = knex({
     },
 });
 
+// service instances
+const serviceRepository = new ServiceRepository({ db: knexDbConnection });
+const serviceService = new ServiceService({ serviceRepository });
+const serviceHandler = new ExpressServiceHandler({ serviceService });
 
 // babysitter instances
 const babysitterRepository = new BabysitterRepository({ db: knexDbConnection });
@@ -57,13 +61,8 @@ const babysitterHandler = new ExpressBabysitterHandler({ babysitterService });
 
 // tutor instances
 const tutorRepository = new TutorRepository({ db: knexDbConnection });
-const tutorService = new TutorService({ tutorRepository });
+const tutorService = new TutorService({ tutorRepository, serviceRepository });
 const tutorHandler = new ExpressTutorHandler({ tutorService });
-
-// service instances
-const serviceRepository = new ServiceRepository({ db: knexDbConnection });
-const serviceService = new ServiceService({ serviceRepository });
-const serviceHandler = new ExpressServiceHandler({ serviceService });
 
 // user instances
 const userRepository = new UserRepository({ db: knexDbConnection });
@@ -86,6 +85,7 @@ app.patch('/babysitters/:user_id', babysitterHandler.update.bind(babysitterHandl
 
 // tutor endpoints
 app.get('/tutors/:user_id', tutorHandler.getByID.bind(tutorHandler));
+app.get('/tutors/:user_id/services', tutorHandler.listServices.bind(tutorHandler));
 app.get('/tutors', tutorHandler.list.bind(tutorHandler));
 app.post('/tutors', tutorHandler.create.bind(tutorHandler));
 app.patch('/tutors/:user_id', tutorHandler.update.bind(tutorHandler));

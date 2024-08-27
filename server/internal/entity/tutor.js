@@ -9,11 +9,12 @@ export class Tutor extends User {
         password,
         cellphone,
         birthDate,
+        roles,
         address,
         childrenCount,
         rating
     }) {
-        super({ id, name, gender, email, password, cellphone, birthDate });
+        super({ id, name, gender, email, password, cellphone, birthDate, roles });
         this.address = address;
         this.childrenCount = childrenCount;
         this.rating = rating;

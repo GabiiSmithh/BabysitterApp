@@ -64,6 +64,11 @@ export class BabysitterRepository {
                     experience_months: babysitter.experienceMonths,
                     rating: babysitter.rating
                 });
+
+                await trx('user_has_roles').insert({
+                    user_id: babysitter.id,
+                    role_name: 'babysitter'
+                });
             });
 
             return babysitter;

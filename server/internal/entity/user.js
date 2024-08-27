@@ -8,7 +8,8 @@ export class User {
         email,
         password,
         cellphone,
-        birthDate
+        birthDate,
+        roles,
     }) {
         this.id = id;
         this.name = name;
@@ -17,6 +18,7 @@ export class User {
         this.password = password;
         this.cellphone = cellphone;
         this.birthDate = birthDate;
+        this.roles = roles;
     }
 
     hashPassword() {
