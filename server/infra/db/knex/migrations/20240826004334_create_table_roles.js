@@ -27,5 +27,5 @@ export function up(knex) {
 export function down(knex) {
     return knex.schema
     .dropTableIfExists('user_has_roles')
-    .dropTableIfExists('roles');
+    .dropTableIfExists('role');
 }
