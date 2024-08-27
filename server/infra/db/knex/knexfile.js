@@ -5,9 +5,9 @@ export default {
   connection: {
     host: '127.0.0.1',
     port: 3306,
-    user: 'user',
-    password: 'password',
-    database: 'db',
+    user: 'joao.korczovei',
+    password: 'fGGZ7uQtK7ECm!l',
+    database: 'babysitter',
   },
   migrations: {
     tableName: 'knex_migrations'
