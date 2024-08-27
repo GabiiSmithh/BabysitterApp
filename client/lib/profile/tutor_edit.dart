@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ProfileScreen extends StatefulWidget {
+class TutorEditScreen extends StatefulWidget {
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  _ProfileEditScreenState createState() => _ProfileEditScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileEditScreenState extends State<TutorEditScreen> {
   final _formKey = GlobalKey<FormState>();
 
   // Controllers for text fields
@@ -72,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               _buildProfileField(
                 controller: _nameController,
-                label: 'Name',
+                label: 'Nome',
                 icon: Icons.person,
               ),
               _buildProfileField(
@@ -92,12 +92,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               _buildProfileField(
                 controller: _addressController,
-                label: 'Address',
+                label: 'Endereço',
                 icon: Icons.home,
               ),
               _buildProfileField(
                 controller: _cellphoneController,
-                label: 'Cellphone',
+                label: 'Telefone',
                 icon: Icons.phone,
                 keyboardType: TextInputType.phone,
                 validator: (value) {
@@ -112,7 +112,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               _buildProfileField(
                 controller: _childrenCountController,
-                label: 'Children Count',
+                label: 'Quantidade de Crianças',
                 icon: Icons.child_care,
                 keyboardType: TextInputType.number,
                 validator: (value) {
@@ -137,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   child: Text(
-                    'Save',
+                    'Salvar',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 16.0,

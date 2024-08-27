@@ -1,9 +1,12 @@
 import 'dart:ui';
 import 'package:client/babysitter-register/screen.dart';
+import 'package:client/common/api_service.dart';
 import 'package:client/common/auth_service.dart';
+import 'package:client/tutor/tutor-screen.dart';
 import 'package:flutter/material.dart';
 import 'package:client/babysitting-services/list_services_screen.dart';
 import 'package:client/babysitting-services/create_service_screen.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -28,9 +31,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Color _cursorColor = Color.fromARGB(255, 182, 46, 92); 
-  bool _isBabysitter = false; 
-  bool _isTutor = false; 
+  final Color _cursorColor = Color.fromARGB(255, 182, 46, 92);
+  bool _isBabysitter = false;
+  bool _isTutor = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -43,6 +46,12 @@ class _HomeScreenState extends State<HomeScreen> {
         email,
         password,
       );
+
+      final roles = ApiService.getRoles();
+      setState(() {
+        _isBabysitter = roles.contains('babysitter');
+        _isTutor = roles.contains('tutor');
+      });
 
       if (_isBabysitter) {
         Navigator.of(context).push(
@@ -61,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
           context: context,
           builder: (context) => AlertDialog(
             title: Text('Erro'),
-            content: Text('Tipo de usuário inválido ou não selecionado.'),
+            content: Text('Usuário não tem um perfil definido.'),
             actions: <Widget>[
               TextButton(
                 child: Text('OK'),
@@ -96,42 +105,36 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          const Color.fromARGB(255, 255, 215, 229),
+      backgroundColor: const Color.fromARGB(255, 255, 215, 229),
       body: Column(
         children: <Widget>[
           Container(
             decoration: BoxDecoration(
-              color: _cursorColor, 
+              color: _cursorColor,
               borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(
-                    100.0),
-                bottomRight: Radius.circular(
-                    0.0), 
+                bottomLeft: Radius.circular(100.0),
+                bottomRight: Radius.circular(0.0),
               ),
             ),
-            height: MediaQuery.of(context).size.height *
-                0.4,
-            width: double.infinity, 
+            height: MediaQuery.of(context).size.height * 0.4,
+            width: double.infinity,
             child: Center(
               child: Container(
-                width: 150.0, 
-                height: 150.0, 
+                width: 150.0,
+                height: 150.0,
                 decoration: BoxDecoration(
-                  color: Colors.white, 
-                  shape: BoxShape.circle, 
+                  color: Colors.white,
+                  shape: BoxShape.circle,
                 ),
                 child: Center(
                   child: ClipOval(
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(
-                          sigmaX: 10.0, sigmaY: 10.0), 
+                      filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
                       child: Image.asset(
-                        'images/babysitter.png', 
-                        width: 150.0, 
+                        'images/babysitter.png',
+                        width: 150.0,
                         height: 150.0,
-                        fit: BoxFit
-                            .cover, 
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
@@ -151,42 +154,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     decoration: const BoxDecoration(
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black26, 
-                          blurRadius: 10.0, 
-                          offset: Offset(2,
-                              4), 
+                          color: Colors.black26,
+                          blurRadius: 10.0,
+                          offset: Offset(2, 4),
                         ),
                       ],
                     ),
                     child: TextField(
                       controller: _emailController,
-                      cursorColor: _cursorColor, 
+                      cursorColor: _cursorColor,
                       decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.email), 
+                        prefixIcon: const Icon(Icons.email),
                         labelText: 'Email',
-                        labelStyle: TextStyle(
-                            color: Colors.grey[600]), 
+                        labelStyle: TextStyle(color: Colors.grey[600]),
                         filled: true,
-                        fillColor: Colors.grey[200], 
+                        fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              30.0), 
-                          borderSide: BorderSide.none, 
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              30.0),
-                          borderSide: BorderSide(
-                              color:
-                                  _cursorColor),
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide(color: _cursorColor),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              30.0), 
+                          borderRadius: BorderRadius.circular(30.0),
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      style: TextStyle(color: Colors.black), 
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
                   SizedBox(height: 10.0),
@@ -196,9 +192,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black26,
-                          blurRadius: 10.0, 
-                          offset: Offset(2,
-                              4),
+                          blurRadius: 10.0,
+                          offset: Offset(2, 4),
                         ),
                       ],
                     ),
@@ -207,104 +202,47 @@ class _HomeScreenState extends State<HomeScreen> {
                       cursorColor: _cursorColor,
                       obscureText: true,
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.lock), 
+                        prefixIcon: Icon(Icons.lock),
                         labelText: 'Senha',
-                        labelStyle: TextStyle(
-                            color: Colors.grey[600]),
-                        filled: true, 
+                        labelStyle: TextStyle(color: Colors.grey[600]),
+                        filled: true,
                         fillColor: Colors.grey[200],
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              30.0),
-                          borderSide: BorderSide.none, 
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide.none,
                         ),
                         focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              30.0), 
-                          borderSide: BorderSide(
-                              color:
-                                  _cursorColor),
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide(color: _cursorColor),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(
-                              30.0), 
-                          borderSide: BorderSide.none, 
+                          borderRadius: BorderRadius.circular(30.0),
+                          borderSide: BorderSide.none,
                         ),
                       ),
-                      style: TextStyle(color: Colors.black), 
+                      style: TextStyle(color: Colors.black),
                     ),
                   ),
-                  SizedBox(height: 20.0), 
-                  Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Row(
-                          children: <Widget>[
-                            Checkbox(
-                              value: _isBabysitter,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  _isBabysitter = value ?? false;
-                                  if (_isBabysitter) {
-                                    _isTutor =
-                                        false; 
-                                  }
-                                });
-                              },
-                              activeColor: _cursorColor,
-                              checkColor: Colors.white,
-                            ),
-                            Text('Babá'),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Row(
-                          children: <Widget>[
-                            Checkbox(
-                              value: _isTutor,
-                              onChanged: (bool? value) {
-                                setState(() {
-                                  _isTutor = value ?? false;
-                                  if (_isTutor) {
-                                    _isBabysitter =
-                                        false; 
-                                  }
-                                });
-                              },
-                              activeColor: _cursorColor,
-                              checkColor: Colors.white,
-                            ),
-                            Text('Tutor'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20.0), 
+                  SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _cursorColor,
                       padding: EdgeInsets.symmetric(
-                          vertical: 25.0,
-                          horizontal:
-                              40.0), 
+                          vertical: 25.0, horizontal: 40.0),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(30.0), 
+                        borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
                     child: Text(
                       'Fazer Login',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18.0, 
+                        fontSize: 18.0,
                       ),
                     ),
                   ),
-
-                  Spacer(), 
+                  Spacer(),
                   Container(
                     alignment: Alignment.bottomCenter,
                     padding: EdgeInsets.all(20.0),
@@ -361,12 +299,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             Flexible(
                               child: GestureDetector(
                                 onTap: () {
-                                  // Navigator.push(
-                                  //context,
-                                  //MaterialPageRoute(
-                                  //builder: (context) => ResponsibleSignUpPage(),
-                                  // ),
-                                  //);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => TutorSignUpPage(),
+                                    ),
+                                  );
                                 },
                                 child: Text(
                                   'Cadastrar-se como Responsável',
