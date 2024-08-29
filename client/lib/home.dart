@@ -1,7 +1,10 @@
+import 'dart:html';
 import 'dart:ui';
 import 'package:client/babysitter-register/screen.dart';
 import 'package:client/common/api_service.dart';
 import 'package:client/common/auth_service.dart';
+import 'package:client/tutor-services/screen.dart';
+import 'package:client/tutor/tutor-screen.dart';
 import 'package:flutter/material.dart';
 import 'package:client/babysitting-services/list_services_screen.dart';
 import 'package:client/babysitting-services/create_service_screen.dart';
@@ -48,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
       final roles = ApiService.getRoles();
       setState(() {
+        //print(roles);
         _isBabysitter = roles.contains('babysitter');
         _isTutor = roles.contains('tutor');
       });
@@ -61,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
       } else if (_isTutor) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => CreateServicePage(),
+            builder: (context) => TutorServicesScreen(),
           ),
         );
       } else {
@@ -298,12 +302,13 @@ class _HomeScreenState extends State<HomeScreen> {
                             Flexible(
                               child: GestureDetector(
                                 onTap: () {
-                                  // Navigator.push(
-                                  //context,
-                                  //MaterialPageRoute(
-                                  //builder: (context) => ResponsibleSignUpPage(),
-                                  // ),
-                                  //);
+                                  Navigator.push(
+                                    context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            TutorSignUpPage(),
+                                      ),
+                                  );
                                 },
                                 child: Text(
                                   'Cadastrar-se como Responsável',
