@@ -37,6 +37,10 @@ export class ServiceService {
             return foundService
         }
 
+        if (foundService.babysitterId) {
+            throw new BabysitterAlreadyAssigned;
+        }
+
         foundService.babysitterId = enrollBabysitterDTO.babysitterId;
 
         await this.serviceRepository.update(foundService);
