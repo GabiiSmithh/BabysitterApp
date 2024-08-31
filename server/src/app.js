@@ -14,6 +14,7 @@ import { ServiceRepository } from '../internal/repository/knex/service.js';
 import { ServiceService } from '../internal/service/service.js'
 
 // user imports
+import { ExpressUserHandler } from '../internal/handler/express/user.js'
 import { UserRepository } from '../internal/repository/knex/user.js';
 import { UserService } from '../internal/service/user.js'
 
@@ -67,6 +68,7 @@ const tutorHandler = new ExpressTutorHandler({ tutorService });
 // user instances
 const userRepository = new UserRepository({ db: knexDbConnection });
 const userService = new UserService({ userRepository });
+const userHandler = new ExpressUserHandler({ userService });
 
 // auth instances
 const authService = new AuthService({ secretKey: tokenSecret, expiresIn: tokenExpiration });
@@ -95,6 +97,11 @@ app.get('/services/:service_id', serviceHandler.getByID.bind(serviceHandler));
 app.get('/services', serviceHandler.list.bind(serviceHandler));
 app.post('/services', serviceHandler.create.bind(serviceHandler));
 app.patch('/services/:service_id', serviceHandler.update.bind(serviceHandler));
+app.post('/services/:service_id/enroll', authMiddleware.authenticate.bind(authMiddleware), serviceHandler.enrollBabysitter.bind(serviceHandler));
+
+// user endpoints
+app.post('/users/roles/babysitter', authMiddleware.authenticate.bind(authMiddleware), userHandler.assignBabysitter.bind(userHandler));
+app.post('/users/roles/tutor', authMiddleware.authenticate.bind(authMiddleware), userHandler.assignTutor.bind(userHandler));
 
 // auth endpoints
 app.post('/auth/login', authHandler.login.bind(authHandler));

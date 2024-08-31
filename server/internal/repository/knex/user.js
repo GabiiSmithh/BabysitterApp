@@ -30,4 +30,43 @@ export class UserRepository {
             roles: userRoles.map(role => role.name),
         });
     }
+
+    async assignBabysitter(assignBabysitterDTO) {
+        try {
+            await this.db.transaction(async (trx) => {
+                await trx('babysitter').insert({
+                    user_id: assignBabysitterDTO.userId,
+                    experience_months: assignBabysitterDTO.experienceMonths,
+                    rating: assignBabysitterDTO.rating
+                });
+
+                await trx('user_has_roles').insert({
+                    user_id: assignBabysitterDTO.userId,
+                    role_name: 'babysitter'
+                });
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async assignTutor(assignTutorDTO) {
+        try {
+            await this.db.transaction(async (trx) => {
+                await trx('tutor').insert({
+                    user_id: assignTutorDTO.userId,
+                    address: assignTutorDTO.address,
+                    children_count: assignTutorDTO.childrenCount,
+                    rating: assignTutorDTO.rating
+                });
+
+                await trx('user_has_roles').insert({
+                    user_id: assignTutorDTO.userId,
+                    role_name: 'tutor'
+                });
+            });
+        } catch (error) {
+            throw error;
+        }
+    }
 }

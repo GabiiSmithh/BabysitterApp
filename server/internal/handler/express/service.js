@@ -49,6 +49,26 @@ export class ExpressServiceHandler {
         }
     }
 
+    async enrollBabysitter(req, res) {
+        try {
+            const enrollBabysitterDTO = {
+                serviceId: req.params.service_id,
+                babysitterId: req.user.id,
+            };
+
+            const enrolledService = await this.serviceService.enrollBabysitter(enrollBabysitterDTO);
+
+            if (!enrolledService) {
+                return res.status(404).json({ message: 'Service not found.' });
+            }
+
+            return res.status(200).json(enrolledService);
+        } catch (error) {
+            // TODO: return correct status for different cases
+            return res.status(400).json({ message: error.message });
+        }
+    }
+
     async update(req, res) {
         try {
             const updateServiceDTO = {

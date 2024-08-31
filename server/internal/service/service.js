@@ -1,5 +1,6 @@
 import { Service } from '../entity/service.js';
 import { v4 as uuidv4 } from 'uuid';
+import { BabysitterAlreadyAssigned } from './errors.js';
 
 export class ServiceService {
     constructor({ serviceRepository }) {
@@ -29,6 +30,20 @@ export class ServiceService {
         return this.serviceRepository.create(service);
     }
 
+    async enrollBabysitter(enrollBabysitterDTO) {
+        const foundService = await this.serviceRepository.getByID(enrollBabysitterDTO.serviceId)
+        
+        if (!foundService) {
+            return foundService
+        }
+
+        foundService.babysitterId = enrollBabysitterDTO.babysitterId;
+
+        await this.serviceRepository.update(foundService);
+
+        return foundService;
+    }
+
     async update(updateServiceDTO) {
         const foundService = await this.serviceRepository.getByID(updateServiceDTO.id)
         
@@ -36,7 +51,9 @@ export class ServiceService {
             return foundService
         }
 
-        // TODO: validate if babysitter accepted a service, if so, return error before update data
+        if (foundService.babysitterId) {
+            throw new BabysitterAlreadyAssigned;
+        }
 
         foundService.startDate = updateServiceDTO.startDate || foundService.startDate;
         foundService.endDate = updateServiceDTO.endDate || foundService.endDate;
