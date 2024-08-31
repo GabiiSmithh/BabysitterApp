@@ -42,7 +42,7 @@ export class BabysitterService {
         foundBabysitter.name = updateBabysitterDTO.name || foundBabysitter.name;
         foundBabysitter.email = updateBabysitterDTO.email || foundBabysitter.email;
         foundBabysitter.cellphone = updateBabysitterDTO.cellphone || foundBabysitter.cellphone;
-        foundBabysitter.experience_months = updateBabysitterDTO.experience_months || foundBabysitter.experience_months;
+        foundBabysitter.experienceMonths = updateBabysitterDTO.experienceMonths || foundBabysitter.experienceMonths;
         foundBabysitter.rating = updateBabysitterDTO.rating || foundBabysitter.rating;
 
         await this.babysitterRepository.update(foundBabysitter);
