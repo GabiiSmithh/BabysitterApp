@@ -2,7 +2,9 @@ export class Service {
     constructor({
         id,
         babysitterId,
+        babysitterName,
         tutorId,
+        tutorName,
         startDate,
         endDate,
         value,
@@ -11,7 +13,9 @@ export class Service {
     }) {
         this.id = id;
         this.babysitterId = babysitterId;
+        this.babysitterName = babysitterName;
         this.tutorId = tutorId;
+        this.tutorName = tutorName;
         this.startDate = startDate;
         this.endDate = endDate;
         this.value = value;

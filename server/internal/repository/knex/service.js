@@ -7,7 +7,9 @@ export class ServiceRepository {
 
     async getByID(id) {
         const foundServices = await this.db('service as s')
-            .select('*')
+            .select('s.*', 'tutor.name as tutor_name', 'babysitter.name as babysitter_name')
+            .join('user as tutor', 's.tutor_id', 'tutor.id')
+            .leftJoin('user as babysitter', 's.babysitter_id', 'babysitter.id')
             .where('s.id', id);
 
         if (!foundServices.length) {
@@ -17,7 +19,9 @@ export class ServiceRepository {
         return new Service({
             id: foundServices[0].id,
             babysitterId: foundServices[0].babysitter_id,
+            babysitterName: foundServices[0].babysitter_name,
             tutorId: foundServices[0].tutor_id,
+            tutorName: foundServices[0].tutor_name,
             startDate: foundServices[0].start_date,
             endDate: foundServices[0].end_date,
             value: foundServices[0].value,
@@ -28,12 +32,16 @@ export class ServiceRepository {
 
     async list() {
         const foundServices = await this.db('service as s')
-            .select('*');
+            .select('s.*', 'tutor.name as tutor_name', 'babysitter.name as babysitter_name')
+            .join('user as tutor', 's.tutor_id', 'tutor.id')
+            .leftJoin('user as babysitter', 's.babysitter_id', 'babysitter.id');
 
         return foundServices.map(foundService => new Service({
             id: foundService.id,
             babysitterId: foundService.babysitter_id,
+            babysitterName: foundService.babysitter_name,
             tutorId: foundService.tutor_id,
+            tutorName: foundService.tutor_name,
             startDate: foundService.start_date,
             endDate: foundService.end_date,
             value: foundService.value,
@@ -44,13 +52,17 @@ export class ServiceRepository {
 
     async listByTutorId(tutorId) {
         const foundServices = await this.db('service as s')
-            .select('*')
+            .select('s.*', 'tutor.name as tutor_name', 'babysitter.name as babysitter_name')
+            .join('user as tutor', 's.tutor_id', 'tutor.id')
+            .leftJoin('user as babysitter', 's.babysitter_id', 'babysitter.id')
             .where('s.tutor_id', tutorId);
 
         return foundServices.map(foundService => new Service({
             id: foundService.id,
             babysitterId: foundService.babysitter_id,
+            babysitterName: foundService.babysitter_name,
             tutorId: foundService.tutor_id,
+            tutorName: foundService.tutor_name,
             startDate: foundService.start_date,
             endDate: foundService.end_date,
             value: foundService.value,
