@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class MyServicesScreen extends StatefulWidget {
+  const MyServicesScreen({super.key});
+
   @override
   _MyServicesScreenState createState() => _MyServicesScreenState();
 }
@@ -43,11 +45,11 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
         future: _servicesFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Failed to load services'));
+            return const Center(child: Text('Failed to load services'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No services available'));
+            return const Center(child: Text('No services available'));
           } else {
             final services = snapshot.data!;
             return Padding(
@@ -65,12 +67,12 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                     babysitterId: null,
                     onAccept: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Solicitação Aceita')),
+                        const SnackBar(content: Text('Solicitação Aceita')),
                       );
                     },
                     onSave: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Serviço Atualizado')),
+                        const SnackBar(content: Text('Serviço Atualizado')),
                       );
                     },
                   );

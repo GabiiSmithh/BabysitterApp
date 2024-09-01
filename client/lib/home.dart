@@ -1,4 +1,3 @@
-import 'dart:html';
 import 'dart:ui';
 import 'package:client/babysitter-register/screen.dart';
 import 'package:client/common/api_service.dart';
@@ -7,13 +6,14 @@ import 'package:client/tutor-services/screen.dart';
 import 'package:client/tutor/tutor-screen.dart';
 import 'package:flutter/material.dart';
 import 'package:client/babysitting-services/list_services_screen.dart';
-import 'package:client/babysitting-services/create_service_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -22,18 +22,20 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.pink,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomeScreen(),
+      home: const HomeScreen(),
     );
   }
 }
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final Color _cursorColor = Color.fromARGB(255, 182, 46, 92);
+  final Color _cursorColor = const Color.fromARGB(255, 182, 46, 92);
   bool _isBabysitter = false;
   bool _isTutor = false;
   final TextEditingController _emailController = TextEditingController();
@@ -59,24 +61,24 @@ class _HomeScreenState extends State<HomeScreen> {
       if (_isBabysitter) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => BabysittingRequestsPage(),
+            builder: (context) => const BabysittingRequestsPage(),
           ),
         );
       } else if (_isTutor) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => TutorServicesScreen(),
+            builder: (context) => const TutorServicesScreen(),
           ),
         );
       } else {
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Erro'),
-            content: Text('Usuário não tem um perfil definido.'),
+            title: const Text('Erro'),
+            content: const Text('Usuário não tem um perfil definido.'),
             actions: <Widget>[
               TextButton(
-                child: Text('OK'),
+                child: const Text('OK'),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -90,11 +92,11 @@ class _HomeScreenState extends State<HomeScreen> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Erro'),
-          content: Text('Falha na autenticação. Verifique suas credenciais.'),
+          title: const Text('Erro'),
+          content: const Text('Falha na autenticação. Verifique suas credenciais.'),
           actions: <Widget>[
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -114,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             decoration: BoxDecoration(
               color: _cursorColor,
-              borderRadius: BorderRadius.only(
+              borderRadius: const BorderRadius.only(
                 bottomLeft: Radius.circular(100.0),
                 bottomRight: Radius.circular(0.0),
               ),
@@ -125,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Container(
                 width: 150.0,
                 height: 150.0,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
@@ -185,13 +187,13 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  SizedBox(height: 10.0),
+                  const SizedBox(height: 10.0),
                   AnimatedContainer(
-                    duration: Duration(milliseconds: 300),
-                    decoration: BoxDecoration(
+                    duration: const Duration(milliseconds: 300),
+                    decoration: const BoxDecoration(
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black26,
@@ -205,7 +207,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       cursorColor: _cursorColor,
                       obscureText: true,
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.lock),
+                        prefixIcon: const Icon(Icons.lock),
                         labelText: 'Senha',
                         labelStyle: TextStyle(color: Colors.grey[600]),
                         filled: true,
@@ -223,21 +225,21 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      style: TextStyle(color: Colors.black),
+                      style: const TextStyle(color: Colors.black),
                     ),
                   ),
-                  SizedBox(height: 20.0),
+                  const SizedBox(height: 20.0),
                   ElevatedButton(
                     onPressed: _handleLogin,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _cursorColor,
-                      padding: EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                           vertical: 25.0, horizontal: 40.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Fazer Login',
                       style: TextStyle(
                         color: Colors.white,
@@ -245,14 +247,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   Container(
                     alignment: Alignment.bottomCenter,
-                    padding: EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(20.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        Text(
+                        const Text(
                           'Ainda não possui uma conta?',
                           style: TextStyle(
                             color: Colors.black,
@@ -260,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 10.0),
+                        const SizedBox(height: 10.0),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
@@ -271,7 +273,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) =>
-                                          BabysitterSignUpPage(),
+                                          const BabysitterSignUpPage(),
                                     ),
                                   );
                                 },
@@ -289,8 +291,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                             ),
-                            SizedBox(width: 10.0),
-                            Text(
+                            const SizedBox(width: 10.0),
+                            const Text(
                               'ou',
                               style: TextStyle(
                                 color: Colors.black,
@@ -298,7 +300,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(width: 10.0),
+                            const SizedBox(width: 10.0),
                             Flexible(
                               child: GestureDetector(
                                 onTap: () {
@@ -306,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            TutorSignUpPage(),
+                                            const TutorSignUpPage(),
                                       ),
                                   );
                                 },

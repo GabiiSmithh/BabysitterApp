@@ -7,20 +7,18 @@ class RequestCard extends StatelessWidget {
   final DateTime endDate;
   final VoidCallback onAccept;
   final String? id;
-  final String? babysitterId;
-  final String? tutorId;
+  final String? tutor;
   final int? value;
   final String? address;
 
-  RequestCard({
+  const RequestCard({super.key, 
     required this.tutorName,
     required this.childrenCount,
     required this.startDate,
     required this.endDate,
     required this.onAccept,
     this.id,
-    this.babysitterId,
-    this.tutorId,
+    this.tutor,
     this.value,
     this.address,
   });
@@ -44,114 +42,100 @@ class RequestCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.child_care, color: Colors.pinkAccent),
-                      SizedBox(width: 8.0),
+                      const Icon(Icons.child_care, color: Colors.pinkAccent),
+                      const SizedBox(width: 8.0),
                       Text(
                         '$childrenCount Crianças',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   Row(
                     children: [
-                      Icon(Icons.calendar_today, color: Colors.pinkAccent),
-                      SizedBox(width: 8.0),
+                      const Icon(Icons.calendar_today, color: Colors.pinkAccent),
+                      const SizedBox(width: 8.0),
                       Text(
                         'Início: ${_formatDateTime(startDate)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   Row(
                     children: [
-                      Icon(Icons.calendar_today_outlined,
+                      const Icon(Icons.calendar_today_outlined,
                           color: Colors.pinkAccent),
-                      SizedBox(width: 8.0),
+                      const SizedBox(width: 8.0),
                       Text(
                         'Término: ${_formatDateTime(endDate)}',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   Row(
                     children: [
-                      Icon(Icons.monetization_on, color: Colors.pinkAccent),
-                      SizedBox(width: 8.0),
+                      const Icon(Icons.monetization_on, color: Colors.pinkAccent),
+                      const SizedBox(width: 8.0),
                       Text(
                         'Valor: R\$ $value',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   Row(
                     children: [
-                      Icon(Icons.person, color: Colors.pinkAccent),
-                      SizedBox(width: 8.0),
+                      const Icon(Icons.person, color: Colors.pinkAccent),
+                      const SizedBox(width: 8.0),
                       Text(
-                        'Tutor ID: $tutorId',
-                        style: TextStyle(
+                        'Responsável: $tutorName',
+                        style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   Row(
                     children: [
-                      Icon(Icons.person_pin, color: Colors.pinkAccent),
-                      SizedBox(width: 8.0),
-                      Text(
-                        'Babysitter ID: $babysitterId',
-                        style: TextStyle(
-                          fontSize: 16.0,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 8.0),
-                  Row(
-                    children: [
-                      Icon(Icons.location_pin, color: Colors.pinkAccent),
-                      SizedBox(width: 8.0),
+                      const Icon(Icons.location_pin, color: Colors.pinkAccent),
+                      const SizedBox(width: 8.0),
                       Text(
                         'Endereço: $address',
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0),
                   ElevatedButton(
                     onPressed: onAccept,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 182, 46, 92),
-                      padding: EdgeInsets.symmetric(
+                      backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                      padding: const EdgeInsets.symmetric(
                           vertical: 14.0, horizontal: 24.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Candidatar-se',
                       style: TextStyle(
                         color: Colors.white,

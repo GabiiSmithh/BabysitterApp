@@ -2,6 +2,8 @@ class BabySittingServiceData {
   final String id;
   final String? babysitterId;
   final String tutorId;
+  final String tutorName;
+  final String? babysitterName;
   final DateTime startDate;
   final DateTime endDate;
   final int value;
@@ -12,6 +14,8 @@ class BabySittingServiceData {
     required this.id,
     required this.babysitterId,
     required this.tutorId,
+    required this.tutorName,
+    required this.babysitterName,
     required this.startDate,
     required this.endDate,
     required this.value,
@@ -24,6 +28,8 @@ class BabySittingServiceData {
       id: json['id'],
       babysitterId: json['babysitterId'],
       tutorId: json['tutorId'],
+      tutorName: json['tutorName'],
+      babysitterName: json['babysitterName'],
       startDate: DateTime.parse(json['startDate']),
       endDate: DateTime.parse(json['endDate']),
       value: json['value'],

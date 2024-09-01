@@ -10,7 +10,7 @@ class MyServiceCard extends StatefulWidget {
   final VoidCallback onAccept;
   final VoidCallback onSave;
 
-  MyServiceCard({
+  const MyServiceCard({super.key, 
     required this.tutorName,
     required this.childrenCount,
     required this.startDate,
@@ -65,7 +65,7 @@ class _MyServiceCardState extends State<MyServiceCard> {
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 color: Colors.pink[100],
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(15.0),
                   topRight: Radius.circular(15.0),
                 ),
@@ -75,7 +75,7 @@ class _MyServiceCardState extends State<MyServiceCard> {
                 children: [
                   Text(
                     widget.tutorName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -99,28 +99,28 @@ class _MyServiceCardState extends State<MyServiceCard> {
                 children: [
                   _buildEditableField(
                     icon: Icons.child_care,
-                    label: 'Children Count',
+                    label: 'Quantidade de Criancas',
                     controller: _childrenCountController,
                     isEditing: _isEditing,
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   _buildEditableField(
                     icon: Icons.calendar_today,
-                    label: 'Start Date',
+                    label: 'Data de Inicio',
                     controller: _startDateController,
                     isEditing: _isEditing,
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   _buildEditableField(
                     icon: Icons.calendar_today_outlined,
-                    label: 'End Date',
+                    label: 'Data de Fim',
                     controller: _endDateController,
                     isEditing: _isEditing,
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   _buildEditableField(
                     icon: Icons.location_on,
-                    label: 'Address',
+                    label: 'Endereço',
                     controller: _addressController,
                     isEditing: _isEditing,
                   ),                  
@@ -142,7 +142,7 @@ class _MyServiceCardState extends State<MyServiceCard> {
     return Row(
       children: [
         Icon(icon, color: Colors.pinkAccent),
-        SizedBox(width: 8.0),
+        const SizedBox(width: 8.0),
         Expanded(
           child: isEditing
               ? TextFormField(
@@ -152,8 +152,8 @@ class _MyServiceCardState extends State<MyServiceCard> {
                   ),
                 )
               : Text(
-                  '${label}: ${controller.text}',
-                  style: TextStyle(
+                  '$label: ${controller.text}',
+                  style: const TextStyle(
                     fontSize: 16.0,
                     color: Colors.black54,
                   ),

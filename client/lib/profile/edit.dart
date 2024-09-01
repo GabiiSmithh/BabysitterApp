@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class ProfileEditScreen extends StatefulWidget {
+  const ProfileEditScreen({super.key});
+
   @override
   _ProfileEditScreenState createState() => _ProfileEditScreenState();
 }
@@ -38,7 +40,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   void _saveProfile() {
     if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile Updated Successfully')),
+        const SnackBar(content: Text('Profile Updated Successfully')),
       );
     }
   }
@@ -47,8 +49,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 182, 46, 92),
-        title: Text(
+        backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+        title: const Text(
           'Editar Perfil',
           style: TextStyle(
             color: Colors.white,
@@ -57,7 +59,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -125,18 +127,18 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 30.0),
+              const SizedBox(height: 30.0),
               Center(
                 child: ElevatedButton(
                   onPressed: _saveProfile,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 182, 46, 92),
-                    padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 40.0),
+                    backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                    padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 40.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Salvar',
                     style: TextStyle(
                       color: Colors.white,
@@ -166,7 +168,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon, color: Color.fromARGB(255, 182, 46, 92)),
+          prefixIcon: Icon(icon, color: const Color.fromARGB(255, 182, 46, 92)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),

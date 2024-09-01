@@ -2,6 +2,8 @@ import 'package:client/common/app_bar.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -40,7 +42,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _saveProfile() {
     if (_formKey.currentState!.validate()) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Profile Updated Successfully')),
+        const SnackBar(content: Text('Profile Updated Successfully')),
       );
     }
   }
@@ -116,19 +118,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 30.0),
+              const SizedBox(height: 30.0),
               Center(
                 child: ElevatedButton(
                   onPressed: _saveProfile,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 182, 46, 92),
+                    backgroundColor: const Color.fromARGB(255, 182, 46, 92),
                     padding:
-                        EdgeInsets.symmetric(vertical: 14.0, horizontal: 40.0),
+                        const EdgeInsets.symmetric(vertical: 14.0, horizontal: 40.0),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Save',
                     style: TextStyle(
                       color: Colors.white,
@@ -158,7 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon, color: Color.fromARGB(255, 182, 46, 92)),
+          prefixIcon: Icon(icon, color: const Color.fromARGB(255, 182, 46, 92)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),

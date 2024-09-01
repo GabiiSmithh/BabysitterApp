@@ -9,10 +9,12 @@ import 'package:client/babysitting-services/create_service_screen.dart';
 
 void main() {
   ApiService.initialize('http://201.23.18.202:3333');
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -21,14 +23,14 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.pink,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: HomeScreen(), // Tela inicial
+      home: const HomeScreen(), // Tela inicial
       routes: {
-        '/services': (context) => CreateServicePage(), 
-        '/login': (context) => HomeScreen(), 
-        '/cadastro': (context) => BabysitterSignUpPage(), 
-        '/profile': (context) => ProfileScreen(), 
-        '/requests': (context) => BabysittingRequestsPage(),
-        '/my-services':(context) => MyServicesScreen(),
+        '/services': (context) => const CreateServicePage(),
+        '/login': (context) => const HomeScreen(), 
+        '/cadastro': (context) => const BabysitterSignUpPage(), 
+        '/profile': (context) => const ProfileScreen(), 
+        '/requests': (context) => const BabysittingRequestsPage(),
+        '/my-services':(context) => const MyServicesScreen(),
       },
     );
   }

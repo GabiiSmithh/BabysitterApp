@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TutorServicesScreen extends StatefulWidget {
+  const TutorServicesScreen({super.key});
+
   @override
   _TutorServicesScreenState createState() => _TutorServicesScreenState();
 }
@@ -70,11 +72,11 @@ Widget build(BuildContext context) {
       future: _fetchTutor(),
       builder: (context, tutorSnapshot) {
         if (tutorSnapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (tutorSnapshot.hasError) {
-          return Center(child: Text('Failed to load tutor'));
+          return const Center(child: Text('Failed to load tutor'));
         } else if (!tutorSnapshot.hasData) {
-          return Center(child: Text('Tutor data not available'));
+          return const Center(child: Text('Tutor data not available'));
         } else {
           final tutor = tutorSnapshot.data!;
 
@@ -82,11 +84,11 @@ Widget build(BuildContext context) {
             future: _servicesFuture,
             builder: (context, servicesSnapshot) {
               if (servicesSnapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (servicesSnapshot.hasError) {
-                return Center(child: Text('Failed to load services'));
+                return const Center(child: Text('Failed to load services'));
               } else if (!servicesSnapshot.hasData || servicesSnapshot.data!.isEmpty) {
-                return Center(child: Text('No services available'));
+                return const Center(child: Text('No services available'));
               } else {
                 final services = servicesSnapshot.data!;
                 return Padding(
@@ -104,12 +106,12 @@ Widget build(BuildContext context) {
                         babysitterId: null,
                         onAccept: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Solicitação Aceita')),
+                            const SnackBar(content: Text('Solicitação Aceita')),
                           );
                         },
                         onSave: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Serviço Atualizado')),
+                            const SnackBar(content: Text('Serviço Atualizado')),
                           );
                         },
                       );

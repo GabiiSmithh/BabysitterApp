@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
 class TutorSignUpPage extends StatefulWidget {
+  const TutorSignUpPage({super.key});
+
   @override
   _TutorSignUpPageState createState() => _TutorSignUpPageState();
 }
@@ -21,9 +23,9 @@ class _TutorSignUpPageState extends State<TutorSignUpPage> {
   String address = '';
   int  numberOfChildren = 0;
 
-  final Color _cursorColor = Color.fromARGB(255, 182, 46, 92); // Cor magenta
+  final Color _cursorColor = const Color.fromARGB(255, 182, 46, 92); // Cor magenta
   final Color _topContainerColor =
-      Color.fromARGB(255, 182, 46, 92); // Cor sólida
+      const Color.fromARGB(255, 182, 46, 92); // Cor sólida
 
   final phoneController = MaskedTextController(mask: '(00)00000-0000');
   final birthDateController = TextEditingController();
@@ -61,7 +63,7 @@ Future<void> _registerTutor() async {
       'email': email,
       'password': password,
       'cellphone': cleanedPhoneNumber,
-      'birth_date': "${birthDate.toIso8601String()}",
+      'birth_date': birthDate.toIso8601String(),
       'address': address,
       'children_count': numberOfChildren
     }),
@@ -88,11 +90,11 @@ void _showFailurePopup(String message) {
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Erro'),
+        title: const Text('Erro'),
         content: Text('Falha no cadastro: $message'),
         actions: [
           TextButton(
-            child: Text('OK'),
+            child: const Text('OK'),
             onPressed: () {
               Navigator.of(context).pop();
             },
@@ -116,7 +118,7 @@ void _showFailurePopup(String message) {
                 height: 70.0,
                 decoration: BoxDecoration(
                   color: _topContainerColor, // Cor sólida
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(
                         50.0), // Extremidade esquerda arredondada
                   ),
@@ -127,14 +129,14 @@ void _showFailurePopup(String message) {
                       left: 16.0,
                       top: 12.0,
                       child: IconButton(
-                        icon: Icon(Icons.arrow_back,
+                        icon: const Icon(Icons.arrow_back,
                             color: Colors.white, size: 30.0),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
                       ),
                     ),
-                    Center(
+                    const Center(
                       child: Align(
                         alignment: Alignment.center,
                         child: Text(
@@ -152,7 +154,7 @@ void _showFailurePopup(String message) {
               ),
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Form(
                     key: _formKey,
                     child: ListView(
@@ -279,7 +281,7 @@ void _showFailurePopup(String message) {
                                 : null;
                           },
                         ),
-                        SizedBox(height: 20.0),
+                        const SizedBox(height: 20.0),
                         ElevatedButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
@@ -292,13 +294,13 @@ void _showFailurePopup(String message) {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _cursorColor,
                             elevation: 5,
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 14.0, horizontal: 24.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Cadastrar-se',
                             style: TextStyle(
                               color: Colors.white,
@@ -320,24 +322,24 @@ void _showFailurePopup(String message) {
                 color: Colors.black.withOpacity(0.5),
                 child: Center(
                   child: Container(
-                    padding: EdgeInsets.all(20.0),
-                    margin: EdgeInsets.symmetric(horizontal: 20.0),
+                    padding: const EdgeInsets.all(20.0),
+                    margin: const EdgeInsets.symmetric(horizontal: 20.0),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 255, 215, 229), // Cor de fundo do container
+                      color: const Color.fromARGB(255, 255, 215, 229), // Cor de fundo do container
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.grey.withOpacity(0.3),
                           spreadRadius: 2,
                           blurRadius: 5,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
+                        const Text(
                           'Cadastro realizado com sucesso!',
                           style: TextStyle(
                             fontSize: 18.0,
@@ -346,7 +348,7 @@ void _showFailurePopup(String message) {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 20.0),
+                        const SizedBox(height: 20.0),
                         ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -356,12 +358,12 @@ void _showFailurePopup(String message) {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _cursorColor,
                             elevation: 5,
-                            padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 24.0),
+                            padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 24.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'OK',
                             style: TextStyle(
                               color: Colors.white,

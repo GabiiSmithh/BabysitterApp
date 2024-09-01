@@ -7,16 +7,16 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback? onBackButtonPressed;
 
   const CustomAppBar({
-    Key? key,
+    super.key,
     required this.title,
     this.onBackButtonPressed,
-  }) : super(key: key);
+  });
 
   @override
   _CustomAppBarState createState() => _CustomAppBarState();
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
 class _CustomAppBarState extends State<CustomAppBar> {
@@ -54,17 +54,17 @@ class _CustomAppBarState extends State<CustomAppBar> {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Color.fromARGB(255, 182, 46, 92),
+      backgroundColor: const Color.fromARGB(255, 182, 46, 92),
       title: Text(
         widget.title,
-        style: TextStyle(
+        style: const TextStyle(
           color: Colors.white,
           fontSize: 16.0,
           fontWeight: FontWeight.bold,
         ),
       ),
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.white),
+        icon: const Icon(Icons.arrow_back, color: Colors.white),
         onPressed: widget.onBackButtonPressed ??
             () {
               Navigator.of(context).pop();
@@ -80,11 +80,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
               AuthService.getCurrentProfileType() == 'Babá'
                   ? 'Trocar para Responsável'
                   : 'Trocar para Babá',
-              style: TextStyle(color: Colors.white),
+              style: const TextStyle(color: Colors.white),
             ),
           ),
         PopupMenuButton<String>(
-          icon: CircleAvatar(
+          icon: const CircleAvatar(
             backgroundColor: Colors.white,
             child: Icon(Icons.person,
                 color: Color.fromARGB(255, 235, 29, 98), size: 24.0),
@@ -107,7 +107,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
           },
           itemBuilder: (BuildContext context) {
             return [
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'profile',
                 child: ListTile(
                   leading: Icon(Icons.person,
@@ -115,7 +115,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   title: Text('Seu perfil'),
                 ),
               ),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'services',
                 child: ListTile(
                   leading: Icon(Icons.history,
@@ -123,7 +123,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   title: Text('Serviços já prestados'),
                 ),
               ),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'settings',
                 child: ListTile(
                   leading: Icon(Icons.settings,
@@ -131,7 +131,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   title: Text('Configurações da conta'),
                 ),
               ),
-              PopupMenuItem<String>(
+              const PopupMenuItem<String>(
                 value: 'logout',
                 child: ListTile(
                   leading: Icon(Icons.logout,
@@ -142,7 +142,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
             ];
           },
         ),
-        SizedBox(width: 16.0),
+        const SizedBox(width: 16.0),
       ],
     );
   }
