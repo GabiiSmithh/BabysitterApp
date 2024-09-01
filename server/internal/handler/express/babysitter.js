@@ -35,6 +35,23 @@ export class ExpressBabysitterHandler {
         }
     }
 
+    async listServices(req, res) {
+        try {
+            const babysitter = await this.babysitterService.getByID(req.params.user_id);
+
+            if (!babysitter) {
+                return res.status(404).json({ message: 'Babysitter not found.' });
+            }
+
+            const services = await this.babysitterService.listServices(req.params.user_id);
+
+            return res.status(200).json(services);
+        } catch (error) {
+            // TODO: return correct status for different cases
+            return res.status(400).json({ message: error.message });
+        }
+    }
+
     async create(req, res) {
         try {
             const createBabysitterDTO = {

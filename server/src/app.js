@@ -57,7 +57,7 @@ const serviceHandler = new ExpressServiceHandler({ serviceService });
 
 // babysitter instances
 const babysitterRepository = new BabysitterRepository({ db: knexDbConnection });
-const babysitterService = new BabysitterService({ babysitterRepository });
+const babysitterService = new BabysitterService({ babysitterRepository, serviceRepository });
 const babysitterHandler = new ExpressBabysitterHandler({ babysitterService });
 
 // tutor instances
@@ -81,6 +81,7 @@ app.get('/', (_, res) => {
 
 // babysitter endpoints
 app.get('/babysitters/:user_id', babysitterHandler.getByID.bind(babysitterHandler));
+app.get('/babysitters/:user_id/services', babysitterHandler.listServices.bind(babysitterHandler));
 app.get('/babysitters', babysitterHandler.list.bind(babysitterHandler));
 app.post('/babysitters', babysitterHandler.create.bind(babysitterHandler));
 app.patch('/babysitters/:user_id', babysitterHandler.update.bind(babysitterHandler));
