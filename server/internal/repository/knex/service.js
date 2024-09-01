@@ -38,6 +38,8 @@ export class ServiceRepository {
 
         return foundServices.map(foundService => new Service({
             id: foundService.id,
+            babysitterId: null,
+            babysitterName: null,
             tutorId: foundService.tutor_id,
             tutorName: foundService.tutor_name,
             startDate: foundService.start_date,
