@@ -70,18 +70,33 @@ Future<void> _registerTutor() async {
 
   if (response.statusCode == 201) {
     // Cadastro realizado com sucesso
-    _showSuccessPopup();
+    await _showSuccessPopup();
+    Navigator.of(context).pushNamed('/login');
   } else {
     // Falha no cadastro
     _showFailurePopup(response.body);
   }
 }
 
-void _showSuccessPopup() {
-  setState(() {
-    _showPopup = true;
-  });
-}
+  Future<void> _showSuccessPopup() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Cadastro realizado com sucesso!'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
 void _showFailurePopup(String message) {
   showDialog(

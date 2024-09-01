@@ -58,18 +58,31 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
       };
 
       await BabySitterRegisterService.createBabySitter(payload);
-      _showSuccessPopup();
+      await _showSuccessPopup();
 
-      Navigator.of(context).pushNamed('/my-services');
+      Navigator.of(context).pushNamed('/login');
     } catch (e) {
       _showFailurePopup(e.toString());
     }
   }
 
-  void _showSuccessPopup() {
-    setState(() {
-      _showPopup = true;
-    });
+  Future<void> _showSuccessPopup() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Cadastro realizado com sucesso!'),
+          actions: [
+            TextButton(
+              child: Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showFailurePopup(String message) {

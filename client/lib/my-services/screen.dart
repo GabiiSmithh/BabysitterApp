@@ -57,7 +57,7 @@ class _MyServicesScreenState extends State<MyServicesScreen> {
                 itemBuilder: (context, index) {
                   final service = services[index];
                   return MyServiceCard(
-                    tutorName: "service['tutorName']",
+                    tutorName: "service['tutorName']rere",
                     childrenCount: service['childrenCount'],
                     startDate: DateTime.parse(service['startDate']),
                     endDate: DateTime.parse(service['endDate']),

@@ -1,7 +1,7 @@
 import 'package:client/common/api_service.dart';
 import 'package:flutter/material.dart';
-import 'package:client/profile/babysitter_edit.dart'; // Importe a tela de edição de babá
-import 'package:client/profile/tutor_edit.dart'; // Importe a tela de edição de tutor
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   static String _currentProfileType = '';
@@ -14,10 +14,25 @@ class AuthService {
       };
       final response = await ApiService.post('auth/login', payload);
       final token = response['token'];
-      // final roles = response['roles'];
-      final roles = ['babysitter', 'tutor'];
+      List<String> parts = token.split('.');
+      if (parts.length != 3) {
+        throw Exception('Token JWT inválido');
+      }
+      String payloadBase64 = parts[1];
+      String normalizedBase64 = base64Url.normalize(payloadBase64);
+      String decodedPayload = utf8.decode(base64Url.decode(normalizedBase64));
+      Map<String, dynamic> payloadMap = json.decode(decodedPayload);
+
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_id', payloadMap['user_id']);
+
+      await prefs.setString('jwt_token', token);
+    
+
+      List<String> roles = List<String>.from(response['roles']);
       if (token != null) {
         ApiService.setAuthorizationTokenAndRoles(token, roles);
+        setCurrentProfileType(roles[0]);
         return token;
       } else {
         throw Exception('Token not found in response');
@@ -36,26 +51,14 @@ class AuthService {
     return _currentProfileType;
   }
 
+    // Redireciona para a tela de edição de perfil apropriada
   static void navigateToEditProfile(BuildContext context) {
-    final profileType = getCurrentProfileType().trim(); // Remove espaços em branco
-    Widget editScreen;
-
-    print('Navigating to edit profile, current profile type: $profileType'); // Debug
-
-    if (profileType == 'Babá' || profileType == 'babysitter') {
-      editScreen = BabysitterEditScreen(); // Substitua pelo nome correto da tela
-    } else if (profileType == 'Responsável' || profileType == 'tutor') {
-      editScreen = TutorEditScreen(); // Substitua pelo nome correto da tela
+    if (_currentProfileType == 'babysitter') {
+      Navigator.of(context).pushNamed('/babysitter_edit');
+    } else if (_currentProfileType == 'tutor') {
+      Navigator.of(context).pushNamed('/tutor_edit');
     } else {
-      print('Unknown profile type, navigating to default'); // Debug
-      // Opcional: Redirecionar para uma tela de erro ou uma página padrão
-      return;
+      print('Tipo de perfil desconhecido: $_currentProfileType');
     }
-
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => editScreen,
-      ),
-    );
   }
 }

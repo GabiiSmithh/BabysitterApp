@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:client/common/auth_service.dart';
 import 'package:client/common/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
@@ -18,7 +19,6 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 }
-
 class _CustomAppBarState extends State<CustomAppBar> {
   bool _hasBothRoles = false;
 
@@ -28,9 +28,15 @@ class _CustomAppBarState extends State<CustomAppBar> {
     _checkRoles();
   }
 
-  void _checkRoles() {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkRoles();  // Re-verifica as roles quando as dependências mudam
+  }
+
+  void _checkRoles() async {
     try {
-      final roles = ApiService.getRoles();
+      final roles = await ApiService.getRoles();  // Adicione await se getRoles for assíncrono
       setState(() {
         _hasBothRoles = roles.contains('babysitter') && roles.contains('tutor');
       });
@@ -41,11 +47,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   void _switchProfile(BuildContext context) {
     setState(() {
-      if (AuthService.getCurrentProfileType() == 'Babá') {
-        AuthService.setCurrentProfileType('Responsável');
+      if (AuthService.getCurrentProfileType() == 'babysitter') {
+        AuthService.setCurrentProfileType('tutor');
         Navigator.of(context).pushNamed('/services');
       } else {
-        AuthService.setCurrentProfileType('Babá');
+        AuthService.setCurrentProfileType('babysitter');
         Navigator.of(context).pushNamed('/requests');
       }
     });
@@ -53,6 +59,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
 
   @override
   Widget build(BuildContext context) {
+    final String currentRoute = ModalRoute.of(context)?.settings.name ?? '';
     return AppBar(
       backgroundColor: Color.fromARGB(255, 182, 46, 92),
       title: Text(
@@ -63,13 +70,18 @@ class _CustomAppBarState extends State<CustomAppBar> {
           fontWeight: FontWeight.bold,
         ),
       ),
-      leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: widget.onBackButtonPressed ??
-            () {
-              Navigator.of(context).pop();
+      leading: currentRoute == '/services' || currentRoute == '/requests' || currentRoute == ''
+        ? SizedBox() // Um widget vazio para desabilitar o botão de voltar
+        : IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              if (Navigator.canPop(context)) {
+                Navigator.of(context).pop();
+              } else {
+                // Se não há nada para voltar, não faz nada
+              }
             },
-      ),
+          ),
       actions: [
         if (_hasBothRoles)
           TextButton(
@@ -77,8 +89,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
               _switchProfile(context);
             },
             child: Text(
-              AuthService.getCurrentProfileType() == 'Babá'
-                  ? 'Trocar para Responsável'
+              AuthService.getCurrentProfileType() == 'babysitter'
+                  ? 'Trocar para Tutor'
                   : 'Trocar para Babá',
               style: TextStyle(color: Colors.white),
             ),
@@ -89,7 +101,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
             child: Icon(Icons.person,
                 color: Color.fromARGB(255, 235, 29, 98), size: 24.0),
           ),
-          onSelected: (String value) {
+          onSelected: (String value) async {
             switch (value) {
               case 'profile':
                 Navigator.of(context).pushNamed('/profile');
@@ -101,6 +113,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 AuthService.navigateToEditProfile(context); // Atualize aqui para chamar o método correto
                 break;
               case 'logout':
+                final SharedPreferences prefs = await SharedPreferences.getInstance();
+                await prefs.clear();  // Limpa todos os dados armazenados
                 Navigator.of(context).pushNamed('/login');
                 break;
             }

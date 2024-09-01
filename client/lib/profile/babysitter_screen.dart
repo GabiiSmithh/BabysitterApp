@@ -1,7 +1,8 @@
-// profile_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:client/common/auth_service.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -11,48 +12,93 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   String userName = '';
+  String userGender = '';
+  String userEmail = '';
+  String userCellphone = '';
+  String userBirthDate = '';
+  int userExperienceMonths = 0;
   int userAge = 0;
-  double userRating = 0.0;
+  String userAddress = '';
+  int userChildrenQuantity = 0;
   bool isLoading = true;
-  String profileType = AuthService.getCurrentProfileType(); // Obtém o tipo de perfil
+  bool isTutor = false;
+  String userId = '';
+
+  final phoneController = MaskedTextController(mask: '(00)00000-0000');
 
   @override
   void initState() {
     super.initState();
-    _fetchProfileData();
+    _loadUserId();
   }
 
-  Future<void> _fetchProfileData() async {
-    // Obtém o token de autorização
-    //String? token = AuthService.getAuthorizationToken();
-    //if (token == null) {
-      // Se o token não está disponível, redirecione para a tela de login
-      //Navigator.of(context).pushReplacementNamed('/login');
-      //return;
-    //}
-
-    // Constrói a URL da requisição baseado no tipo de perfil
-    final response = await http.get(
-      Uri.parse('http://201.23.18.202:3333/$profileType'),
-      //headers: {'Authorization': 'Bearer $token'},
-    );
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        userName = data['name'];
-        userAge = data['age'];
-        userRating = data['rating'];
-        isLoading = false;
-      });
+  Future<void> _loadUserId() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userId = prefs.getString('user_id') ?? '';
+    });
+    if (userId.isNotEmpty) {
+      _checkProfileType();
     } else {
       setState(() {
         isLoading = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load profile data')),
+        SnackBar(content: Text('User ID não encontrado')),
       );
     }
+  }
+
+  Future<void> _checkProfileType() async {
+    final profileType = AuthService.getCurrentProfileType();
+    setState(() {
+      isTutor = profileType == 'tutor';
+    });
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    final url = isTutor ? 'tutors' : 'babysitters';
+    try {
+      final response = await http.get(
+        Uri.parse('http://201.23.18.202:3333/$url/$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        setState(() {
+          userName = data['name'];
+          userGender = data['gender'];
+          userEmail = data['email'];
+          phoneController.text = data['cellphone'];
+          userBirthDate = data['birthDate'];
+          userExperienceMonths = data['experienceMonths'] ?? 0;
+          userAddress = data['address'] ?? '';
+          userChildrenQuantity = data['childrenCount'] ?? 0;
+          userAge = _calculateAge(DateTime.parse(userBirthDate));
+          isLoading = false;
+        });
+      } else {
+        throw Exception('Failed to load profile data');
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${e.toString()}')),
+      );
+    }
+  }
+
+  int _calculateAge(DateTime birthDate) {
+    final now = DateTime.now();
+    int age = now.year - birthDate.year;
+    if (now.month < birthDate.month ||
+        (now.month == birthDate.month && now.day < birthDate.day)) {
+      age--;
+    }
+    return age;
   }
 
   @override
@@ -62,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 182, 46, 92),
         title: Text(
-          'Perfil do ${profileType == "babysitter" ? "Babá" : "Tutor/Responsável"}',
+          'Perfil ${isTutor ? "do Tutor" : "da Babá"}',
           style: TextStyle(
             color: Colors.white,
             fontSize: 16.0,
@@ -81,80 +127,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   CircleAvatar(
-                    radius: 50,
+                    radius: 70,
                     backgroundColor: Color.fromARGB(255, 182, 46, 92),
                     child: Text(
                       userName.isNotEmpty ? userName[0] : '',
                       style: TextStyle(
-                        fontSize: 40,
+                        fontSize: 50,
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  SizedBox(height: 16.0),
+                  SizedBox(height: 20.0),
                   Text(
                     userName,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 30,
                       color: Color.fromARGB(255, 182, 46, 92),
                       fontWeight: FontWeight.bold,
                     ),
-                  ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    '$userAge anos',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  SizedBox(height: 16.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.star,
-                        color: Colors.yellow[700],
-                        size: 30,
-                      ),
-                      SizedBox(width: 4.0),
-                      Text(
-                        userRating.toString(),
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color.fromARGB(255, 182, 46, 92),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 24.0),
-                  Divider(color: Colors.black54),
-                  SizedBox(height: 16.0),
-                  Text(
-                    'Sobre',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 182, 46, 92),
-                    ),
-                  ),
-                  SizedBox(height: 8.0),
-                  Text(
-                    'Texto descritivo sobre o ${profileType == "babysitter" ? "babá" : "tutor/responsável"}, seus interesses, experiências, etc.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                    ),
                   ),
+                  SizedBox(height: 10.0),
+                  _buildProfileField(Icons.calendar_today, 'Idade', '$userAge anos'),
+                  SizedBox(height: 20.0),
+                  _buildProfileField(Icons.person, 'Gênero', userGender),
+                  _buildProfileField(Icons.email, 'Email', userEmail),
+                  _buildProfileField(Icons.phone, 'Telefone', phoneController.text),
+                  if (!isTutor) ...[
+                    _buildProfileField(Icons.work, 'Experiência', '$userExperienceMonths meses'),
+                  ],
+                  if (isTutor) ...[
+                    _buildProfileField(Icons.home, 'Endereço', userAddress),
+                    _buildProfileField(Icons.child_care, 'Quantidade de Crianças', '$userChildrenQuantity'),
+                  ],
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildProfileField(IconData icon, String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Color.fromARGB(255, 182, 46, 92), size: 28),
+          SizedBox(width: 16.0),
+          Text(
+            '$label: $value',
+            style: TextStyle(
+              fontSize: 18,
+              color: Colors.black54,
+            ),
+            textAlign: TextAlign.start,
+          ),
+        ],
+      ),
     );
   }
 }

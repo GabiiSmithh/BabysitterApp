@@ -1,9 +1,10 @@
 import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:client/babysitter-register/screen.dart';
 import 'package:client/common/api_service.dart';
 import 'package:client/common/auth_service.dart';
 import 'package:client/tutor/tutor-screen.dart';
-import 'package:flutter/material.dart';
 import 'package:client/babysitting-services/list_services_screen.dart';
 import 'package:client/babysitting-services/create_service_screen.dart';
 
@@ -37,6 +38,34 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _checkUserId();
+  }
+
+  Future<void> _checkUserId() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('user_id');
+    if (userId != null) {
+      // Redireciona de acordo com o perfil do usuário
+      final roles = await ApiService.getRoles(); // Supondo que esta função agora é assíncrona
+      if (roles.contains('babysitter')) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => BabysittingRequestsPage(),
+          ),
+        );
+      } else if (roles.contains('tutor')) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => CreateServicePage(),
+          ),
+        );
+      }
+    }
+  }
+
   void _handleLogin() async {
     final email = _emailController.text;
     final password = _passwordController.text;
@@ -47,20 +76,20 @@ class _HomeScreenState extends State<HomeScreen> {
         password,
       );
 
-      final roles = ApiService.getRoles();
+      final roles = await ApiService.getRoles(); // Supondo que esta função agora é assíncrona
       setState(() {
         _isBabysitter = roles.contains('babysitter');
         _isTutor = roles.contains('tutor');
       });
 
       if (_isBabysitter) {
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => BabysittingRequestsPage(),
           ),
         );
       } else if (_isTutor) {
-        Navigator.of(context).push(
+        Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => CreateServicePage(),
           ),
