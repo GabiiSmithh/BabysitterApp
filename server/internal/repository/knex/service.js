@@ -32,14 +32,12 @@ export class ServiceRepository {
 
     async list() {
         const foundServices = await this.db('service as s')
-            .select('s.*', 'tutor.name as tutor_name', 'babysitter.name as babysitter_name')
+            .select('s.*', 'tutor.name as tutor_name')
             .join('user as tutor', 's.tutor_id', 'tutor.id')
-            .leftJoin('user as babysitter', 's.babysitter_id', 'babysitter.id');
+            .whereNull('s.babysitter_id');
 
         return foundServices.map(foundService => new Service({
             id: foundService.id,
-            babysitterId: foundService.babysitter_id,
-            babysitterName: foundService.babysitter_name,
             tutorId: foundService.tutor_id,
             tutorName: foundService.tutor_name,
             startDate: foundService.start_date,
