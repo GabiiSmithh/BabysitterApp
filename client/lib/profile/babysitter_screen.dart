@@ -1,3 +1,5 @@
+import 'package:client/common/api_service.dart';
+import 'package:client/common/app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:http/http.dart' as http;
@@ -19,14 +21,17 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
   String userCellphone = '';
   String userBirthDate = '';
   int userExperienceMonths = 0;
-  int userAge = 0;
   bool isLoading = true;
   bool isEditing = false;
   String userId = '';
+  bool isBabysitter = false;
+  bool isTutor = false;
 
   final phoneController = MaskedTextController(mask: '(00)00000-0000');
   final addressController = TextEditingController();
   final childrenController = TextEditingController();
+  final birthDateController = TextEditingController();
+  final experienceMonthsController = TextEditingController();
 
   @override
   void initState() {
@@ -53,12 +58,17 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
 
   Future<void> _fetchProfileData() async {
     try {
-      final response = await http.get(
+      final prefs = await SharedPreferences.getInstance();
+      final jwtToken = prefs.getString('jwt_token') ?? '';
+
+      // Fetch user profile data
+      final profileResponse = await http.get(
         Uri.parse('http://201.23.18.202:3333/babysitters/$userId'),
+        headers: {'Authorization': 'Bearer $jwtToken'},
       );
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
+      if (profileResponse.statusCode == 200) {
+        final data = json.decode(profileResponse.body);
         setState(() {
           userName = data['name'];
           userGender = data['gender'];
@@ -66,11 +76,22 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
           phoneController.text = data['cellphone'];
           userBirthDate = data['birthDate'];
           userExperienceMonths = data['experienceMonths'] ?? 0;
-          isLoading = false;
+          addressController.text = data['address'] ?? '';
+          childrenController.text = data['childrenCount']?.toString() ?? '0';
+          birthDateController.text = userBirthDate;
+          experienceMonthsController.text = userExperienceMonths.toString();
         });
       } else {
         throw Exception('Failed to load profile data');
       }
+
+      final userRoles = await ApiService.getRoles();
+
+      setState(() {
+        isBabysitter = userRoles.contains('babysitter');
+        isTutor = userRoles.contains('tutor');
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -99,7 +120,9 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
           'cellphone': phoneController.text,
           'address': addressController.text,
           'childrenCount': int.tryParse(childrenController.text) ?? 0,
-          'experienceMonths': userExperienceMonths,
+          'birthDate': birthDateController.text,
+          'experienceMonths':
+              int.tryParse(experienceMonthsController.text) ?? 0,
         }),
       );
       _toggleEditing(); // Exit editing mode
@@ -113,26 +136,19 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
     }
   }
 
+  void _becomeTutor() {
+    Navigator.of(context).pushNamed('/become-tutor');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 255, 215, 229),
-      appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 182, 46, 92),
-        title: const Text(
-          'Meu Perfil',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 16.0,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
+      appBar: CustomAppBar(
+        title: 'Meu Perfil',
+        onBackButtonPressed: () {
+          Navigator.of(context).pop();
+        },
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -165,10 +181,12 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 10.0),
-                  _buildProfileField(
-                      Icons.calendar_today, 'Idade', '$userAge anos',
-                      editable: false),
-                  const SizedBox(height: 20.0),
+                  _buildProfileField(Icons.calendar_today, 'Data de Nascimento',
+                      birthDateController.text,
+                      editable: isEditing),
+                  _buildProfileField(Icons.calendar_month,
+                      'Meses de Experiência', experienceMonthsController.text,
+                      editable: isEditing),
                   _buildProfileField(Icons.person, 'Gênero', userGender,
                       editable: isEditing),
                   _buildProfileField(Icons.email, 'Email', userEmail,
@@ -187,8 +205,26 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                    child: Text(isEditing ? 'Salvar' : 'Editar Perfil'),
+                    child: Text(
+                      isEditing ? 'Salvar' : 'Editar Perfil',
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ),
+                  const SizedBox(height: 20.0),
+                  if (!(isBabysitter && isTutor))
+                    ElevatedButton(
+                      onPressed: _becomeTutor,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 0, 123, 255),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 30.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                      child: const Text('Virar Tutor',
+                          style: TextStyle(color: Colors.white)),
+                    ),
                 ],
               ),
             ),
@@ -218,6 +254,12 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
                           break;
                         case 'Telefone':
                           phoneController.text = newValue;
+                          break;
+                        case 'Data de Nascimento':
+                          birthDateController.text = newValue;
+                          break;
+                        case 'Meses de Experiência':
+                          experienceMonthsController.text = newValue;
                           break;
                       }
                     },

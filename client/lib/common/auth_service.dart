@@ -42,19 +42,10 @@ class AuthService {
     }
   }
 
-  static void navigateToEditProfile(BuildContext context) {
-    if (_currentProfileType == 'babysitter') {
-      Navigator.of(context).pushNamed('/babysitter_edit');
-    } else if (_currentProfileType == 'tutor') {
-      Navigator.of(context).pushNamed('/tutor_edit');
-    } else {
-      print('Tipo de perfil desconhecido: $_currentProfileType');
-    }
-  }
   static void setCurrentProfileType(String profileType) async {
     _currentProfileType = profileType;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('profile_type', profileType);
+    await prefs.setString('profile_type', profileType);
   }
 
   static Future<String> getCurrentProfileType() async {
