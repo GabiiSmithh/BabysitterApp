@@ -47,8 +47,7 @@ class _BecomeTutorScreenState extends State<BecomeTutorScreen> {
           const SnackBar(content: Text('Perfil de tutor criado com sucesso')),
         );
 
-        Navigator.of(context)
-            .pop(); // Optionally navigate back or to another screen
+        Navigator.of(context).pushNamed('/babysitter-profile');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

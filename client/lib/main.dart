@@ -2,6 +2,7 @@ import 'package:client/babysitter-register/screen.dart';
 import 'package:client/common/api_service.dart';
 import 'package:client/profile/babysitter_screen.dart';
 import 'package:client/babysitter-services/screen.dart';
+import 'package:client/profile/become_babysitter_screen.dart';
 import 'package:client/profile/become_tutor_screen.dart';
 import 'package:client/profile/tutor_screen.dart';
 import 'package:client/tutor-services/screen.dart';
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         '/my-services':(context) => const TutorServicesScreen(),
         '/services-provided':(context) => const BabysitterServicesScreen(),
         '/become-tutor':(context) => const BecomeTutorScreen(),
+        '/become-babysitter':(context) => const BecomeBabysitterScreen(),
       },
     );
   }

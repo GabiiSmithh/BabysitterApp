@@ -33,6 +33,12 @@ class ApiService {
     return _roles;
   }
 
+  static void setRoles(List<String> roles) async {
+    _roles = roles;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('roles', roles);
+  }
+
   static Future<dynamic> get(String path,
       {Map<String, String>? headers}) async {
     final response = await http.get(

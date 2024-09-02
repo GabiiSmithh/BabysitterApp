@@ -30,7 +30,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
   void _initializeProfileType() async {
     final profileType = await AuthService.getCurrentProfileType();
     setState(() {
-      _currentProfileType = profileType;
+    _currentProfileType = profileType;
     });
   }
 

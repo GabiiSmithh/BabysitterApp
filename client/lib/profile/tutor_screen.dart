@@ -1,3 +1,4 @@
+import 'package:client/common/api_service.dart';
 import 'package:client/common/app_bar.dart';
 import 'package:client/profile/tutor_profile_service.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +22,8 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
   int userChildrenQuantity = 0;
   bool isLoading = true;
   bool isEditing = false;
+  bool isTutor = false;
+  bool isBabysitter = false;
   String userId = '';
 
   final phoneController = MaskedTextController(mask: '(00)00000-0000');
@@ -53,6 +56,7 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
   Future<void> _fetchProfileData() async {
     try {
       final data = await TutorProfileService.fetchData(userId);
+      final userRoles = await ApiService.getRoles();
       setState(() {
         userName = data['name'];
         userGender = data['gender'];
@@ -65,6 +69,12 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
         userChildrenQuantity = data['childrenCount'] ?? 0;
         isLoading = false;
       });
+
+      setState(() {
+        isBabysitter = userRoles.contains('babysitter');
+        isTutor = userRoles.contains('tutor');
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         isLoading = false;
@@ -75,6 +85,10 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
     }
   }
 
+  Future<void> _becomeBabysitter() async {
+    Navigator.of(context).pushNamed('/become-babysitter');
+  }
+
   void _toggleEditing() {
     setState(() {
       isEditing = !isEditing;
@@ -83,15 +97,7 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
 
   Future<void> _saveProfile() async {
     try {
-      // await TutorProfileService.updateProfile(
-      //   userId,
-      //   name: userName,
-      //   gender: userGender,
-      //   email: userEmail,
-      //   cellphone: phoneController.text,
-      //   address: addressController.text,
-      //   childrenCount: int.tryParse(childrenController.text) ?? 0,
-      // );
+      // Implement profile update logic
       _toggleEditing(); // Exit editing mode
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Perfil atualizado com sucesso')),
@@ -159,6 +165,24 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
                       childrenController.text,
                       editable: isEditing),
                   const SizedBox(height: 20.0),
+                  if (!isTutor || !isBabysitter) ...[
+                    ElevatedButton(
+                      onPressed: _becomeBabysitter,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 30.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Virar Babá',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    const SizedBox(height: 20.0),
+                  ],
                   ElevatedButton(
                     onPressed: isEditing ? _saveProfile : _toggleEditing,
                     style: ElevatedButton.styleFrom(
