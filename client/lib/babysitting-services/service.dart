@@ -24,9 +24,9 @@ class BabySittingService {
 
   static Future<void> createService(Map<String, dynamic> serviceData) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    
+
     String? userId = prefs.getString('user_id');
-    
+
     try {
       final payload = {
         "tutor_id": userId,
@@ -41,6 +41,14 @@ class BabySittingService {
         'services',
         payload,
       );
+    } catch (e) {
+      throw Exception('Error creating service: $e');
+    }
+  }
+
+  static Future<void> acceptService(String serviceId) async {
+    try {
+      await ApiService.post('services/$serviceId/enroll', {});
     } catch (e) {
       throw Exception('Error creating service: $e');
     }

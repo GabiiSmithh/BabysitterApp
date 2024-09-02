@@ -16,7 +16,7 @@ class ApiService {
 
   static Future<void> setAuthorizationTokenAndRoles(
       String token, List<String> roles) async {
-    _defaultHeaders['Authorization'] = token;
+    _defaultHeaders['Authorization'] = 'Bearer $token';
     _roles = roles;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('roles', roles);

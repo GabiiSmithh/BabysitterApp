@@ -6,11 +6,8 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
   final String title;
   final VoidCallback? onBackButtonPressed;
 
-  const CustomAppBar({
-    super.key,
-    required this.title,
-    this.onBackButtonPressed,
-  });
+  const CustomAppBar(
+      {super.key, required this.title, this.onBackButtonPressed});
 
   @override
   _CustomAppBarState createState() => _CustomAppBarState();
@@ -49,14 +46,22 @@ class _CustomAppBarState extends State<CustomAppBar> {
   }
 
   void _switchProfile(BuildContext context) async {
-    if (_currentProfileType == 'Babá') {
-      AuthService.setCurrentProfileType('Responsável');
-      Navigator.of(context).pushNamed('/services');
+    if (_currentProfileType == 'babysitter') {
+      AuthService.setCurrentProfileType('tutor');
+      Navigator.of(context).pushReplacementNamed('/services');
     } else {
-      AuthService.setCurrentProfileType('Babá');
-      Navigator.of(context).pushNamed('/requests');
+      AuthService.setCurrentProfileType('babysitter');
+      Navigator.of(context).pushReplacementNamed('/requests');
     }
-    _initializeProfileType(); // Update after switching profile
+    _initializeProfileType();
+  }
+
+  void _navigateHome() {
+    if (_currentProfileType == 'babysitter') {
+      Navigator.of(context).pushNamed('/requests');
+    } else {
+      Navigator.of(context).pushNamed('/services');
+    }
   }
 
   @override
@@ -72,11 +77,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
         ),
       ),
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.white),
-        onPressed: widget.onBackButtonPressed ??
-            () {
-              Navigator.of(context).pop();
-            },
+        icon: const Icon(Icons.home, color: Colors.white),
+        onPressed: _navigateHome,
       ),
       actions: [
         if (_hasBothRoles)

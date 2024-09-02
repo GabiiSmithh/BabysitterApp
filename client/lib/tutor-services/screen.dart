@@ -100,7 +100,7 @@ Widget build(BuildContext context) {
                         startDate: DateTime.parse(service['startDate']),
                         endDate: DateTime.parse(service['endDate']),
                         address: service['address'],
-                        babysitterId: null,
+                        babysitterId: service['babysitterId'],
                         onAccept: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Solicitação Aceita')),
