@@ -52,6 +52,14 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
     });
   }
 
+  bool get _isServiceDone {
+    return DateTime.now().isAfter(widget.endDate);
+  }
+
+  bool get _hasBabysitter {
+    return widget.babysitterId != null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -132,7 +140,13 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
                     icon: Icons.person_outline,
                     label: 'Babá',
                     value: widget.babysitterName ?? 'Sem babá',
+                    hasIndicator: true,
+                    indicator:
+                        _hasBabysitter ? Icons.check_circle : Icons.cancel,
+                    indicatorColor: _hasBabysitter ? Colors.green : Colors.red,
                   ),
+                  const SizedBox(height: 8.0),
+                  _buildStatusIndicator(),
                 ],
               ),
             ),
@@ -176,21 +190,55 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
     required IconData icon,
     required String label,
     required String value,
+    bool hasIndicator = false,
+    IconData? indicator,
+    Color? indicatorColor,
   }) {
     return Row(
       children: [
         Icon(icon, color: Colors.pinkAccent),
         const SizedBox(width: 8.0),
         Expanded(
-          child: Text(
-            '$label: $value',
-            style: const TextStyle(
-              fontSize: 16.0,
-              color: Colors.black54,
-            ),
+          child: Row(
+            children: [
+              Text(
+                '$label: $value',
+                style: const TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.black54,
+                ),
+              ),
+              if (hasIndicator && indicator != null)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Icon(indicator, color: indicatorColor),
+                ),
+            ],
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildStatusIndicator() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+      child: Row(
+        children: [
+          Icon(
+            _isServiceDone ? Icons.check_circle : Icons.pending,
+            color: _isServiceDone ? Colors.green : Colors.orange,
+          ),
+          const SizedBox(width: 8.0),
+          Text(
+            _isServiceDone ? 'Concluído' : 'Pendente',
+            style: TextStyle(
+              fontSize: 16.0,
+              color: _isServiceDone ? Colors.green : Colors.orange,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
