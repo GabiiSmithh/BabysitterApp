@@ -5,15 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
 class TutorListPage extends StatefulWidget {
+  const TutorListPage({super.key});
+
   @override
   _TutorListPageState createState() => _TutorListPageState();
 }
 
 class _TutorListPageState extends State<TutorListPage> {
   final Color _backgroundColor =
-      Color.fromARGB(255, 255, 215, 229); // Rosa claro
-  final Color _cardColor = Color.fromARGB(255, 255, 255, 255); // Branco
-  final Color _primaryColor = Color.fromARGB(255, 182, 46, 92); // Magenta
+      const Color.fromARGB(255, 255, 215, 229); // Rosa claro
+  final Color _cardColor = const Color.fromARGB(255, 255, 255, 255); // Branco
+  final Color _primaryColor = const Color.fromARGB(255, 182, 46, 92); // Magenta
 
   List<dynamic> Tutors = [];
 
@@ -65,11 +67,11 @@ class _TutorListPageState extends State<TutorListPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Erro'),
+          title: const Text('Erro'),
           content: Text(errorMessage),
           actions: [
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -85,7 +87,7 @@ class _TutorListPageState extends State<TutorListPage> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -94,7 +96,7 @@ class _TutorListPageState extends State<TutorListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista de Tutores'),
+        title: const Text('Lista de Tutores'),
         backgroundColor: _primaryColor,
       ),
       backgroundColor: _backgroundColor,
@@ -104,10 +106,10 @@ class _TutorListPageState extends State<TutorListPage> {
           final Tutor = Tutors[index];
           return Card(
             color: _cardColor,
-            margin: EdgeInsets.all(16.0),
+            margin: const EdgeInsets.all(16.0),
             elevation: 5,
             child: ListTile(
-              contentPadding: EdgeInsets.all(16.0),
+              contentPadding: const EdgeInsets.all(16.0),
               title: Text(
                 Tutor['name'],
                 style: TextStyle(
@@ -135,7 +137,7 @@ class _TutorListPageState extends State<TutorListPage> {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
                       _showDeleteConfirmationDialog(Tutor['id']);
                     },
@@ -150,7 +152,7 @@ class _TutorListPageState extends State<TutorListPage> {
   }
 
   void _showUpdateDialog(String id) {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final genderController = TextEditingController();
@@ -174,11 +176,11 @@ class _TutorListPageState extends State<TutorListPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color.fromARGB(255, 255, 215, 229),
-          title: Text('Atualizar Tutor'),
+          backgroundColor: const Color.fromARGB(255, 255, 215, 229),
+          title: const Text('Atualizar Tutor'),
           content: SingleChildScrollView(
             child: Form(
-              key: _formKey,
+              key: formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -251,15 +253,15 @@ class _TutorListPageState extends State<TutorListPage> {
           ),
           actions: [
             TextButton(
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Salvar'),
+              child: const Text('Salvar'),
               onPressed: () {
-                if (_formKey.currentState!.validate()) {
+                if (formKey.currentState!.validate()) {
                   final updatedData = {
                     'name': nameController.text,
                     'email': emailController.text,
@@ -285,17 +287,17 @@ class _TutorListPageState extends State<TutorListPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmar Exclusão'),
-          content: Text('Tem certeza de que deseja excluir esta Tutor?'),
+          title: const Text('Confirmar Exclusão'),
+          content: const Text('Tem certeza de que deseja excluir esta Tutor?'),
           actions: [
             TextButton(
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Excluir'),
+              child: const Text('Excluir'),
               onPressed: () {
                 //TO DO - CRIAR E CHAMAR FUNCAO DE DELETE
                 Navigator.of(context).pop();

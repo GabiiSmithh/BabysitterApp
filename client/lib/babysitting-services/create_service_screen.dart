@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'service.dart';
 
 class CreateServicePage extends StatefulWidget {
+  const CreateServicePage({super.key});
+
   @override
   _CreateServicePageState createState() => _CreateServicePageState();
 }
@@ -23,7 +25,7 @@ class _CreateServicePageState extends State<CreateServicePage> {
   final TextEditingController startDateController = TextEditingController();
   final TextEditingController endDateController = TextEditingController();
 
-  final Color _cursorColor = Color.fromARGB(255, 182, 46, 92);
+  final Color _cursorColor = const Color.fromARGB(255, 182, 46, 92);
 
   @override
   Widget build(BuildContext context) {
@@ -49,20 +51,7 @@ class _CreateServicePageState extends State<CreateServicePage> {
 
   List<Widget> _buildFormFields() {
     return formData.keys.map((key) {
-      if (key == 'tutor_id') {
-        return _buildTextField(
-          label: 'Tutor ID',
-          icon: Icons.person,
-          onChanged: (value) {
-            setState(() {
-              formData[key] = value ?? '';
-            });
-          },
-          validator: (value) {
-            return value!.isEmpty ? 'Por favor, digite o ID do tutor' : null;
-          },
-        );
-      } else if (key == 'start_date') {
+      if (key == 'start_date') {
         return _buildDateField(
           label: 'Data e Hora de Início',
           icon: Icons.calendar_today,
@@ -146,10 +135,10 @@ class _CreateServicePageState extends State<CreateServicePage> {
           },
         );
       } else {
-        return SizedBox.shrink(); // Skip unknown keys
+        return const SizedBox.shrink(); // Skip unknown keys
       }
     }).toList()
-      ..add(SizedBox(height: 20.0))
+      ..add(const SizedBox(height: 20.0))
       ..add(
         ElevatedButton(
           onPressed: () {
@@ -160,12 +149,12 @@ class _CreateServicePageState extends State<CreateServicePage> {
           style: ElevatedButton.styleFrom(
             backgroundColor: _cursorColor,
             elevation: 5,
-            padding: EdgeInsets.symmetric(vertical: 14.0),
+            padding: const EdgeInsets.symmetric(vertical: 14.0),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(30.0),
             ),
           ),
-          child: Text(
+          child: const Text(
             'Criar Serviço',
             style: TextStyle(
               color: Colors.white,
@@ -181,9 +170,9 @@ class _CreateServicePageState extends State<CreateServicePage> {
     try {
       await BabySittingService.createService(formData);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Serviço Criado com Sucesso!')),
+        const SnackBar(content: Text('Serviço Criado com Sucesso!')),
       );
-      Navigator.of(context).pop();
+      Navigator.of(context).pushNamed('/my-services');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Falha ao criar serviço: $e')),

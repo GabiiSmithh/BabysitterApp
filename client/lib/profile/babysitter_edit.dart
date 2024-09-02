@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class BabysitterEditScreen extends StatefulWidget {
+  const BabysitterEditScreen({super.key});
+
   @override
   _BabysitterEditScreenState createState() => _BabysitterEditScreenState();
 }
@@ -89,7 +91,7 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
 
       if (userId == null || jwtToken == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: user_id ou jwt_token não encontrado')),
+          const SnackBar(content: Text('Erro: user_id ou jwt_token não encontrado')),
         );
         return;
       }
@@ -124,7 +126,7 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
               jwtToken, ['babysitter', 'tutor']);
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Perfil de tutor criado com sucesso')),
+            const SnackBar(content: Text('Perfil de tutor criado com sucesso')),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -145,7 +147,7 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
 
         if (response.statusCode == 200) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Perfil atualizado com sucesso')),
+            const SnackBar(content: Text('Perfil atualizado com sucesso')),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -162,8 +164,8 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 182, 46, 92),
-        title: Text(
+        backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+        title: const Text(
           'Editar Perfil Babá',
           style: TextStyle(
             color: Colors.white,
@@ -172,7 +174,7 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -256,7 +258,7 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
                   },
                 ),
               ],
-              SizedBox(height: 30.0),
+              const SizedBox(height: 30.0),
               Center(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -264,14 +266,14 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
                     ElevatedButton(
                       onPressed: _saveProfile,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 182, 46, 92),
-                        padding: EdgeInsets.symmetric(
+                        backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                        padding: const EdgeInsets.symmetric(
                             vertical: 14.0, horizontal: 40.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Salvar',
                         style: TextStyle(
                           color: Colors.white,
@@ -280,7 +282,7 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
                         ),
                       ),
                     ),
-                    SizedBox(width: 20),
+                    const SizedBox(width: 20),
                     if (!_hasBothRoles) ...[
                       ElevatedButton(
                         onPressed: () {
@@ -289,8 +291,8 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
                           });
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(255, 182, 46, 92),
-                          padding: EdgeInsets.symmetric(
+                          backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                          padding: const EdgeInsets.symmetric(
                               vertical: 14.0, horizontal: 40.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30.0),
@@ -298,7 +300,7 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
                         ),
                         child: Text(
                           _isTutor ? 'Voltar' : 'Virar Tutor',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16.0,
                             fontWeight: FontWeight.bold,
@@ -329,7 +331,7 @@ class _BabysitterEditScreenState extends State<BabysitterEditScreen> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          prefixIcon: Icon(icon, color: Color.fromARGB(255, 182, 46, 92)),
+          prefixIcon: Icon(icon, color: const Color.fromARGB(255, 182, 46, 92)),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(15.0),
           ),

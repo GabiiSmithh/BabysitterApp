@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'package:client/common/auth_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
 class TutorSignUpPage extends StatefulWidget {
+  const TutorSignUpPage({super.key});
+
   @override
   _TutorSignUpPageState createState() => _TutorSignUpPageState();
 }
@@ -19,16 +22,17 @@ class _TutorSignUpPageState extends State<TutorSignUpPage> {
   String phoneNumber = '';
   DateTime birthDate = DateTime.now();
   String address = '';
-  int  numberOfChildren = 0;
+  int numberOfChildren = 0;
 
-  final Color _cursorColor = Color.fromARGB(255, 182, 46, 92); // Cor magenta
+  final Color _cursorColor =
+      const Color.fromARGB(255, 182, 46, 92); // Cor magenta
   final Color _topContainerColor =
-      Color.fromARGB(255, 182, 46, 92); // Cor sólida
+      const Color.fromARGB(255, 182, 46, 92); // Cor sólida
 
   final phoneController = MaskedTextController(mask: '(00)00000-0000');
   final birthDateController = TextEditingController();
 
-  bool _showPopup = false; // Variável para controlar a visibilidade do popup
+  bool _showPopup = false;
 
   @override
   void initState() {
@@ -44,49 +48,48 @@ class _TutorSignUpPageState extends State<TutorSignUpPage> {
     });
   }
 
-Future<void> _registerTutor() async {
-  final url = Uri.parse('http://201.23.18.202:3333/tutors');
-  
-  // Remove todos os caracteres que não são dígitos
-  final cleanedPhoneNumber = phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
+  Future<void> _registerTutor() async {
+    final url = Uri.parse('http://201.23.18.202:3333/tutors');
 
-  final response = await http.post(
-    url,
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: json.encode({
-      'name': name,
-      'gender': gender,
-      'email': email,
-      'password': password,
-      'cellphone': cleanedPhoneNumber,
-      'birth_date': "${birthDate.toIso8601String()}",
-      'address': address,
-      'children_count': numberOfChildren
-    }),
-  );
-  
+    // Remove todos os caracteres que não são dígitos
+    final cleanedPhoneNumber =
+        phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
 
-  if (response.statusCode == 201) {
-    // Cadastro realizado com sucesso
-    await _showSuccessPopup();
-    Navigator.of(context).pushNamed('/login');
-  } else {
-    // Falha no cadastro
-    _showFailurePopup(response.body);
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({
+        'name': name,
+        'gender': gender,
+        'email': email,
+        'password': password,
+        'cellphone': cleanedPhoneNumber,
+        'birth_date': birthDate.toIso8601String(),
+        'address': address,
+        'children_count': numberOfChildren
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      Navigator.of(context).pushNamed('/services');
+      AuthService.setCurrentProfileType('tutor');
+    } else {
+      _showFailurePopup(response.body);
+    }
   }
-}
 
-  Future<void> _showSuccessPopup() async {
-    return showDialog(
+  void _showFailurePopup(String message) {
+    showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Cadastro realizado com sucesso!'),
+          title: const Text('Erro'),
+          content: Text('Falha no cadastro: $message'),
           actions: [
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -96,27 +99,6 @@ Future<void> _registerTutor() async {
       },
     );
   }
-
-
-void _showFailurePopup(String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Erro'),
-        content: Text('Falha no cadastro: $message'),
-        actions: [
-          TextButton(
-            child: Text('OK'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +113,7 @@ void _showFailurePopup(String message) {
                 height: 70.0,
                 decoration: BoxDecoration(
                   color: _topContainerColor, // Cor sólida
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(
                         50.0), // Extremidade esquerda arredondada
                   ),
@@ -142,14 +124,14 @@ void _showFailurePopup(String message) {
                       left: 16.0,
                       top: 12.0,
                       child: IconButton(
-                        icon: Icon(Icons.arrow_back,
+                        icon: const Icon(Icons.arrow_back,
                             color: Colors.white, size: 30.0),
                         onPressed: () {
                           Navigator.of(context).pop();
                         },
                       ),
                     ),
-                    Center(
+                    const Center(
                       child: Align(
                         alignment: Alignment.center,
                         child: Text(
@@ -167,7 +149,7 @@ void _showFailurePopup(String message) {
               ),
               Expanded(
                 child: Padding(
-                  padding: EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Form(
                     key: _formKey,
                     child: ListView(
@@ -294,26 +276,26 @@ void _showFailurePopup(String message) {
                                 : null;
                           },
                         ),
-                        SizedBox(height: 20.0),
+                        const SizedBox(height: 20.0),
                         ElevatedButton(
                           onPressed: () async {
                             if (_formKey.currentState!.validate()) {
                               // Save the form data
                               _formKey.currentState!.save();
                               // Process the sign-up data here
-                             await _registerTutor();
+                              await _registerTutor();
                             }
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _cursorColor,
                             elevation: 5,
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 vertical: 14.0, horizontal: 24.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'Cadastrar-se',
                             style: TextStyle(
                               color: Colors.white,
@@ -335,24 +317,25 @@ void _showFailurePopup(String message) {
                 color: Colors.black.withOpacity(0.5),
                 child: Center(
                   child: Container(
-                    padding: EdgeInsets.all(20.0),
-                    margin: EdgeInsets.symmetric(horizontal: 20.0),
+                    padding: const EdgeInsets.all(20.0),
+                    margin: const EdgeInsets.symmetric(horizontal: 20.0),
                     decoration: BoxDecoration(
-                      color: Color.fromARGB(255, 255, 215, 229), // Cor de fundo do container
+                      color: const Color.fromARGB(
+                          255, 255, 215, 229), // Cor de fundo do container
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.grey.withOpacity(0.3),
                           spreadRadius: 2,
                           blurRadius: 5,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
+                        const Text(
                           'Cadastro realizado com sucesso!',
                           style: TextStyle(
                             fontSize: 18.0,
@@ -361,7 +344,7 @@ void _showFailurePopup(String message) {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 20.0),
+                        const SizedBox(height: 20.0),
                         ElevatedButton(
                           onPressed: () {
                             setState(() {
@@ -371,12 +354,13 @@ void _showFailurePopup(String message) {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _cursorColor,
                             elevation: 5,
-                            padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 24.0),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 14.0, horizontal: 24.0),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30.0),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             'OK',
                             style: TextStyle(
                               color: Colors.white,
@@ -395,7 +379,6 @@ void _showFailurePopup(String message) {
       ),
     );
   }
-
 
   DateTime? _parseDate(String dateStr) {
     try {
@@ -493,7 +476,7 @@ void _showFailurePopup(String message) {
     );
   }
 
-    Widget _buildNumberField({
+  Widget _buildNumberField({
     required String label,
     required IconData icon,
     required String initialValue,

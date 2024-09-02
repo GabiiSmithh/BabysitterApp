@@ -1,5 +1,6 @@
 import 'package:client/babysitting-services/model.dart';
 import 'package:client/common/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class BabySittingService {
   static Future<List<BabySittingServiceData>>
@@ -22,9 +23,13 @@ class BabySittingService {
   }
 
   static Future<void> createService(Map<String, dynamic> serviceData) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? userId = prefs.getString('user_id');
+
     try {
       final payload = {
-        "tutor_id": serviceData['tutor_id'],
+        "tutor_id": userId,
         "start_date": serviceData['start_date'],
         "end_date": serviceData['end_date'],
         "value": serviceData['value'],
@@ -36,6 +41,14 @@ class BabySittingService {
         'services',
         payload,
       );
+    } catch (e) {
+      throw Exception('Error creating service: $e');
+    }
+  }
+
+  static Future<void> acceptService(String serviceId) async {
+    try {
+      await ApiService.post('services/$serviceId/enroll', {});
     } catch (e) {
       throw Exception('Error creating service: $e');
     }

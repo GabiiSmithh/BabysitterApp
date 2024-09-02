@@ -1,5 +1,5 @@
 import 'package:client/common/app_bar.dart';
-import 'package:client/my-services/components/my_service_card.dart';
+import 'package:client/tutor-services/components/tutor_service_card.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TutorServicesScreen extends StatefulWidget {
+  const TutorServicesScreen({super.key});
+
   @override
   _TutorServicesScreenState createState() => _TutorServicesScreenState();
 }
@@ -21,8 +23,6 @@ class _TutorServicesScreenState extends State<TutorServicesScreen> {
     
     return {'user_id': userId};
   }
-
- //Future<Map<String, dynamic>> tutor= {};
 
   @override
   void initState() {
@@ -70,23 +70,21 @@ Widget build(BuildContext context) {
       future: _fetchTutor(),
       builder: (context, tutorSnapshot) {
         if (tutorSnapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (tutorSnapshot.hasError) {
-          return Center(child: Text('Failed to load tutor'));
+          return const Center(child: Text('Failed to load tutor'));
         } else if (!tutorSnapshot.hasData) {
-          return Center(child: Text('Tutor data not available'));
+          return const Center(child: Text('Tutor data not available'));
         } else {
-          final tutor = tutorSnapshot.data!;
-
           return FutureBuilder<List<Map<String, dynamic>>>(
             future: _servicesFuture,
             builder: (context, servicesSnapshot) {
               if (servicesSnapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
+                return const Center(child: CircularProgressIndicator());
               } else if (servicesSnapshot.hasError) {
-                return Center(child: Text('Failed to load services'));
+                return const Center(child: Text('Falha ao carregar os servicos'));
               } else if (!servicesSnapshot.hasData || servicesSnapshot.data!.isEmpty) {
-                return Center(child: Text('No services available'));
+                return const Center(child: Text('Nenhum serviço cadastrado'));
               } else {
                 final services = servicesSnapshot.data!;
                 return Padding(
@@ -95,21 +93,22 @@ Widget build(BuildContext context) {
                     itemCount: services.length,
                     itemBuilder: (context, index) {
                       final service = services[index];
-                      return MyServiceCard(
-                        tutorName: tutor['name'], // Usando o nome do tutor aqui
+                      return TutorServiceCard(
+                        babysitterName: service['babysitterName'],
+                        tutorName: service['tutorName'],
                         childrenCount: service['childrenCount'],
                         startDate: DateTime.parse(service['startDate']),
                         endDate: DateTime.parse(service['endDate']),
                         address: service['address'],
-                        babysitterId: null,
+                        babysitterId: service['babysitterId'],
                         onAccept: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Solicitação Aceita')),
+                            const SnackBar(content: Text('Solicitação Aceita')),
                           );
                         },
                         onSave: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Serviço Atualizado')),
+                            const SnackBar(content: Text('Serviço Atualizado')),
                           );
                         },
                       );

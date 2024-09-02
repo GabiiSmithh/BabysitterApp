@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class TutorEditScreen extends StatefulWidget {
+  const TutorEditScreen({super.key});
+
   @override
   _ProfileEditScreenState createState() => _ProfileEditScreenState();
 }
@@ -90,7 +92,7 @@ class _ProfileEditScreenState extends State<TutorEditScreen> {
 
       if (userId == null || jwtToken == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: user_id ou jwt_token não encontrado')),
+          const SnackBar(content: Text('Erro: user_id ou jwt_token não encontrado')),
         );
         return;
       }
@@ -121,7 +123,7 @@ class _ProfileEditScreenState extends State<TutorEditScreen> {
       ApiService.setAuthorizationTokenAndRoles(
           jwtToken, ['babysitter', 'tutor']);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Perfil de Babá criado com sucesso')),
+        const SnackBar(content: Text('Perfil de Babá criado com sucesso')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -149,7 +151,7 @@ class _ProfileEditScreenState extends State<TutorEditScreen> {
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Perfil atualizado com sucesso')),
+        const SnackBar(content: Text('Perfil atualizado com sucesso')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -169,8 +171,8 @@ class _ProfileEditScreenState extends State<TutorEditScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 182, 46, 92),
-        title: Text(
+        backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+        title: const Text(
           'Editar Perfil Tutor',
           style: TextStyle(
             color: Colors.white,
@@ -179,7 +181,7 @@ class _ProfileEditScreenState extends State<TutorEditScreen> {
           ),
         ),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -268,21 +270,21 @@ class _ProfileEditScreenState extends State<TutorEditScreen> {
                   },
                 ),
               ],
-              SizedBox(height: 30.0),
+              const SizedBox(height: 30.0),
               Row(
                 children: [
-                  Spacer(),
+                  const Spacer(),
                   ElevatedButton(
                     onPressed: _saveProfile,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 182, 46, 92),
-                      padding: EdgeInsets.symmetric(
+                      backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                      padding: const EdgeInsets.symmetric(
                           vertical: 14.0, horizontal: 40.0),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                    child: Text(
+                    child: const Text(
                       'Salvar',
                       style: TextStyle(
                         color: Colors.white,
@@ -291,13 +293,13 @@ class _ProfileEditScreenState extends State<TutorEditScreen> {
                       ),
                     ),
                   ),
-                  Spacer(),
+                  const Spacer(),
                   if (!_hasBothRoles) ...[
                     ElevatedButton(
                       onPressed: _becomeBabysitter,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 182, 46, 92),
-                        padding: EdgeInsets.symmetric(
+                        backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                        padding: const EdgeInsets.symmetric(
                             vertical: 14.0, horizontal: 40.0),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30.0),
@@ -305,7 +307,7 @@ class _ProfileEditScreenState extends State<TutorEditScreen> {
                       ),
                       child: Text(
                         _isBabysitterFormVisible ? 'Cancelar' : 'Virar Babá',
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,
@@ -313,7 +315,7 @@ class _ProfileEditScreenState extends State<TutorEditScreen> {
                       ),
                     ),
                   ],
-                  Spacer(),
+                  const Spacer(),
                 ],
               ),
             ],

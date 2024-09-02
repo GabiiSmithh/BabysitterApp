@@ -27,7 +27,6 @@ class AuthService {
       await prefs.setString('user_id', payloadMap['user_id']);
 
       await prefs.setString('jwt_token', token);
-    
 
       List<String> roles = List<String>.from(response['roles']);
       if (token != null) {
@@ -43,15 +42,6 @@ class AuthService {
     }
   }
 
-  static void setCurrentProfileType(String profileType) {
-    _currentProfileType = profileType;
-  }
-
-  static String getCurrentProfileType() {
-    return _currentProfileType;
-  }
-
-    // Redireciona para a tela de edição de perfil apropriada
   static void navigateToEditProfile(BuildContext context) {
     if (_currentProfileType == 'babysitter') {
       Navigator.of(context).pushNamed('/babysitter_edit');
@@ -60,5 +50,23 @@ class AuthService {
     } else {
       print('Tipo de perfil desconhecido: $_currentProfileType');
     }
+  }
+  static void setCurrentProfileType(String profileType) async {
+    _currentProfileType = profileType;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profile_type', profileType);
+  }
+
+  static Future<String> getCurrentProfileType() async {
+    if (_currentProfileType.isEmpty) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      _currentProfileType = prefs.getString('profile_type') ?? '';
+    }
+    return _currentProfileType;
+  }
+
+  static void logout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   }
 }

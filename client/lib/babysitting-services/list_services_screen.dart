@@ -5,6 +5,8 @@ import 'package:client/common/app_bar.dart';
 import 'package:flutter/material.dart';
 
 class BabysittingRequestsPage extends StatefulWidget {
+  const BabysittingRequestsPage({super.key});
+
   @override
   _BabysittingRequestsPageState createState() =>
       _BabysittingRequestsPageState();
@@ -33,6 +35,17 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
     }
   }
 
+  Future<void> _acceptService(String serviceId) async {
+    try {
+      await BabySittingService.acceptService(serviceId);
+      Navigator.of(context).pushReplacementNamed('/services-provided');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Falha ao aceitar o Serviço')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,14 +63,14 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
             itemBuilder: (context, index) {
               final request = services[index];
               return RequestCard(
-                tutorName: request.tutorId,
+                tutorName: request.tutorName,
                 childrenCount: request.childrenCount,
                 startDate: request.startDate,
                 endDate: request.endDate,
                 address: request.address,
                 value: request.value.toInt(),
                 id: request.id,
-                onAccept: () => {print("Aceitado")},
+                onAccept: () => _acceptService(request.id),
               );
             },
           )),

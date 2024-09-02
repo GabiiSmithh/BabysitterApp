@@ -5,15 +5,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
 class BabysitterListPage extends StatefulWidget {
+  const BabysitterListPage({super.key});
+
   @override
   _BabysitterListPageState createState() => _BabysitterListPageState();
 }
 
 class _BabysitterListPageState extends State<BabysitterListPage> {
   final Color _backgroundColor =
-      Color.fromARGB(255, 255, 215, 229); // Rosa claro
-  final Color _cardColor = Color.fromARGB(255, 255, 255, 255); // Branco
-  final Color _primaryColor = Color.fromARGB(255, 182, 46, 92); // Magenta
+      const Color.fromARGB(255, 255, 215, 229); // Rosa claro
+  final Color _cardColor = const Color.fromARGB(255, 255, 255, 255); // Branco
+  final Color _primaryColor = const Color.fromARGB(255, 182, 46, 92); // Magenta
 
   List<dynamic> babysitters = [];
 
@@ -65,11 +67,11 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Erro'),
+          title: const Text('Erro'),
           content: Text(errorMessage),
           actions: [
             TextButton(
-              child: Text('OK'),
+              child: const Text('OK'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -85,7 +87,7 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
       SnackBar(
         content: Text(message),
         backgroundColor: Colors.green,
-        duration: Duration(seconds: 2),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -94,7 +96,7 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lista de Babás'),
+        title: const Text('Lista de Babás'),
         backgroundColor: _primaryColor,
       ),
       backgroundColor: _backgroundColor,
@@ -104,10 +106,10 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
           final babysitter = babysitters[index];
           return Card(
             color: _cardColor,
-            margin: EdgeInsets.all(16.0),
+            margin: const EdgeInsets.all(16.0),
             elevation: 5,
             child: ListTile(
-              contentPadding: EdgeInsets.all(16.0),
+              contentPadding: const EdgeInsets.all(16.0),
               title: Text(
                 babysitter['name'],
                 style: TextStyle(
@@ -136,7 +138,7 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
                     },
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete, color: Colors.red),
+                    icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
                       _showDeleteConfirmationDialog(babysitter['id']);
                     },
@@ -151,7 +153,7 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
   }
 
   void _showUpdateDialog(String id) {
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
     final emailController = TextEditingController();
     final genderController = TextEditingController();
@@ -170,11 +172,11 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color.fromARGB(255, 255, 215, 229),
-          title: Text('Atualizar Babá'),
+          backgroundColor: const Color.fromARGB(255, 255, 215, 229),
+          title: const Text('Atualizar Babá'),
           content: SingleChildScrollView(
             child: Form(
-              key: _formKey,
+              key: formKey,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -237,15 +239,15 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
           ),
           actions: [
             TextButton(
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Salvar'),
+              child: const Text('Salvar'),
               onPressed: () {
-                if (_formKey.currentState!.validate()) {
+                if (formKey.currentState!.validate()) {
                   final updatedData = {
                     'name': nameController.text,
                     'email': emailController.text,
@@ -271,17 +273,17 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Confirmar Exclusão'),
-          content: Text('Tem certeza de que deseja excluir esta babá?'),
+          title: const Text('Confirmar Exclusão'),
+          content: const Text('Tem certeza de que deseja excluir esta babá?'),
           actions: [
             TextButton(
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Excluir'),
+              child: const Text('Excluir'),
               onPressed: () {
                 //TO DO - CRIAR E CHAMAR FUNCAO DE DELETE
                 Navigator.of(context).pop();
