@@ -51,25 +51,16 @@ class _HomeScreenState extends State<HomeScreen> {
         password,
       );
 
-      final roles = ApiService.getRoles();
+      final roles = await ApiService.getRoles();
       setState(() {
-        //print(roles);
         _isBabysitter = roles.contains('babysitter');
         _isTutor = roles.contains('tutor');
       });
 
       if (_isBabysitter) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const BabysittingRequestsPage(),
-          ),
-        );
+        Navigator.of(context).pushNamed('/requests');
       } else if (_isTutor) {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) => const TutorServicesScreen(),
-          ),
-        );
+        Navigator.of(context).pushNamed('/services');
       } else {
         showDialog(
           context: context,

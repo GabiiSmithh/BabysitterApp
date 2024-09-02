@@ -1,26 +1,38 @@
 import 'dart:convert';
+import 'package:client/common/auth_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
   static late String _baseUrl;
   static final Map<String, String> _defaultHeaders = {
     'Content-Type': 'application/json; charset=UTF-8',
   };
-  static List<String> _roles = ['babysitter', 'tutor'];
+  static List<String> _roles = [];
 
   static void initialize(String baseUrl) {
     _baseUrl = baseUrl;
   }
 
-  static void setAuthorizationTokenAndRoles(String token, List<String> roles) {
+  static Future<void> setAuthorizationTokenAndRoles(
+      String token, List<String> roles) async {
     _defaultHeaders['Authorization'] = token;
     _roles = roles;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('roles', roles);
+
+    String profileType = roles[0];
+    AuthService.setCurrentProfileType(profileType);
   }
 
-  static List<String> getRoles() {
+  static Future<List<String>> getRoles() async {
+    if (_roles.isEmpty) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      _roles = prefs.getStringList('roles') ?? [];
+    }
     return _roles;
   }
-  
+
   static Future<dynamic> get(String path,
       {Map<String, String>? headers}) async {
     final response = await http.get(

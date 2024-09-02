@@ -51,20 +51,7 @@ class _CreateServicePageState extends State<CreateServicePage> {
 
   List<Widget> _buildFormFields() {
     return formData.keys.map((key) {
-      if (key == 'tutor_id') {
-        return _buildTextField(
-          label: 'Tutor ID',
-          icon: Icons.person,
-          onChanged: (value) {
-            setState(() {
-              formData[key] = value ?? '';
-            });
-          },
-          validator: (value) {
-            return value!.isEmpty ? 'Por favor, digite o ID do tutor' : null;
-          },
-        );
-      } else if (key == 'start_date') {
+      if (key == 'start_date') {
         return _buildDateField(
           label: 'Data e Hora de Início',
           icon: Icons.calendar_today,
@@ -185,7 +172,7 @@ class _CreateServicePageState extends State<CreateServicePage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Serviço Criado com Sucesso!')),
       );
-      Navigator.of(context).pop();
+      Navigator.of(context).pushNamed('/my-services');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Falha ao criar serviço: $e')),

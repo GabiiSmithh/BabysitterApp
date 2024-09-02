@@ -1,31 +1,34 @@
 import 'package:flutter/material.dart';
 
-class MyServiceCard extends StatefulWidget {
+class TutorServiceCard extends StatefulWidget {
   final String tutorName;
   final int childrenCount;
   final DateTime startDate;
   final DateTime endDate;
   final String address;
   final String? babysitterId;
+  final String? babysitterName;
   final VoidCallback onAccept;
   final VoidCallback onSave;
 
-  MyServiceCard({
+  const TutorServiceCard({
+    super.key,
     required this.tutorName,
     required this.childrenCount,
     required this.startDate,
     required this.endDate,
     required this.address,
     required this.babysitterId,
+    required this.babysitterName,
     required this.onAccept,
     required this.onSave,
   });
 
   @override
-  _MyServiceCardState createState() => _MyServiceCardState();
+  _TutorServiceCardState createState() => _TutorServiceCardState();
 }
 
-class _MyServiceCardState extends State<MyServiceCard> {
+class _TutorServiceCardState extends State<TutorServiceCard> {
   bool _isEditing = false;
   late TextEditingController _childrenCountController;
   late TextEditingController _startDateController;
@@ -65,7 +68,7 @@ class _MyServiceCardState extends State<MyServiceCard> {
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
                 color: Colors.pink[100],
-                borderRadius: BorderRadius.only(
+                borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(15.0),
                   topRight: Radius.circular(15.0),
                 ),
@@ -75,7 +78,7 @@ class _MyServiceCardState extends State<MyServiceCard> {
                 children: [
                   Text(
                     widget.tutorName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 18.0,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
@@ -99,31 +102,37 @@ class _MyServiceCardState extends State<MyServiceCard> {
                 children: [
                   _buildEditableField(
                     icon: Icons.child_care,
-                    label: 'Children Count',
+                    label: 'Quantidade de Crianças',
                     controller: _childrenCountController,
                     isEditing: _isEditing,
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   _buildEditableField(
                     icon: Icons.calendar_today,
-                    label: 'Start Date',
+                    label: 'Data de Início',
                     controller: _startDateController,
                     isEditing: _isEditing,
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   _buildEditableField(
                     icon: Icons.calendar_today_outlined,
-                    label: 'End Date',
+                    label: 'Data de Fim',
                     controller: _endDateController,
                     isEditing: _isEditing,
                   ),
-                  SizedBox(height: 8.0),
+                  const SizedBox(height: 8.0),
                   _buildEditableField(
                     icon: Icons.location_on,
-                    label: 'Address',
+                    label: 'Endereço',
                     controller: _addressController,
                     isEditing: _isEditing,
-                  ),                  
+                  ),
+                  const SizedBox(height: 8.0),
+                  _buildNonEditableField(
+                    icon: Icons.person_outline,
+                    label: 'Babá',
+                    value: widget.babysitterName ?? 'Sem babá',
+                  ),
                 ],
               ),
             ),
@@ -142,7 +151,7 @@ class _MyServiceCardState extends State<MyServiceCard> {
     return Row(
       children: [
         Icon(icon, color: Colors.pinkAccent),
-        SizedBox(width: 8.0),
+        const SizedBox(width: 8.0),
         Expanded(
           child: isEditing
               ? TextFormField(
@@ -152,12 +161,34 @@ class _MyServiceCardState extends State<MyServiceCard> {
                   ),
                 )
               : Text(
-                  '${label}: ${controller.text}',
-                  style: TextStyle(
+                  '$label: ${controller.text}',
+                  style: const TextStyle(
                     fontSize: 16.0,
                     color: Colors.black54,
                   ),
                 ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildNonEditableField({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.pinkAccent),
+        const SizedBox(width: 8.0),
+        Expanded(
+          child: Text(
+            '$label: $value',
+            style: const TextStyle(
+              fontSize: 16.0,
+              color: Colors.black54,
+            ),
+          ),
         ),
       ],
     );

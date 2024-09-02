@@ -1,32 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // For date formatting
 
-class MyServiceCard extends StatefulWidget {
+class BabysitterServiceCard extends StatefulWidget {
   final String tutorName;
   final int childrenCount;
   final DateTime startDate;
   final DateTime endDate;
   final String address;
-  final String? babysitterId;
-  final VoidCallback onAccept;
-  final VoidCallback onSave;
 
-  const MyServiceCard({super.key, 
+  const BabysitterServiceCard({
+    super.key,
     required this.tutorName,
     required this.childrenCount,
     required this.startDate,
     required this.endDate,
     required this.address,
-    required this.babysitterId,
-    required this.onAccept,
-    required this.onSave,
   });
 
   @override
-  _MyServiceCardState createState() => _MyServiceCardState();
+  _BabysitterServiceCardState createState() => _BabysitterServiceCardState();
 }
 
-class _MyServiceCardState extends State<MyServiceCard> {
-  bool _isEditing = false;
+class _BabysitterServiceCardState extends State<BabysitterServiceCard> {
   late TextEditingController _childrenCountController;
   late TextEditingController _startDateController;
   late TextEditingController _endDateController;
@@ -37,17 +32,14 @@ class _MyServiceCardState extends State<MyServiceCard> {
     super.initState();
     _childrenCountController =
         TextEditingController(text: widget.childrenCount.toString());
-    _startDateController =
-        TextEditingController(text: widget.startDate.toString());
-    _endDateController = TextEditingController(text: widget.endDate.toString());
+    _startDateController = TextEditingController(
+        text: DateFormat.yMMMd().format(widget.startDate));
+    _endDateController =
+        TextEditingController(text: DateFormat.yMMMd().format(widget.endDate));
     _addressController = TextEditingController(text: widget.address);
   }
 
-  void _toggleEdit() {
-    setState(() {
-      _isEditing = !_isEditing;
-    });
-  }
+  bool get _isConcluded => DateTime.now().isAfter(widget.endDate);
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +56,7 @@ class _MyServiceCardState extends State<MyServiceCard> {
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Colors.pink[100],
+                color: _isConcluded ? Colors.green[100] : Colors.orange[100],
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(15.0),
                   topRight: Radius.circular(15.0),
@@ -76,19 +68,28 @@ class _MyServiceCardState extends State<MyServiceCard> {
                   Text(
                     widget.tutorName,
                     style: const TextStyle(
-                      fontSize: 18.0,
+                      fontSize: 20.0,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                   ),
-                  if (widget.babysitterId == null)
-                    IconButton(
-                      icon: Icon(
-                        _isEditing ? Icons.check : Icons.edit,
-                        color: Colors.pinkAccent,
-                      ),
-                      onPressed: _toggleEdit,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 4.0,
                     ),
+                    decoration: BoxDecoration(
+                      color: _isConcluded ? Colors.green : Colors.orange,
+                      borderRadius: BorderRadius.circular(12.0),
+                    ),
+                    child: Text(
+                      _isConcluded ? 'Concluído' : 'Pendente',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -97,33 +98,29 @@ class _MyServiceCardState extends State<MyServiceCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildEditableField(
+                  _buildNonEditableField(
                     icon: Icons.child_care,
-                    label: 'Quantidade de Criancas',
-                    controller: _childrenCountController,
-                    isEditing: _isEditing,
+                    label: 'Quantidade de Crianças',
+                    value: _childrenCountController.text,
                   ),
                   const SizedBox(height: 8.0),
-                  _buildEditableField(
+                  _buildNonEditableField(
                     icon: Icons.calendar_today,
-                    label: 'Data de Inicio',
-                    controller: _startDateController,
-                    isEditing: _isEditing,
+                    label: 'Data de Início',
+                    value: _startDateController.text,
                   ),
                   const SizedBox(height: 8.0),
-                  _buildEditableField(
+                  _buildNonEditableField(
                     icon: Icons.calendar_today_outlined,
                     label: 'Data de Fim',
-                    controller: _endDateController,
-                    isEditing: _isEditing,
+                    value: _endDateController.text,
                   ),
                   const SizedBox(height: 8.0),
-                  _buildEditableField(
+                  _buildNonEditableField(
                     icon: Icons.location_on,
                     label: 'Endereço',
-                    controller: _addressController,
-                    isEditing: _isEditing,
-                  ),                  
+                    value: _addressController.text,
+                  ),
                 ],
               ),
             ),
@@ -133,31 +130,23 @@ class _MyServiceCardState extends State<MyServiceCard> {
     );
   }
 
-  Widget _buildEditableField({
+  Widget _buildNonEditableField({
     required IconData icon,
     required String label,
-    required TextEditingController controller,
-    required bool isEditing,
+    required String value,
   }) {
     return Row(
       children: [
         Icon(icon, color: Colors.pinkAccent),
         const SizedBox(width: 8.0),
         Expanded(
-          child: isEditing
-              ? TextFormField(
-                  controller: controller,
-                  decoration: InputDecoration(
-                    labelText: label,
-                  ),
-                )
-              : Text(
-                  '$label: ${controller.text}',
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.black54,
-                  ),
-                ),
+          child: Text(
+            '$label: $value',
+            style: const TextStyle(
+              fontSize: 16.0,
+              color: Colors.black54,
+            ),
+          ),
         ),
       ],
     );

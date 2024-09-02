@@ -1,5 +1,5 @@
 import 'package:client/common/app_bar.dart';
-import 'package:client/my-services/components/my_service_card.dart';
+import 'package:client/tutor-services/components/tutor_service_card.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -23,8 +23,6 @@ class _TutorServicesScreenState extends State<TutorServicesScreen> {
     
     return {'user_id': userId};
   }
-
- //Future<Map<String, dynamic>> tutor= {};
 
   @override
   void initState() {
@@ -78,17 +76,15 @@ Widget build(BuildContext context) {
         } else if (!tutorSnapshot.hasData) {
           return const Center(child: Text('Tutor data not available'));
         } else {
-          final tutor = tutorSnapshot.data!;
-
           return FutureBuilder<List<Map<String, dynamic>>>(
             future: _servicesFuture,
             builder: (context, servicesSnapshot) {
               if (servicesSnapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (servicesSnapshot.hasError) {
-                return const Center(child: Text('Failed to load services'));
+                return const Center(child: Text('Falha ao carregar os servicos'));
               } else if (!servicesSnapshot.hasData || servicesSnapshot.data!.isEmpty) {
-                return const Center(child: Text('No services available'));
+                return const Center(child: Text('Nenhum serviço cadastrado'));
               } else {
                 final services = servicesSnapshot.data!;
                 return Padding(
@@ -97,8 +93,9 @@ Widget build(BuildContext context) {
                     itemCount: services.length,
                     itemBuilder: (context, index) {
                       final service = services[index];
-                      return MyServiceCard(
-                        tutorName: tutor['name'], // Usando o nome do tutor aqui
+                      return TutorServiceCard(
+                        babysitterName: service['babysitterName'],
+                        tutorName: service['tutorName'],
                         childrenCount: service['childrenCount'],
                         startDate: DateTime.parse(service['startDate']),
                         endDate: DateTime.parse(service['endDate']),

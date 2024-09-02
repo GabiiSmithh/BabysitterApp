@@ -39,11 +39,17 @@ class AuthService {
     }
   }
 
-  static void setCurrentProfileType(String profileType) {
+  static void setCurrentProfileType(String profileType) async {
     _currentProfileType = profileType;
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('profile_type', profileType);
   }
 
-  static String getCurrentProfileType() {
+  static Future<String> getCurrentProfileType() async {
+    if (_currentProfileType.isEmpty) {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      _currentProfileType = prefs.getString('profile_type') ?? '';
+    }
     return _currentProfileType;
   }
 }

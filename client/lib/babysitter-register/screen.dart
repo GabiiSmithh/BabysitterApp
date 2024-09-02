@@ -60,7 +60,6 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
       };
 
       await BabySitterRegisterService.createBabySitter(payload);
-      _showSuccessPopup();
 
       Navigator.of(context).pushNamed('/requests');
     } catch (e) {

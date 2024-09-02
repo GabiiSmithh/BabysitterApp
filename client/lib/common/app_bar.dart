@@ -21,16 +21,25 @@ class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class _CustomAppBarState extends State<CustomAppBar> {
   bool _hasBothRoles = false;
+  String _currentProfileType = "";
 
   @override
   void initState() {
     super.initState();
+    _initializeProfileType();
     _checkRoles();
   }
 
-  void _checkRoles() {
+  void _initializeProfileType() async {
+    final profileType = await AuthService.getCurrentProfileType();
+    setState(() {
+      _currentProfileType = profileType;
+    });
+  }
+
+  void _checkRoles() async {
     try {
-      final roles = ApiService.getRoles();
+      final roles = await ApiService.getRoles();
       setState(() {
         _hasBothRoles = roles.contains('babysitter') && roles.contains('tutor');
       });
@@ -39,16 +48,15 @@ class _CustomAppBarState extends State<CustomAppBar> {
     }
   }
 
-  void _switchProfile(BuildContext context) {
-    setState(() {
-      if (AuthService.getCurrentProfileType() == 'Babá') {
-        AuthService.setCurrentProfileType('Responsável');
-        Navigator.of(context).pushNamed('/services');
-      } else {
-        AuthService.setCurrentProfileType('Babá');
-        Navigator.of(context).pushNamed('/requests');
-      }
-    });
+  void _switchProfile(BuildContext context) async {
+    if (_currentProfileType == 'Babá') {
+      AuthService.setCurrentProfileType('Responsável');
+      Navigator.of(context).pushNamed('/services');
+    } else {
+      AuthService.setCurrentProfileType('Babá');
+      Navigator.of(context).pushNamed('/requests');
+    }
+    _initializeProfileType(); // Update after switching profile
   }
 
   @override
@@ -77,7 +85,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
               _switchProfile(context);
             },
             child: Text(
-              AuthService.getCurrentProfileType() == 'Babá'
+              _currentProfileType == 'Babá'
                   ? 'Trocar para Responsável'
                   : 'Trocar para Babá',
               style: const TextStyle(color: Colors.white),
@@ -94,7 +102,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
               case 'profile':
                 Navigator.of(context).pushNamed('/profile');
                 break;
-              case 'services':
+              case 'my-services':
                 Navigator.of(context).pushNamed('/my-services');
                 break;
               case 'settings':
@@ -102,6 +110,9 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 break;
               case 'logout':
                 Navigator.of(context).pushNamed('/login');
+                break;
+              case 'services-provided':
+                Navigator.of(context).pushNamed('/services-provided');
                 break;
             }
           },
@@ -115,12 +126,16 @@ class _CustomAppBarState extends State<CustomAppBar> {
                   title: Text('Seu perfil'),
                 ),
               ),
-              const PopupMenuItem<String>(
-                value: 'services',
+              PopupMenuItem<String>(
+                value: (_currentProfileType == 'babysitter'
+                    ? 'services-provided'
+                    : 'my-services'),
                 child: ListTile(
-                  leading: Icon(Icons.history,
+                  leading: const Icon(Icons.history,
                       color: Color.fromARGB(255, 182, 46, 92)),
-                  title: Text('Serviços já prestados'),
+                  title: Text(_currentProfileType == 'babysitter'
+                      ? 'Serviços já prestados'
+                      : 'Meus serviços'),
                 ),
               ),
               const PopupMenuItem<String>(
