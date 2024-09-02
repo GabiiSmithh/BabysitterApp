@@ -1,5 +1,5 @@
-import 'package:client/common/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:client/common/auth_service.dart';
 import 'package:client/common/api_service.dart';
 
 class CustomAppBar extends StatefulWidget implements PreferredSizeWidget {
@@ -30,7 +30,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
   void _initializeProfileType() async {
     final profileType = await AuthService.getCurrentProfileType();
     setState(() {
-      _currentProfileType = profileType;
+    _currentProfileType = profileType;
     });
   }
 
@@ -87,7 +87,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
               _switchProfile(context);
             },
             child: Text(
-              _currentProfileType == 'Babá'
+              _currentProfileType == 'babysitter'
                   ? 'Trocar para Responsável'
                   : 'Trocar para Babá',
               style: const TextStyle(color: Colors.white),
@@ -101,8 +101,11 @@ class _CustomAppBarState extends State<CustomAppBar> {
           ),
           onSelected: (String value) {
             switch (value) {
-              case 'profile':
-                Navigator.of(context).pushNamed('/profile');
+              case 'babysitter-profile':
+                Navigator.of(context).pushNamed('/babysitter-profile');
+                break;
+              case 'tutor-profile':
+                Navigator.of(context).pushNamed('/tutor-profile');
                 break;
               case 'my-services':
                 Navigator.of(context).pushNamed('/my-services');
@@ -111,6 +114,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 Navigator.of(context).pushNamed('/settings');
                 break;
               case 'logout':
+                AuthService.logout();
                 Navigator.of(context).pushNamed('/login');
                 break;
               case 'services-provided':
@@ -120,12 +124,14 @@ class _CustomAppBarState extends State<CustomAppBar> {
           },
           itemBuilder: (BuildContext context) {
             return [
-              const PopupMenuItem<String>(
-                value: 'profile',
-                child: ListTile(
+              PopupMenuItem<String>(
+                value: _currentProfileType == 'babysitter'
+                    ? 'babysitter-profile'
+                    : 'tutor-profile',
+                child: const ListTile(
                   leading: Icon(Icons.person,
                       color: Color.fromARGB(255, 182, 46, 92)),
-                  title: Text('Seu perfil'),
+                  title: Text('Meu perfil'),
                 ),
               ),
               PopupMenuItem<String>(

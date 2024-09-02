@@ -24,11 +24,13 @@ class AuthService {
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setString('user_id', payloadMap['user_id']);
-      print(prefs.getString('user_id'));
+
+      await prefs.setString('jwt_token', token);
 
       List<String> roles = List<String>.from(response['roles']);
       if (token != null) {
         ApiService.setAuthorizationTokenAndRoles(token, roles);
+        setCurrentProfileType(roles[0]);
         return token;
       } else {
         throw Exception('Token not found in response');
@@ -42,7 +44,7 @@ class AuthService {
   static void setCurrentProfileType(String profileType) async {
     _currentProfileType = profileType;
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('profile_type', profileType);
+    await prefs.setString('profile_type', profileType);
   }
 
   static Future<String> getCurrentProfileType() async {
@@ -51,5 +53,10 @@ class AuthService {
       _currentProfileType = prefs.getString('profile_type') ?? '';
     }
     return _currentProfileType;
+  }
+
+  static void logout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
   }
 }

@@ -3,9 +3,6 @@ import 'package:client/babysitting-services/model.dart';
 import 'package:client/babysitting-services/service.dart';
 import 'package:client/common/app_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class BabysittingRequestsPage extends StatefulWidget {
   const BabysittingRequestsPage({super.key});

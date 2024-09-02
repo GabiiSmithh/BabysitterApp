@@ -2,10 +2,11 @@ import 'dart:ui';
 import 'package:client/babysitter-register/screen.dart';
 import 'package:client/common/api_service.dart';
 import 'package:client/common/auth_service.dart';
-import 'package:client/tutor-services/screen.dart';
 import 'package:client/tutor/tutor-screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:client/babysitting-services/list_services_screen.dart';
+import 'package:client/babysitting-services/create_service_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -40,6 +41,35 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isTutor = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserId();
+  }
+
+  Future<void> _checkUserId() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final String? userId = prefs.getString('user_id');
+    if (userId != null) {
+      // Redireciona de acordo com o perfil do usuário
+      final roles = await ApiService
+          .getRoles(); // Supondo que esta função agora é assíncrona
+      if (roles.contains('babysitter')) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const BabysittingRequestsPage(),
+          ),
+        );
+      } else if (roles.contains('tutor')) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const CreateServicePage(),
+          ),
+        );
+      }
+    }
+  }
 
   void _handleLogin() async {
     final email = _emailController.text;
@@ -84,7 +114,8 @@ class _HomeScreenState extends State<HomeScreen> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Erro'),
-          content: const Text('Falha na autenticação. Verifique suas credenciais.'),
+          content:
+              const Text('Falha na autenticação. Verifique suas credenciais.'),
           actions: <Widget>[
             TextButton(
               child: const Text('OK'),
@@ -297,10 +328,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onTap: () {
                                   Navigator.push(
                                     context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const TutorSignUpPage(),
-                                      ),
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const TutorSignUpPage(),
+                                    ),
                                   );
                                 },
                                 child: Text(

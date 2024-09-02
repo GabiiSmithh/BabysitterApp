@@ -67,10 +67,23 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
     }
   }
 
-  void _showSuccessPopup() {
-    setState(() {
-      _showPopup = true;
-    });
+  Future<void> _showSuccessPopup() async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Cadastro realizado com sucesso!'),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showFailurePopup(String message) {

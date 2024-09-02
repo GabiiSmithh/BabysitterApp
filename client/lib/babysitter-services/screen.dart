@@ -27,7 +27,7 @@ class _BabysitterServicesScreenState extends State<BabysitterServicesScreen> {
     String? userId = prefs.getString('user_id');
 
     final response = await http.get(
-        Uri.parse('http://201.23.18.202:3333/babysitters/${userId}/services'));
+        Uri.parse('http://201.23.18.202:3333/babysitters/$userId/services'));
 
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);

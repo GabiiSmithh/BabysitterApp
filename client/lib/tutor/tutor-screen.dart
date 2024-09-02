@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'package:client/common/api_service.dart';
 import 'package:client/common/auth_service.dart';
+import 'package:client/tutor/service.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TutorSignUpPage extends StatefulWidget {
   const TutorSignUpPage({super.key});
@@ -49,18 +52,12 @@ class _TutorSignUpPageState extends State<TutorSignUpPage> {
   }
 
   Future<void> _registerTutor() async {
-    final url = Uri.parse('http://201.23.18.202:3333/tutors');
+    try {
+      // Remove todos os caracteres que não são dígitos
+      final cleanedPhoneNumber =
+          phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
 
-    // Remove todos os caracteres que não são dígitos
-    final cleanedPhoneNumber =
-        phoneController.text.replaceAll(RegExp(r'[^\d]'), '');
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({
+      final payload = {
         'name': name,
         'gender': gender,
         'email': email,
@@ -69,14 +66,12 @@ class _TutorSignUpPageState extends State<TutorSignUpPage> {
         'birth_date': birthDate.toIso8601String(),
         'address': address,
         'children_count': numberOfChildren
-      }),
-    );
+      };
+      await TutorRegisterService.createTutor(payload);
 
-    if (response.statusCode == 201) {
       Navigator.of(context).pushNamed('/services');
-      AuthService.setCurrentProfileType('tutor');
-    } else {
-      _showFailurePopup(response.body);
+    } catch (e) {
+      _showFailurePopup(e.toString());
     }
   }
 
