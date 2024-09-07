@@ -16,6 +16,10 @@ export class ServiceRepository {
             return null;
         }
 
+        const enrollments = await this.db('user as u')
+            .select('u.id as babysitter_id', 'u.name as babysitter_name')
+            .whereIn('u.id', JSON.parse(foundServices[0].enrollments));
+
         return new Service({
             id: foundServices[0].id,
             babysitterId: foundServices[0].babysitter_id,
@@ -27,6 +31,10 @@ export class ServiceRepository {
             value: foundServices[0].value,
             childrenCount: foundServices[0].children_count,
             address: foundServices[0].address,
+            enrollments: enrollments.map(enrollment => ({
+                babysitterId: enrollment.babysitter_id,
+                babysitterName: enrollment.babysitter_name,
+            })),
         });
     }
 
@@ -35,6 +43,17 @@ export class ServiceRepository {
             .select('s.*', 'tutor.name as tutor_name')
             .join('user as tutor', 's.tutor_id', 'tutor.id')
             .whereNull('s.babysitter_id');
+
+        for (const foundService of foundServices) {
+            const enrollments = await this.db('user as u')
+                .select('u.id as babysitter_id', 'u.name as babysitter_name')
+                .whereIn('u.id', JSON.parse(foundService.enrollments));
+
+            foundService.enrollments = enrollments.map(enrollment => ({
+                babysitterId: enrollment.babysitter_id,
+                babysitterName: enrollment.babysitter_name,
+            }));
+        }
 
         return foundServices.map(foundService => new Service({
             id: foundService.id,
@@ -47,6 +66,7 @@ export class ServiceRepository {
             value: foundService.value,
             childrenCount: foundService.children_count,
             address: foundService.address,
+            enrollments: foundService.enrollments,
         }));
     }
 
@@ -57,6 +77,18 @@ export class ServiceRepository {
             .leftJoin('user as babysitter', 's.babysitter_id', 'babysitter.id')
             .where('s.tutor_id', tutorId);
 
+        for (const foundService of foundServices) {
+            console.log(JSON.parse(foundService.enrollments));
+            const enrollments = await this.db('user as u')
+                .select('u.id as babysitter_id', 'u.name as babysitter_name')
+                .whereIn('u.id', JSON.parse(foundService.enrollments));
+
+            foundService.enrollments = enrollments.map(enrollment => ({
+                babysitterId: enrollment.babysitter_id,
+                babysitterName: enrollment.babysitter_name,
+            }));
+        }
+
         return foundServices.map(foundService => new Service({
             id: foundService.id,
             babysitterId: foundService.babysitter_id,
@@ -68,6 +100,7 @@ export class ServiceRepository {
             value: foundService.value,
             childrenCount: foundService.children_count,
             address: foundService.address,
+            enrollments: foundService.enrollments,
         }));
     }
 
@@ -78,6 +111,17 @@ export class ServiceRepository {
             .join('user as babysitter', 's.babysitter_id', 'babysitter.id')
             .where('s.babysitter_id', babysitterId);
 
+        for (const foundService of foundServices) {
+            const enrollments = await this.db('user as u')
+                .select('u.id as babysitter_id', 'u.name as babysitter_name')
+                .whereIn('u.id', JSON.parse(foundService.enrollments));
+
+            foundService.enrollments = enrollments.map(enrollment => ({
+                babysitterId: enrollment.babysitter_id,
+                babysitterName: enrollment.babysitter_name,
+            }));
+        }
+
         return foundServices.map(foundService => new Service({
             id: foundService.id,
             babysitterId: foundService.babysitter_id,
@@ -89,6 +133,7 @@ export class ServiceRepository {
             value: foundService.value,
             childrenCount: foundService.children_count,
             address: foundService.address,
+            enrollments: foundService.enrollments,
         }));
     }
 
@@ -103,6 +148,7 @@ export class ServiceRepository {
                 value: service.value,
                 children_count: service.childrenCount,
                 address: service.address,
+                enrollments: JSON.stringify(service.enrollments),
             });
 
             return service;
@@ -120,7 +166,17 @@ export class ServiceRepository {
                 value: service.value,
                 children_count: service.childrenCount,
                 address: service.address,
+                enrollments: JSON.stringify(service.enrollments),
             });
+
+            const enrollments = await this.db('user as u')
+            .select('u.id as babysitter_id', 'u.name as babysitter_name')
+            .whereIn('u.id', service.enrollments);
+
+            service.enrollments = enrollments.map(enrollment => ({
+                babysitterId: enrollment.babysitter_id,
+                babysitterName: enrollment.babysitter_name,
+            }));
 
             return service;
         } catch (error) {

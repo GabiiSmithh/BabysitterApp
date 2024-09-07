@@ -10,6 +10,7 @@ export class Service {
         value,
         childrenCount,
         address,
+        enrollments,
     }) {
         this.id = id;
         this.babysitterId = babysitterId;
@@ -21,5 +22,6 @@ export class Service {
         this.value = value;
         this.childrenCount = childrenCount;
         this.address = address;
+        this.enrollments = enrollments;
     }
 }

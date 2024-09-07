@@ -25,6 +25,7 @@ export class ServiceService {
             value: createServiceDTO.value,
             childrenCount: createServiceDTO.childrenCount,
             address: createServiceDTO.address,
+            enrollments: [],
         });
 
         return this.serviceRepository.create(service);
@@ -41,7 +42,12 @@ export class ServiceService {
             throw new BabysitterAlreadyAssigned;
         }
 
-        foundService.babysitterId = enrollBabysitterDTO.babysitterId;
+        if (foundService.enrollments.find(enrollment => enrollment.babysitterId === enrollBabysitterDTO.babysitterId)) {
+            throw new BabysitterAlreadyAssigned;
+        }
+
+        foundService.enrollments = foundService.enrollments.map(enrollment => enrollment.babysitterId);
+        foundService.enrollments.push(enrollBabysitterDTO.babysitterId);
 
         await this.serviceRepository.update(foundService);
 
