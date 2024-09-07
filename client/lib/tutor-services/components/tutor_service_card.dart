@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
+import '../../babysitting-services/service.dart';
+
 class TutorServiceCard extends StatefulWidget {
   final String tutorName;
   final int childrenCount;
   final DateTime startDate;
   final DateTime endDate;
   final String address;
+  final String serviceId;
   final String? babysitterId;
   final String? babysitterName;
   final VoidCallback onAccept;
@@ -18,6 +21,7 @@ class TutorServiceCard extends StatefulWidget {
     required this.startDate,
     required this.endDate,
     required this.address,
+    required this.serviceId,
     required this.babysitterId,
     required this.babysitterName,
     required this.onAccept,
@@ -35,6 +39,11 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
   late TextEditingController _endDateController;
   late TextEditingController _addressController;
 
+  Map<String, dynamic> formData = {
+    'address': '',
+    'children_count': '',
+  };
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +59,29 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
     setState(() {
       _isEditing = !_isEditing;
     });
+  }
+
+  void _editService() async {
+    try {
+      //   'start_date': '',
+      // 'end_date': '',
+      // 'value': 0,
+      // 'children_count': 0,
+      // 'address': ''
+      formData["address"] = _addressController.text;
+      formData["children_count"] = _childrenCountController.text;
+
+      // _isEditing = !_isEditing;
+      _toggleEdit();
+      await BabySittingService.updateService(widget.serviceId, formData);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Serviço editado com Sucesso!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Falha ao criar serviço: $e')),
+      );
+    }
   }
 
   bool get _isServiceDone {
@@ -98,7 +130,7 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
                         _isEditing ? Icons.check : Icons.edit,
                         color: Colors.pinkAccent,
                       ),
-                      onPressed: _toggleEdit,
+                      onPressed: _isEditing ? _editService : _toggleEdit,
                     ),
                 ],
               ),
@@ -115,19 +147,15 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
                     isEditing: _isEditing,
                   ),
                   const SizedBox(height: 8.0),
-                  _buildEditableField(
-                    icon: Icons.calendar_today,
-                    label: 'Data de Início',
-                    controller: _startDateController,
-                    isEditing: _isEditing,
-                  ),
+                  _buildNonEditableField(
+                      icon: Icons.calendar_today,
+                      label: 'Data de Início',
+                      value: widget.startDate.toString()),
                   const SizedBox(height: 8.0),
-                  _buildEditableField(
-                    icon: Icons.calendar_today_outlined,
-                    label: 'Data de Fim',
-                    controller: _endDateController,
-                    isEditing: _isEditing,
-                  ),
+                  _buildNonEditableField(
+                      icon: Icons.calendar_today_outlined,
+                      label: 'Data de Fim',
+                      value: widget.endDate.toString()),
                   const SizedBox(height: 8.0),
                   _buildEditableField(
                     icon: Icons.location_on,

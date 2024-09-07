@@ -46,6 +46,23 @@ class BabySittingService {
     }
   }
 
+  static Future<void> updateService(
+      String serviceId, Map<String, dynamic> serviceData) async {
+    try {
+      final payload = {
+        "children_count": serviceData['children_count'],
+        "address": serviceData['address'],
+      };
+
+      await ApiService.patch(
+        'services/$serviceId',
+        payload,
+      );
+    } catch (e) {
+      throw Exception('Error updating service: $e');
+    }
+  }
+
   static Future<void> acceptService(String serviceId) async {
     try {
       await ApiService.post('services/$serviceId/enroll', {});
