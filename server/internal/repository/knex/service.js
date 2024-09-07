@@ -80,7 +80,6 @@ export class ServiceRepository {
             .orderBy('s.start_date', 'asc');
 
         for (const foundService of foundServices) {
-            console.log(JSON.parse(foundService.enrollments));
             const enrollments = await this.db('user as u')
                 .select('u.id as babysitter_id', 'u.name as babysitter_name')
                 .whereIn('u.id', JSON.parse(foundService.enrollments));
