@@ -36,7 +36,7 @@ export class ExpressAuthHandler {
                 newPassword: new_password,
             });
 
-            return res.status(200).json();
+            return res.status(204).json();
         } catch (error) {
             // TODO: return correct status for different cases
             return res.status(401).json({ message: 'Invalid credentials.' });
