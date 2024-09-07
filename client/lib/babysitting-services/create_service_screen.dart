@@ -60,7 +60,8 @@ class _CreateServicePageState extends State<CreateServicePage> {
             DateTime? pickedDate = await _selectDateTime(context);
             if (pickedDate != null) {
               setState(() {
-                formData[key] = DateFormat('yyyy-MM-dd').format(pickedDate);
+                formData[key] =
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedDate);
                 startDateController.text = formData[key];
               });
             }
@@ -80,7 +81,8 @@ class _CreateServicePageState extends State<CreateServicePage> {
             DateTime? pickedDate = await _selectDateTime(context);
             if (pickedDate != null) {
               setState(() {
-                formData[key] = DateFormat('yyyy-MM-dd').format(pickedDate);
+                formData[key] =
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(pickedDate);
                 endDateController.text = formData[key];
               });
             }
