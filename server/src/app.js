@@ -106,6 +106,7 @@ app.post('/users/roles/tutor', authMiddleware.authenticate.bind(authMiddleware),
 
 // auth endpoints
 app.post('/auth/login', authHandler.login.bind(authHandler));
+app.post('/auth/change-password', authHandler.changePassword.bind(authHandler));
 
 app.listen(port, () => {
     console.log(`server starting at http://127.0.0.1:${port}`);

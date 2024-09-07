@@ -25,4 +25,21 @@ export class ExpressAuthHandler {
             return res.status(400).json({ message: error.message });
         }
     }
+
+    async changePassword(req, res) {
+        try {
+            const { email, current_password, new_password } = req.body;
+
+            const updatedUser = await this.userService.changePassword({
+                email: email,
+                currentPassword: current_password,
+                newPassword: new_password,
+            });
+
+            return res.status(200).json();
+        } catch (error) {
+            // TODO: return correct status for different cases
+            return res.status(401).json({ message: 'Invalid credentials.' });
+        }
+    }
 }

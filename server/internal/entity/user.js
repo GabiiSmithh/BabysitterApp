@@ -24,4 +24,13 @@ export class User {
     hashPassword() {
         this.password = bcrypt.hashSync(this.password, 10);
     }
+
+    changePassword({currentPassword, newPassword}) {
+        if (!bcrypt.compareSync(currentPassword, this.password)) {
+            throw new Error('Invalid password');
+        }
+
+        this.password = newPassword;
+        this.hashPassword();
+    }
 }
