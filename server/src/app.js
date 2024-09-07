@@ -99,6 +99,7 @@ app.get('/services', serviceHandler.list.bind(serviceHandler));
 app.post('/services', serviceHandler.create.bind(serviceHandler));
 app.patch('/services/:service_id', serviceHandler.update.bind(serviceHandler));
 app.post('/services/:service_id/enroll', authMiddleware.authenticate.bind(authMiddleware), serviceHandler.enrollBabysitter.bind(serviceHandler));
+app.post('/services/:service_id/choose-enrollment', authMiddleware.authenticate.bind(authMiddleware), serviceHandler.chooseEnrollment.bind(serviceHandler));
 
 // user endpoints
 app.post('/users/roles/babysitter', authMiddleware.authenticate.bind(authMiddleware), userHandler.assignBabysitter.bind(userHandler));

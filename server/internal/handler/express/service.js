@@ -69,6 +69,29 @@ export class ExpressServiceHandler {
         }
     }
 
+    async chooseEnrollment(req, res) {
+        try {
+            const { babysitter_id } = req.body;
+
+            const chooseEnrollmentDTO = {
+                serviceId: req.params.service_id,
+                tutorId: req.user.id,
+                babysitterId: babysitter_id,
+            };
+
+            const chosenService = await this.serviceService.chooseEnrollment(chooseEnrollmentDTO);
+
+            if (!chosenService) {
+                return res.status(404).json({ message: 'Service not found.' });
+            }
+
+            return res.status(200).json(chosenService);
+        } catch (error) {
+            // TODO: return correct status for different cases
+            return res.status(400).json({ message: error.message });
+        }
+    }
+
     async update(req, res) {
         try {
             const updateServiceDTO = {

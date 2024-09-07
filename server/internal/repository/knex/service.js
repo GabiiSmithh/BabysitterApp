@@ -171,6 +171,10 @@ export class ServiceRepository {
                 enrollments: JSON.stringify(service.enrollments),
             });
 
+            const babysitterName = await this.db('user').select('name').where('id', service.babysitterId);
+
+            service.babysitterName = babysitterName[0].name;
+
             const enrollments = await this.db('user as u')
             .select('u.id as babysitter_id', 'u.name as babysitter_name')
             .whereIn('u.id', service.enrollments);

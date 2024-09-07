@@ -54,6 +54,33 @@ export class ServiceService {
         return foundService;
     }
 
+    async chooseEnrollment(chooseEnrollmentDTO) {
+        const foundService = await this.serviceRepository.getByID(chooseEnrollmentDTO.serviceId)
+        
+        if (!foundService) {
+            return foundService
+        }
+
+        if (foundService.tutorId !== chooseEnrollmentDTO.tutorId) {
+            throw new Error('Service does not belong to informed tutor');
+        }
+
+        if (foundService.babysitterId) {
+            throw new BabysitterAlreadyAssigned;
+        }
+
+        if (!foundService.enrollments.find(enrollment => enrollment.babysitterId === chooseEnrollmentDTO.babysitterId)) {
+            throw new Error('Informed babysitter is not enrolled in service');
+        }
+
+        foundService.babysitterId = chooseEnrollmentDTO.babysitterId;
+        foundService.enrollments = [];
+
+        await this.serviceRepository.update(foundService);
+
+        return foundService;
+    }
+
     async update(updateServiceDTO) {
         const foundService = await this.serviceRepository.getByID(updateServiceDTO.id)
         
