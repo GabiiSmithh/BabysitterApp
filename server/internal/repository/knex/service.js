@@ -42,7 +42,8 @@ export class ServiceRepository {
         const foundServices = await this.db('service as s')
             .select('s.*', 'tutor.name as tutor_name')
             .join('user as tutor', 's.tutor_id', 'tutor.id')
-            .whereNull('s.babysitter_id');
+            .whereNull('s.babysitter_id')
+            .orderBy('s.start_date', 'asc');
 
         for (const foundService of foundServices) {
             const enrollments = await this.db('user as u')
@@ -75,7 +76,8 @@ export class ServiceRepository {
             .select('s.*', 'tutor.name as tutor_name', 'babysitter.name as babysitter_name')
             .join('user as tutor', 's.tutor_id', 'tutor.id')
             .leftJoin('user as babysitter', 's.babysitter_id', 'babysitter.id')
-            .where('s.tutor_id', tutorId);
+            .where('s.tutor_id', tutorId)
+            .orderBy('s.start_date', 'asc');
 
         for (const foundService of foundServices) {
             console.log(JSON.parse(foundService.enrollments));
@@ -109,7 +111,8 @@ export class ServiceRepository {
             .select('s.*', 'tutor.name as tutor_name', 'babysitter.name as babysitter_name')
             .join('user as tutor', 's.tutor_id', 'tutor.id')
             .join('user as babysitter', 's.babysitter_id', 'babysitter.id')
-            .where('s.babysitter_id', babysitterId);
+            .where('s.babysitter_id', babysitterId)
+            .orderBy('s.start_date', 'asc');
 
         for (const foundService of foundServices) {
             const enrollments = await this.db('user as u')
