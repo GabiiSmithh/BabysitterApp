@@ -52,6 +52,9 @@ class BabySittingService {
       final payload = {
         "children_count": serviceData['children_count'],
         "address": serviceData['address'],
+        "start_date": serviceData['start_date'],
+        "end_date": serviceData['end_date'],
+        "value": serviceData['value'],
       };
 
       await ApiService.patch(

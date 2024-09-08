@@ -101,6 +101,7 @@ class _TutorServicesScreenState extends State<TutorServicesScreen> {
                           babysitterName: service['babysitterName'],
                           tutorName: service['tutorName'],
                           childrenCount: service['childrenCount'],
+                          value: service['value'],
                           startDate: DateTime.parse(service['startDate']),
                           endDate: DateTime.parse(service['endDate']),
                           address: service['address'],
