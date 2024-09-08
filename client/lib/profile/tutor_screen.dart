@@ -1,12 +1,11 @@
-import 'package:client/common/api_service.dart';
-import 'package:client/common/app_bar.dart';
-import 'package:client/profile/tutor_profile_service.dart';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart'; // Import the intl package
+import 'package:client/common/api_service.dart';
+import 'package:client/common/app_bar.dart';
+import 'package:client/profile/tutor_profile_service.dart';
 
 class TutorProfileScreen extends StatefulWidget {
   const TutorProfileScreen({super.key});
@@ -16,8 +15,8 @@ class TutorProfileScreen extends StatefulWidget {
 }
 
 class _TutorProfileScreenState extends State<TutorProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
   String userName = '';
+  String userGender = '';
   String userEmail = '';
   String userCellphone = '';
   String userBirthDate = '';
@@ -25,14 +24,20 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
   int userChildrenQuantity = 0;
   bool isLoading = true;
   bool isEditing = false;
-  String userId = '';
+  bool isChangingPassword = false;
   bool isTutor = false;
   bool isBabysitter = false;
+  bool _isCurrentPasswordVisible = false;
+  bool _isNewPasswordVisible = false;
+  bool _isConfirmNewPasswordVisible = false;
+  String userId = '';
 
   final phoneController = MaskedTextController(mask: '(00)00000-0000');
-  final birthDateController = TextEditingController();
   final addressController = TextEditingController();
   final childrenController = TextEditingController();
+  final currentPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmNewPasswordController = TextEditingController();
 
   @override
   void initState() {
@@ -59,35 +64,20 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
 
   Future<void> _fetchProfileData() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final jwtToken = prefs.getString('jwt_token') ?? '';
-
-      final profileResponse = await http.get(
-        Uri.parse('http://201.23.18.202:3333/tutors/$userId'),
-        headers: {'Authorization': 'Bearer $jwtToken'},
-      );
-
-      if (profileResponse.statusCode == 200) {
-        final data = json.decode(profileResponse.body);
-        setState(() {
-          userName = data['name'];
-          userEmail = data['email'];
-          phoneController.text = data['cellphone'];
-          userBirthDate = data['birthDate'];
-          userAddress = data['address'] ?? '';
-          userChildrenQuantity = data['childrenCount'] ?? 0;
-
-          final parsedDate = DateTime.parse(userBirthDate);
-          final formattedDate = DateFormat('dd/MM/yyyy').format(parsedDate);
-          birthDateController.text = formattedDate;
-          addressController.text = userAddress;
-          childrenController.text = userChildrenQuantity.toString();
-        });
-      } else {
-        throw Exception('Failed to load profile data');
-      }
-
+      final data = await TutorProfileService.fetchData(userId);
       final userRoles = await ApiService.getRoles();
+      setState(() {
+        userName = data['name'];
+        userGender = data['gender'];
+        userEmail = data['email'];
+        phoneController.text = data['cellphone'];
+        userBirthDate = data['birthDate'];
+        addressController.text = data['address'] ?? '';
+        childrenController.text = data['childrenCount']?.toString() ?? '0';
+        userAddress = data['address'] ?? '';
+        userChildrenQuantity = data['childrenCount'] ?? 0;
+        isLoading = false;
+      });
 
       setState(() {
         isBabysitter = userRoles.contains('babysitter');
@@ -104,37 +94,122 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
     }
   }
 
+  Future<void> _becomeBabysitter() async {
+    Navigator.of(context).pushNamed('/become-babysitter');
+  }
+
   void _toggleEditing() {
     setState(() {
       isEditing = !isEditing;
+      if (isEditing) {
+        isChangingPassword =
+            false; // Reset password change mode when starting editing
+      }
+    });
+  }
+
+  void _toggleChangePassword() {
+    setState(() {
+      isChangingPassword = !isChangingPassword;
     });
   }
 
   Future<void> _saveProfile() async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        final input = {
-          'email': userEmail,
-          'cellphone': phoneController.text,
-          'childrenCount': int.tryParse(childrenController.text) ?? 0,
-          'address': addressController.text,
-        };
-
-        await TutorProfileService.updateTutorProfile(userId, input);
-        _toggleEditing();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Perfil atualizado com sucesso')),
-        );
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro: ${e.toString()}')),
-        );
+    try {
+      if (isChangingPassword) {
+        await _changePassword();
+      } else {
+        await _updateTutorProfile(userId);
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${e.toString()}')),
+      );
     }
   }
 
-  void _becomeBabysitter() {
-    Navigator.of(context).pushNamed('/become-babysitter');
+  Future<void> _changePassword() async {
+    final currentPassword = currentPasswordController.text;
+    final newPassword = newPasswordController.text;
+    final confirmNewPassword = confirmNewPasswordController.text;
+
+    if (newPassword != confirmNewPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('As novas senhas não coincidem')),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://201.23.18.202:3333/auth/change-password'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'email': userEmail,
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 204) {
+        // Senha alterada com sucesso
+        setState(() {
+          isChangingPassword = false;
+          isEditing = false;
+        });
+        // Limpar campos de senha
+        currentPasswordController.clear();
+        newPasswordController.clear();
+        confirmNewPasswordController.clear();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Senha alterada com sucesso')),
+        );
+
+        _toggleEditing(); // Exit editing mode
+      } else {
+        // Manipular erro na resposta
+        final data = json.decode(response.body);
+        final errorMessage = data['message'] ?? 'Erro ao alterar a senha';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${e.toString()}')),
+      );
+    }
+  }
+
+  Future<void> _updateTutorProfile(String userId) async {
+    final Map<String, dynamic> profileData = {
+      'name': userName,
+      'email': userEmail,
+      'address': addressController.text,
+      'cellphone': phoneController.text.replaceAll(RegExp(r'[^\d]'), ''),
+      'children_count': int.parse(childrenController.text),
+    };
+
+    final response = await http.patch(
+      Uri.parse('http://201.23.18.202:3333/tutors/$userId'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(profileData),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Perfil atualizado com sucesso')),
+      );
+      _toggleEditing(); // Exit editing mode
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Erro ao atualizar perfil: ${response.statusCode}')),
+      );
+    }
   }
 
   @override
@@ -151,83 +226,75 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    CircleAvatar(
-                      radius: 70,
-                      backgroundColor: const Color.fromARGB(255, 182, 46, 92),
-                      child: Text(
-                        userName.isNotEmpty ? userName[0] : '',
-                        style: const TextStyle(
-                          fontSize: 50,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20.0),
-                    Text(
-                      userName,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 70,
+                    backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                    child: Text(
+                      userName.isNotEmpty ? userName[0] : '',
                       style: const TextStyle(
-                        fontSize: 30,
-                        color: Color.fromARGB(255, 182, 46, 92),
+                        fontSize: 50,
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
-                      textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 10.0),
-                    _buildProfileField(Icons.calendar_today,
-                        'Data de Nascimento', birthDateController.text,
-                        controller: birthDateController, validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'A data de nascimento é obrigatória';
-                      }
-                      return null;
-                    }, editable: false),
-                    const SizedBox(height: 20.0),
-                    _buildProfileField(
-                        Icons.home, 'Endereço', addressController.text,
-                        controller: addressController, validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'O endereço é obrigatório';
-                      }
-                      return null;
-                    }, editable: isEditing),
-                    const SizedBox(height: 20.0),
-                    _buildProfileField(Icons.child_care,
-                        'Quantidade de Crianças', childrenController.text,
-                        controller: childrenController, validator: (value) {
-                      if (value!.isEmpty || int.tryParse(value) == null) {
-                        return 'Informe um número válido de crianças';
-                      }
-                      return null;
-                    }, editable: isEditing),
-                    const SizedBox(height: 20.0),
+                  ),
+                  const SizedBox(height: 20.0),
+                  Text(
+                    userName,
+                    style: const TextStyle(
+                      fontSize: 30,
+                      color: Color.fromARGB(255, 182, 46, 92),
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20.0),
+                  if (!isEditing) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.person,
+                              color: const Color.fromARGB(255, 182, 46, 92),
+                              size: 28),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: Text(
+                              'Gênero: $userGender',
+                              style: const TextStyle(
+                                  fontSize: 18, color: Colors.black54),
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  // Conditionally display profile fields or password change fields
+                  if (isChangingPassword) ...[
+                    _buildPasswordChangeFields(),
+                  ] else ...[
                     _buildProfileField(Icons.email, 'Email', userEmail,
-                        initialValue: userEmail, validator: (value) {
-                      if (value!.isEmpty ||
-                          !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                        return 'Informe um email válido';
-                      }
-                      return null;
-                    }, editable: isEditing),
-                    const SizedBox(height: 20.0),
+                        editable: isEditing),
                     _buildProfileField(
                         Icons.phone, 'Telefone', phoneController.text,
-                        controller: phoneController, validator: (value) {
-                      if (value!.isEmpty ||
-                          !RegExp(r'^\(\d{2}\)\d{5}-\d{4}$').hasMatch(value)) {
-                        return 'Informe um número de telefone válido';
-                      }
-                      return null;
-                    }, editable: isEditing),
-                    const SizedBox(height: 20.0),
+                        editable: isEditing),
+                    _buildProfileField(
+                        Icons.home, 'Endereço', addressController.text,
+                        editable: isEditing),
+                    _buildProfileField(Icons.child_care,
+                        'Quantidade de Crianças', childrenController.text,
+                        editable: isEditing),
+                  ],
+                  const SizedBox(height: 20.0),
+                  if (!isTutor || !isBabysitter) ...[
                     ElevatedButton(
-                      onPressed: isEditing ? _saveProfile : _toggleEditing,
+                      onPressed: _becomeBabysitter,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 182, 46, 92),
                         padding: const EdgeInsets.symmetric(
@@ -236,57 +303,161 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      child: Text(
-                        isEditing ? 'Salvar' : 'Editar Perfil',
-                        style: const TextStyle(color: Colors.white),
+                      child: const Text(
+                        'Virar Babá',
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                     const SizedBox(height: 20.0),
-                    if (!(isBabysitter && isTutor))
+                  ],
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                       ElevatedButton(
-                        onPressed: _becomeBabysitter,
+                        onPressed: isEditing ? _saveProfile : _toggleEditing,
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
-                              const Color.fromARGB(255, 0, 123, 255),
+                              const Color.fromARGB(255, 182, 46, 92),
                           padding: const EdgeInsets.symmetric(
                               vertical: 15.0, horizontal: 30.0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30.0),
                           ),
                         ),
-                        child: const Text(
-                          'Virar Babá',
-                          style: TextStyle(color: Colors.white),
+                        child: Text(
+                          isEditing ? 'Salvar' : 'Editar Perfil',
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                  ],
-                ),
+                      const SizedBox(width: 10.0),
+                      if (isEditing) ...[
+                        ElevatedButton(
+                          onPressed: _toggleChangePassword,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 182, 46, 92),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15.0, horizontal: 30.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          child: Text(
+                            isChangingPassword ? 'Cancelar' : 'Trocar Senha',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
               ),
             ),
     );
   }
 
-  Widget _buildProfileField(
-    IconData icon,
-    String label,
-    String value, {
-    TextEditingController? controller,
-    bool editable = false,
-    String? Function(String?)? validator,
-    String? initialValue,
-  }) {
-    return TextFormField(
-      initialValue: initialValue,
-      controller: controller,
-      decoration: InputDecoration(
-        icon: Icon(icon),
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12.0),
-        ),
+  Widget _buildProfileField(IconData icon, String label, String value,
+      {bool editable = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: const Color.fromARGB(255, 182, 46, 92), size: 28),
+          const SizedBox(width: 16.0),
+          Expanded(
+            child: editable
+                ? TextFormField(
+                    initialValue: value,
+                    decoration: InputDecoration(
+                      labelText: label,
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (text) {
+                      switch (label) {
+                        case 'Email':
+                          userEmail = text;
+                          break;
+                        case 'Telefone':
+                          phoneController.text = text;
+                          break;
+                        case 'Endereço':
+                          userAddress = text;
+                          break;
+                        case 'Quantidade de Crianças':
+                          userChildrenQuantity = int.parse(text);
+                          break;
+                      }
+                    },
+                  )
+                : Text(
+                    value,
+                    style: const TextStyle(fontSize: 18, color: Colors.black54),
+                    textAlign: TextAlign.start,
+                  ),
+          ),
+        ],
       ),
-      enabled: editable,
-      validator: validator,
     );
   }
+
+  Widget _buildPasswordChangeFields() {
+    return Column(
+      children: [
+        _buildPasswordField(
+            'Senha Atual', currentPasswordController, _isCurrentPasswordVisible,
+            () {
+          setState(() {
+            _isCurrentPasswordVisible = !_isCurrentPasswordVisible;
+          });
+        }),
+        _buildPasswordField(
+            'Nova Senha', newPasswordController, _isNewPasswordVisible, () {
+          setState(() {
+            _isNewPasswordVisible = !_isNewPasswordVisible;
+          });
+        }),
+        _buildPasswordField('Confirmar Nova Senha',
+            confirmNewPasswordController, _isConfirmNewPasswordVisible, () {
+          setState(() {
+            _isConfirmNewPasswordVisible = !_isConfirmNewPasswordVisible;
+          });
+        }),
+        const SizedBox(height: 20.0),
+      ],
+    );
+  }
+
+Widget _buildPasswordField(String label, TextEditingController controller, bool isPasswordVisible, Function() togglePasswordVisibility) {
+    IconData icon = label == 'Senha Atual' ? Icons.lock_outline : Icons.lock;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: const Color.fromARGB(255, 182, 46, 92), size: 28),
+          const SizedBox(width: 16.0),
+          Expanded(
+            child: TextFormField(
+              controller: controller,
+              obscureText: !isPasswordVisible,
+              decoration: InputDecoration(
+                labelText: label,
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: const Color.fromARGB(255, 182, 46, 92),
+                  ),
+                  onPressed: togglePasswordVisibility,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
 }
