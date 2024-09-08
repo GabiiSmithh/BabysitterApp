@@ -147,14 +147,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
                 ),
               ),
               const PopupMenuItem<String>(
-                value: 'settings',
-                child: ListTile(
-                  leading: Icon(Icons.settings,
-                      color: Color.fromARGB(255, 182, 46, 92)),
-                  title: Text('Configurações da conta'),
-                ),
-              ),
-              const PopupMenuItem<String>(
                 value: 'logout',
                 child: ListTile(
                   leading: Icon(Icons.logout,

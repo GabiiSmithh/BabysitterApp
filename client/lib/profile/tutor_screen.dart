@@ -1,9 +1,11 @@
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:client/common/api_service.dart';
 import 'package:client/common/app_bar.dart';
 import 'package:client/profile/tutor_profile_service.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_masked_text2/flutter_masked_text2.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class TutorProfileScreen extends StatefulWidget {
   const TutorProfileScreen({super.key});
@@ -22,13 +24,20 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
   int userChildrenQuantity = 0;
   bool isLoading = true;
   bool isEditing = false;
+  bool isChangingPassword = false;
   bool isTutor = false;
   bool isBabysitter = false;
+  bool _isCurrentPasswordVisible = false;
+  bool _isNewPasswordVisible = false;
+  bool _isConfirmNewPasswordVisible = false;
   String userId = '';
 
   final phoneController = MaskedTextController(mask: '(00)00000-0000');
   final addressController = TextEditingController();
   final childrenController = TextEditingController();
+  final currentPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmNewPasswordController = TextEditingController();
 
   @override
   void initState() {
@@ -92,19 +101,113 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
   void _toggleEditing() {
     setState(() {
       isEditing = !isEditing;
+      if (isEditing) {
+        isChangingPassword =
+            false; // Reset password change mode when starting editing
+      }
+    });
+  }
+
+  void _toggleChangePassword() {
+    setState(() {
+      isChangingPassword = !isChangingPassword;
     });
   }
 
   Future<void> _saveProfile() async {
     try {
-      // Implement profile update logic
-      _toggleEditing(); // Exit editing mode
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Perfil atualizado com sucesso')),
-      );
+      if (isChangingPassword) {
+        await _changePassword();
+      } else {
+        await _updateTutorProfile(userId);
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro: ${e.toString()}')),
+      );
+    }
+  }
+
+  Future<void> _changePassword() async {
+    final currentPassword = currentPasswordController.text;
+    final newPassword = newPasswordController.text;
+    final confirmNewPassword = confirmNewPasswordController.text;
+
+    if (newPassword != confirmNewPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('As novas senhas não coincidem')),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('http://201.23.18.202:3333/auth/change-password'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'email': userEmail,
+          'current_password': currentPassword,
+          'new_password': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 204) {
+        // Senha alterada com sucesso
+        setState(() {
+          isChangingPassword = false;
+          isEditing = false;
+        });
+        // Limpar campos de senha
+        currentPasswordController.clear();
+        newPasswordController.clear();
+        confirmNewPasswordController.clear();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Senha alterada com sucesso')),
+        );
+
+        _toggleEditing(); // Exit editing mode
+      } else {
+        // Manipular erro na resposta
+        final data = json.decode(response.body);
+        final errorMessage = data['message'] ?? 'Erro ao alterar a senha';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro: ${e.toString()}')),
+      );
+    }
+  }
+
+  Future<void> _updateTutorProfile(String userId) async {
+    final Map<String, dynamic> profileData = {
+      'name': userName,
+      'email': userEmail,
+      'address': addressController.text,
+      'cellphone': phoneController.text.replaceAll(RegExp(r'[^\d]'), ''),
+      'children_count': int.parse(childrenController.text),
+    };
+
+    final response = await http.patch(
+      Uri.parse('http://201.23.18.202:3333/tutors/$userId'),
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode(profileData),
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Perfil atualizado com sucesso')),
+      );
+      _toggleEditing(); // Exit editing mode
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Erro ao atualizar perfil: ${response.statusCode}')),
       );
     }
   }
@@ -149,21 +252,45 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 10.0),
                   const SizedBox(height: 20.0),
-                  _buildProfileField(Icons.person, 'Gênero', userGender,
-                      editable: isEditing),
-                  _buildProfileField(Icons.email, 'Email', userEmail,
-                      editable: isEditing),
-                  _buildProfileField(
-                      Icons.phone, 'Telefone', phoneController.text,
-                      editable: isEditing),
-                  _buildProfileField(
-                      Icons.home, 'Endereço', addressController.text,
-                      editable: isEditing),
-                  _buildProfileField(Icons.child_care, 'Quantidade de Crianças',
-                      childrenController.text,
-                      editable: isEditing),
+                  if (!isEditing) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.person,
+                              color: const Color.fromARGB(255, 182, 46, 92),
+                              size: 28),
+                          const SizedBox(width: 16.0),
+                          Expanded(
+                            child: Text(
+                              'Gênero: $userGender',
+                              style: const TextStyle(
+                                  fontSize: 18, color: Colors.black54),
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                  // Conditionally display profile fields or password change fields
+                  if (isChangingPassword) ...[
+                    _buildPasswordChangeFields(),
+                  ] else ...[
+                    _buildProfileField(Icons.email, 'Email', userEmail,
+                        editable: isEditing),
+                    _buildProfileField(
+                        Icons.phone, 'Telefone', phoneController.text,
+                        editable: isEditing),
+                    _buildProfileField(
+                        Icons.home, 'Endereço', addressController.text,
+                        editable: isEditing),
+                    _buildProfileField(Icons.child_care,
+                        'Quantidade de Crianças', childrenController.text,
+                        editable: isEditing),
+                  ],
                   const SizedBox(height: 20.0),
                   if (!isTutor || !isBabysitter) ...[
                     ElevatedButton(
@@ -183,20 +310,45 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
                     ),
                     const SizedBox(height: 20.0),
                   ],
-                  ElevatedButton(
-                    onPressed: isEditing ? _saveProfile : _toggleEditing,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 182, 46, 92),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 15.0, horizontal: 30.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: isEditing ? _saveProfile : _toggleEditing,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 182, 46, 92),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15.0, horizontal: 30.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                        ),
+                        child: Text(
+                          isEditing ? 'Salvar' : 'Editar Perfil',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      isEditing ? 'Salvar' : 'Editar Perfil',
-                      style: const TextStyle(color: Colors.white),
-                    ),
+                      const SizedBox(width: 10.0),
+                      if (isEditing) ...[
+                        ElevatedButton(
+                          onPressed: _toggleChangePassword,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 182, 46, 92),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15.0, horizontal: 30.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          child: Text(
+                            isChangingPassword ? 'Cancelar' : 'Trocar Senha',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
@@ -217,39 +369,30 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
             child: editable
                 ? TextFormField(
                     initialValue: value,
-                    onChanged: (newValue) {
+                    decoration: InputDecoration(
+                      labelText: label,
+                      border: OutlineInputBorder(),
+                    ),
+                    onChanged: (text) {
                       switch (label) {
-                        case 'Gênero':
-                          userGender = newValue;
-                          break;
                         case 'Email':
-                          userEmail = newValue;
+                          userEmail = text;
                           break;
                         case 'Telefone':
-                          phoneController.text = newValue;
+                          phoneController.text = text;
                           break;
                         case 'Endereço':
-                          addressController.text = newValue;
+                          userAddress = text;
                           break;
                         case 'Quantidade de Crianças':
-                          childrenController.text = newValue;
+                          userChildrenQuantity = int.parse(text);
                           break;
                       }
                     },
-                    decoration: InputDecoration(
-                      labelText: label,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                    ),
-                    style: const TextStyle(fontSize: 18, color: Colors.black54),
                   )
                 : Text(
-                    '$label: $value',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black54,
-                    ),
+                    value,
+                    style: const TextStyle(fontSize: 18, color: Colors.black54),
                     textAlign: TextAlign.start,
                   ),
           ),
@@ -257,4 +400,64 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
       ),
     );
   }
+
+  Widget _buildPasswordChangeFields() {
+    return Column(
+      children: [
+        _buildPasswordField(
+            'Senha Atual', currentPasswordController, _isCurrentPasswordVisible,
+            () {
+          setState(() {
+            _isCurrentPasswordVisible = !_isCurrentPasswordVisible;
+          });
+        }),
+        _buildPasswordField(
+            'Nova Senha', newPasswordController, _isNewPasswordVisible, () {
+          setState(() {
+            _isNewPasswordVisible = !_isNewPasswordVisible;
+          });
+        }),
+        _buildPasswordField('Confirmar Nova Senha',
+            confirmNewPasswordController, _isConfirmNewPasswordVisible, () {
+          setState(() {
+            _isConfirmNewPasswordVisible = !_isConfirmNewPasswordVisible;
+          });
+        }),
+        const SizedBox(height: 20.0),
+      ],
+    );
+  }
+
+Widget _buildPasswordField(String label, TextEditingController controller, bool isPasswordVisible, Function() togglePasswordVisibility) {
+    IconData icon = label == 'Senha Atual' ? Icons.lock_outline : Icons.lock;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: const Color.fromARGB(255, 182, 46, 92), size: 28),
+          const SizedBox(width: 16.0),
+          Expanded(
+            child: TextFormField(
+              controller: controller,
+              obscureText: !isPasswordVisible,
+              decoration: InputDecoration(
+                labelText: label,
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    color: const Color.fromARGB(255, 182, 46, 92),
+                  ),
+                  onPressed: togglePasswordVisibility,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+  
 }

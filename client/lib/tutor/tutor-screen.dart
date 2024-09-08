@@ -1,12 +1,12 @@
-import 'dart:convert';
-import 'package:client/common/api_service.dart';
-import 'package:client/common/auth_service.dart';
+//import 'dart:convert';
+//import 'package:client/common/api_service.dart';
+//import 'package:client/common/auth_service.dart';
 import 'package:client/tutor/service.dart';
-import 'package:http/http.dart' as http;
+//import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+//import 'package:shared_preferences/shared_preferences.dart';
 
 class TutorSignUpPage extends StatefulWidget {
   const TutorSignUpPage({super.key});

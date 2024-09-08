@@ -26,6 +26,9 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
   String userId = '';
   bool isBabysitter = false;
   bool isTutor = false;
+  bool obscureCurrentPassword = true;
+  bool obscureNewPassword = true;
+  bool obscureConfirmNewPassword = true;
 
   final phoneController = MaskedTextController(mask: '(00)00000-0000');
   final addressController = TextEditingController();
@@ -33,10 +36,30 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
   final birthDateController = TextEditingController();
   final experienceMonthsController = TextEditingController();
 
+  // Novas variáveis para troca de senha
+  bool isChangingPassword = false;
+  final currentPasswordController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmNewPasswordController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     _loadUserId();
+  }
+
+  @override
+  void dispose() {
+    // Dispose dos controllers
+    phoneController.dispose();
+    addressController.dispose();
+    childrenController.dispose();
+    birthDateController.dispose();
+    experienceMonthsController.dispose();
+    currentPasswordController.dispose();
+    newPasswordController.dispose();
+    confirmNewPasswordController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadUserId() async {
@@ -61,7 +84,7 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
       final prefs = await SharedPreferences.getInstance();
       final jwtToken = prefs.getString('jwt_token') ?? '';
 
-      // Fetch user profile data
+      // Obter dados do perfil do usuário
       final profileResponse = await http.get(
         Uri.parse('http://201.23.18.202:3333/babysitters/$userId'),
         headers: {'Authorization': 'Bearer $jwtToken'},
@@ -82,7 +105,7 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
           experienceMonthsController.text = userExperienceMonths.toString();
         });
       } else {
-        throw Exception('Failed to load profile data');
+        throw Exception('Falha ao carregar os dados do perfil');
       }
 
       final userRoles = await ApiService.getRoles();
@@ -105,30 +128,97 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
   void _toggleEditing() {
     setState(() {
       isEditing = !isEditing;
+      isChangingPassword = false; // Resetar o modo de troca de senha
     });
   }
 
   Future<void> _saveProfile() async {
+    if (isChangingPassword) {
+      // Manipular a troca de senha
+      await _changePassword();
+    } else {
+      // Salvar alterações do perfil
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final jwtToken = prefs.getString('jwt_token') ?? '';
+
+        await http.patch(
+          Uri.parse('http://201.23.18.202:3333/babysitters/$userId'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $jwtToken',
+          },
+          body: json.encode({
+            'name': userName,
+            'gender': userGender,
+            'email': userEmail,
+            'cellphone': phoneController.text,
+            'address': addressController.text,
+            'childrenCount': int.tryParse(childrenController.text) ?? 0,
+            'birthDate': birthDateController.text,
+            'experienceMonths':
+                int.tryParse(experienceMonthsController.text) ?? 0,
+          }),
+        );
+        _toggleEditing(); // Sair do modo de edição
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Perfil atualizado com sucesso')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  Future<void> _changePassword() async {
+    final currentPassword = currentPasswordController.text;
+    final newPassword = newPasswordController.text;
+    final confirmNewPassword = confirmNewPasswordController.text;
+
+    if (newPassword != confirmNewPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('As novas senhas não coincidem')),
+      );
+      return;
+    }
+
     try {
-      await http.patch(
-        Uri.parse('http://201.23.18.202:3333/babysitters/$userId'),
-        headers: {'Content-Type': 'application/json'},
+      final response = await http.post(
+        Uri.parse('http://201.23.18.202:3333/auth/change-password'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: json.encode({
-          'name': userName,
-          'gender': userGender,
           'email': userEmail,
-          'cellphone': phoneController.text,
-          'address': addressController.text,
-          'childrenCount': int.tryParse(childrenController.text) ?? 0,
-          'birthDate': birthDateController.text,
-          'experienceMonths':
-              int.tryParse(experienceMonthsController.text) ?? 0,
+          'current_password': currentPassword,
+          'new_password': newPassword,
         }),
       );
-      _toggleEditing(); // Exit editing mode
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Perfil atualizado com sucesso')),
-      );
+
+      if (response.statusCode == 204) {
+        // Senha alterada com sucesso
+        setState(() {
+          isChangingPassword = false;
+          isEditing = false;
+        });
+        // Limpar campos de senha
+        currentPasswordController.clear();
+        newPasswordController.clear();
+        confirmNewPasswordController.clear();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Senha alterada com sucesso')),
+        );
+      } else {
+        // Manipular erro na resposta
+        final data = json.decode(response.body);
+        final errorMessage = data['message'] ?? 'Erro ao alterar a senha';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro: ${e.toString()}')),
@@ -181,35 +271,115 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 10.0),
-                  _buildProfileField(Icons.calendar_today, 'Data de Nascimento',
-                      birthDateController.text,
-                      editable: isEditing),
-                  _buildProfileField(Icons.calendar_month,
-                      'Meses de Experiência', experienceMonthsController.text,
-                      editable: isEditing),
-                  _buildProfileField(Icons.person, 'Gênero', userGender,
-                      editable: isEditing),
-                  _buildProfileField(Icons.email, 'Email', userEmail,
-                      editable: isEditing),
-                  _buildProfileField(
-                      Icons.phone, 'Telefone', phoneController.text,
-                      editable: isEditing),
+                  if (!isChangingPassword)
+                    Column(
+                      children: [
+                        _buildProfileField(Icons.calendar_today,
+                            'Data de Nascimento', birthDateController.text,
+                            editable: isEditing),
+                        _buildProfileField(
+                            Icons.calendar_month,
+                            'Meses de Experiência',
+                            experienceMonthsController.text,
+                            editable: isEditing),
+                        if (!isEditing) // Mostrar gênero somente quando não está editando
+                          _buildProfileField(Icons.person, 'Gênero', userGender,
+                              editable: false),
+                        _buildProfileField(Icons.email, 'Email', userEmail,
+                            editable: isEditing),
+                        _buildProfileField(
+                            Icons.phone, 'Telefone', phoneController.text,
+                            editable: isEditing),
+                      ],
+                    ),
+                  if (isChangingPassword)
+                    Column(
+                      children: [
+                        _buildPasswordField(
+                            'Senha Atual', currentPasswordController,
+                            obscureText: obscureCurrentPassword, onToggle: () {
+                          setState(() {
+                            obscureCurrentPassword = !obscureCurrentPassword;
+                          });
+                        }),
+                        _buildPasswordField('Nova Senha', newPasswordController,
+                            obscureText: obscureNewPassword, onToggle: () {
+                          setState(() {
+                            obscureNewPassword = !obscureNewPassword;
+                          });
+                        }),
+                        _buildPasswordField('Confirmar Nova Senha',
+                            confirmNewPasswordController,
+                            obscureText: obscureConfirmNewPassword,
+                            onToggle: () {
+                          setState(() {
+                            obscureConfirmNewPassword =
+                                !obscureConfirmNewPassword;
+                          });
+                        }),
+                      ],
+                    ),
                   const SizedBox(height: 20.0),
-                  ElevatedButton(
-                    onPressed: isEditing ? _saveProfile : _toggleEditing,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 182, 46, 92),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 15.0, horizontal: 30.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
+                  if (isEditing)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: _saveProfile,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 182, 46, 92),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15.0, horizontal: 30.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          child: const Text(
+                            'Salvar',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(
+                            width: 16.0), // Espaçamento entre os botões
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              isChangingPassword = !isChangingPassword;
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 182, 46, 92),
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 15.0, horizontal: 30.0),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                          ),
+                          child: Text(
+                            isChangingPassword ? 'Cancelar' : 'Trocar Senha',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: _toggleEditing,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15.0, horizontal: 30.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Editar Perfil',
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
-                    child: Text(
-                      isEditing ? 'Salvar' : 'Editar Perfil',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
                   const SizedBox(height: 20.0),
                   if (!(isBabysitter && isTutor))
                     ElevatedButton(
@@ -241,7 +411,8 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
           Icon(icon, color: const Color.fromARGB(255, 182, 46, 92), size: 28),
           const SizedBox(width: 16.0),
           Expanded(
-            child: editable
+            child: editable &&
+                    label != 'Gênero' // Não permitir edição do gênero
                 ? TextFormField(
                     initialValue: value,
                     onChanged: (newValue) {
@@ -281,6 +452,50 @@ class _BabysitterProfileScreenState extends State<BabysitterProfileScreen> {
                   ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPasswordField(String label, TextEditingController controller,
+      {required bool obscureText, required VoidCallback onToggle}) {
+    IconData prefixIcon;
+    switch (label) {
+      case 'Senha Atual':
+        prefixIcon =
+            Icons.lock_outline; // Ícone de cadeado aberto para senha atual
+        break;
+      case 'Nova Senha':
+        prefixIcon = Icons.lock; // Ícone de cadeado fechado para nova senha
+        break;
+      case 'Confirmar Nova Senha':
+        prefixIcon =
+            Icons.lock; // Ícone de cadeado com contorno para confirmação
+        break;
+      default:
+        prefixIcon = Icons.lock; // Valor padrão
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon:
+              Icon(prefixIcon, color: const Color.fromARGB(255, 182, 46, 92)),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(30.0),
+          ),
+          suffixIcon: IconButton(
+            icon: Icon(
+              obscureText ? Icons.visibility_off : Icons.visibility,
+              color: const Color.fromARGB(255, 182, 46, 92),
+            ),
+            onPressed: onToggle,
+          ),
+        ),
+        style: const TextStyle(fontSize: 18, color: Colors.black54),
       ),
     );
   }
