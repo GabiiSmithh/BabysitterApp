@@ -3,7 +3,10 @@ import 'package:client/common/app_bar.dart';
 import 'package:client/profile/tutor_profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart'; // Import the intl package
 
 class TutorProfileScreen extends StatefulWidget {
   const TutorProfileScreen({super.key});
@@ -22,11 +25,12 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
   int userChildrenQuantity = 0;
   bool isLoading = true;
   bool isEditing = false;
+  String userId = '';
   bool isTutor = false;
   bool isBabysitter = false;
-  String userId = '';
 
   final phoneController = MaskedTextController(mask: '(00)00000-0000');
+  final birthDateController = TextEditingController();
   final addressController = TextEditingController();
   final childrenController = TextEditingController();
 
@@ -55,19 +59,35 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
 
   Future<void> _fetchProfileData() async {
     try {
-      final data = await TutorProfileService.fetchData(userId);
+      final prefs = await SharedPreferences.getInstance();
+      final jwtToken = prefs.getString('jwt_token') ?? '';
+
+      final profileResponse = await http.get(
+        Uri.parse('http://201.23.18.202:3333/tutors/$userId'),
+        headers: {'Authorization': 'Bearer $jwtToken'},
+      );
+
+      if (profileResponse.statusCode == 200) {
+        final data = json.decode(profileResponse.body);
+        setState(() {
+          userName = data['name'];
+          userEmail = data['email'];
+          phoneController.text = data['cellphone'];
+          userBirthDate = data['birthDate'];
+          userAddress = data['address'] ?? '';
+          userChildrenQuantity = data['childrenCount'] ?? 0;
+
+          final parsedDate = DateTime.parse(userBirthDate);
+          final formattedDate = DateFormat('dd/MM/yyyy').format(parsedDate);
+          birthDateController.text = formattedDate;
+          addressController.text = userAddress;
+          childrenController.text = userChildrenQuantity.toString();
+        });
+      } else {
+        throw Exception('Failed to load profile data');
+      }
+
       final userRoles = await ApiService.getRoles();
-      setState(() {
-        userName = data['name'];
-        userEmail = data['email'];
-        phoneController.text = data['cellphone'];
-        userBirthDate = data['birthDate'];
-        addressController.text = data['address'] ?? '';
-        childrenController.text = data['childrenCount']?.toString() ?? '0';
-        userAddress = data['address'] ?? '';
-        userChildrenQuantity = data['childrenCount'] ?? 0;
-        isLoading = false;
-      });
 
       setState(() {
         isBabysitter = userRoles.contains('babysitter');
@@ -84,10 +104,6 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
     }
   }
 
-  Future<void> _becomeBabysitter() async {
-    Navigator.of(context).pushNamed('/become-babysitter');
-  }
-
   void _toggleEditing() {
     setState(() {
       isEditing = !isEditing;
@@ -100,13 +116,12 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
         final input = {
           'email': userEmail,
           'cellphone': phoneController.text,
-          'childrenCount':
-              int.tryParse(childrenController.text) ?? 0,
+          'childrenCount': int.tryParse(childrenController.text) ?? 0,
           'address': addressController.text,
         };
 
         await TutorProfileService.updateTutorProfile(userId, input);
-        _toggleEditing(); // Exit editing mode
+        _toggleEditing();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Perfil atualizado com sucesso')),
         );
@@ -116,6 +131,10 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
         );
       }
     }
+  }
+
+  void _becomeBabysitter() {
+    Navigator.of(context).pushNamed('/become-babysitter');
   }
 
   @override
@@ -161,96 +180,52 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 10.0),
-                    _buildProfileField(
-                      Icons.email,
-                      'Email',
-                      userEmail,
-                      editable: isEditing,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'O email é obrigatório';
-                        }
-                        if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
-                          return 'Informe um email válido';
-                        }
-                        return null;
-                      },
-                      onChanged: (newValue) {
-                        userEmail = newValue;
-                      },
-                    ),
-                    _buildProfileField(
-                      Icons.phone,
-                      'Telefone',
-                      phoneController.text,
-                      editable: isEditing,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'O telefone é obrigatório';
-                        }
-                        if (!RegExp(r'\(\d{2}\)\d{5}-\d{4}').hasMatch(value)) {
-                          return 'Informe um telefone válido';
-                        }
-                        return null;
-                      },
-                      onChanged: (newValue) {
-                        phoneController.text = newValue;
-                      },
-                    ),
-                    _buildProfileField(
-                      Icons.home,
-                      'Endereço',
-                      addressController.text,
-                      editable: isEditing,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'O endereço é obrigatório';
-                        }
-                        return null;
-                      },
-                      onChanged: (newValue) {
-                        addressController.text = newValue;
-                      },
-                    ),
-                    _buildProfileField(
-                      Icons.child_care,
-                      'Quantidade de Crianças',
-                      childrenController.text,
-                      editable: isEditing,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'A quantidade de crianças é obrigatória';
-                        }
-                        final intValue = int.tryParse(value);
-                        if (intValue == null || intValue < 0) {
-                          return 'Informe um número válido de crianças';
-                        }
-                        return null;
-                      },
-                      onChanged: (newValue) {
-                        childrenController.text = newValue;
-                      },
-                    ),
+                    _buildProfileField(Icons.calendar_today,
+                        'Data de Nascimento', birthDateController.text,
+                        controller: birthDateController, validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'A data de nascimento é obrigatória';
+                      }
+                      return null;
+                    }, editable: false),
                     const SizedBox(height: 20.0),
-                    if (!isTutor || !isBabysitter) ...[
-                      ElevatedButton(
-                        onPressed: _becomeBabysitter,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 182, 46, 92),
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 15.0, horizontal: 30.0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                        ),
-                        child: const Text(
-                          'Virar Babá',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(height: 20.0),
-                    ],
+                    _buildProfileField(
+                        Icons.home, 'Endereço', addressController.text,
+                        controller: addressController, validator: (value) {
+                      if (value!.isEmpty) {
+                        return 'O endereço é obrigatório';
+                      }
+                      return null;
+                    }, editable: isEditing),
+                    const SizedBox(height: 20.0),
+                    _buildProfileField(Icons.child_care,
+                        'Quantidade de Crianças', childrenController.text,
+                        controller: childrenController, validator: (value) {
+                      if (value!.isEmpty || int.tryParse(value) == null) {
+                        return 'Informe um número válido de crianças';
+                      }
+                      return null;
+                    }, editable: isEditing),
+                    const SizedBox(height: 20.0),
+                    _buildProfileField(Icons.email, 'Email', userEmail,
+                        initialValue: userEmail, validator: (value) {
+                      if (value!.isEmpty ||
+                          !RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                        return 'Informe um email válido';
+                      }
+                      return null;
+                    }, editable: isEditing),
+                    const SizedBox(height: 20.0),
+                    _buildProfileField(
+                        Icons.phone, 'Telefone', phoneController.text,
+                        controller: phoneController, validator: (value) {
+                      if (value!.isEmpty ||
+                          !RegExp(r'^\(\d{2}\)\d{5}-\d{4}$').hasMatch(value)) {
+                        return 'Informe um número de telefone válido';
+                      }
+                      return null;
+                    }, editable: isEditing),
+                    const SizedBox(height: 20.0),
                     ElevatedButton(
                       onPressed: isEditing ? _saveProfile : _toggleEditing,
                       style: ElevatedButton.styleFrom(
@@ -266,6 +241,24 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
+                    const SizedBox(height: 20.0),
+                    if (!(isBabysitter && isTutor))
+                      ElevatedButton(
+                        onPressed: _becomeBabysitter,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 0, 123, 255),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15.0, horizontal: 30.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'Virar Babá',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -277,42 +270,23 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
     IconData icon,
     String label,
     String value, {
-    required bool editable,
+    TextEditingController? controller,
+    bool editable = false,
     String? Function(String?)? validator,
-    required void Function(String) onChanged,
+    String? initialValue,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: const Color.fromARGB(255, 182, 46, 92), size: 28),
-          const SizedBox(width: 16.0),
-          Expanded(
-            child: editable
-                ? TextFormField(
-                    initialValue: value,
-                    onChanged: onChanged,
-                    validator: validator,
-                    decoration: InputDecoration(
-                      labelText: label,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                    ),
-                    style: const TextStyle(fontSize: 18, color: Colors.black54),
-                  )
-                : Text(
-                    '$label: $value',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black54,
-                    ),
-                    textAlign: TextAlign.start,
-                  ),
-          ),
-        ],
+    return TextFormField(
+      initialValue: initialValue,
+      controller: controller,
+      decoration: InputDecoration(
+        icon: Icon(icon),
+        labelText: label,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
       ),
+      enabled: editable,
+      validator: validator,
     );
   }
 }
