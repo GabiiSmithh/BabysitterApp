@@ -13,8 +13,8 @@ class TutorProfileScreen extends StatefulWidget {
 }
 
 class _TutorProfileScreenState extends State<TutorProfileScreen> {
+  final _formKey = GlobalKey<FormState>();
   String userName = '';
-  String userGender = '';
   String userEmail = '';
   String userCellphone = '';
   String userBirthDate = '';
@@ -59,7 +59,6 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
       final userRoles = await ApiService.getRoles();
       setState(() {
         userName = data['name'];
-        userGender = data['gender'];
         userEmail = data['email'];
         phoneController.text = data['cellphone'];
         userBirthDate = data['birthDate'];
@@ -96,16 +95,26 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
   }
 
   Future<void> _saveProfile() async {
-    try {
-      // Implement profile update logic
-      _toggleEditing(); // Exit editing mode
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Perfil atualizado com sucesso')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro: ${e.toString()}')),
-      );
+    if (_formKey.currentState!.validate()) {
+      try {
+        final input = {
+          'email': userEmail,
+          'cellphone': phoneController.text,
+          'childrenCount':
+              int.tryParse(childrenController.text) ?? 0,
+          'address': addressController.text,
+        };
+
+        await TutorProfileService.updateTutorProfile(userId, input);
+        _toggleEditing(); // Exit editing mode
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Perfil atualizado com sucesso')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro: ${e.toString()}')),
+        );
+      }
     }
   }
 
@@ -123,51 +132,127 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 70,
-                    backgroundColor: const Color.fromARGB(255, 182, 46, 92),
-                    child: Text(
-                      userName.isNotEmpty ? userName[0] : '',
-                      style: const TextStyle(
-                        fontSize: 50,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 70,
+                      backgroundColor: const Color.fromARGB(255, 182, 46, 92),
+                      child: Text(
+                        userName.isNotEmpty ? userName[0] : '',
+                        style: const TextStyle(
+                          fontSize: 50,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  Text(
-                    userName,
-                    style: const TextStyle(
-                      fontSize: 30,
-                      color: Color.fromARGB(255, 182, 46, 92),
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 20.0),
+                    Text(
+                      userName,
+                      style: const TextStyle(
+                        fontSize: 30,
+                        color: Color.fromARGB(255, 182, 46, 92),
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10.0),
-                  const SizedBox(height: 20.0),
-                  _buildProfileField(Icons.person, 'Gênero', userGender,
-                      editable: isEditing),
-                  _buildProfileField(Icons.email, 'Email', userEmail,
-                      editable: isEditing),
-                  _buildProfileField(
-                      Icons.phone, 'Telefone', phoneController.text,
-                      editable: isEditing),
-                  _buildProfileField(
-                      Icons.home, 'Endereço', addressController.text,
-                      editable: isEditing),
-                  _buildProfileField(Icons.child_care, 'Quantidade de Crianças',
+                    const SizedBox(height: 10.0),
+                    _buildProfileField(
+                      Icons.email,
+                      'Email',
+                      userEmail,
+                      editable: isEditing,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'O email é obrigatório';
+                        }
+                        if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                          return 'Informe um email válido';
+                        }
+                        return null;
+                      },
+                      onChanged: (newValue) {
+                        userEmail = newValue;
+                      },
+                    ),
+                    _buildProfileField(
+                      Icons.phone,
+                      'Telefone',
+                      phoneController.text,
+                      editable: isEditing,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'O telefone é obrigatório';
+                        }
+                        if (!RegExp(r'\(\d{2}\)\d{5}-\d{4}').hasMatch(value)) {
+                          return 'Informe um telefone válido';
+                        }
+                        return null;
+                      },
+                      onChanged: (newValue) {
+                        phoneController.text = newValue;
+                      },
+                    ),
+                    _buildProfileField(
+                      Icons.home,
+                      'Endereço',
+                      addressController.text,
+                      editable: isEditing,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'O endereço é obrigatório';
+                        }
+                        return null;
+                      },
+                      onChanged: (newValue) {
+                        addressController.text = newValue;
+                      },
+                    ),
+                    _buildProfileField(
+                      Icons.child_care,
+                      'Quantidade de Crianças',
                       childrenController.text,
-                      editable: isEditing),
-                  const SizedBox(height: 20.0),
-                  if (!isTutor || !isBabysitter) ...[
+                      editable: isEditing,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'A quantidade de crianças é obrigatória';
+                        }
+                        final intValue = int.tryParse(value);
+                        if (intValue == null || intValue < 0) {
+                          return 'Informe um número válido de crianças';
+                        }
+                        return null;
+                      },
+                      onChanged: (newValue) {
+                        childrenController.text = newValue;
+                      },
+                    ),
+                    const SizedBox(height: 20.0),
+                    if (!isTutor || !isBabysitter) ...[
+                      ElevatedButton(
+                        onPressed: _becomeBabysitter,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 182, 46, 92),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 15.0, horizontal: 30.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
+                          ),
+                        ),
+                        child: const Text(
+                          'Virar Babá',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(height: 20.0),
+                    ],
                     ElevatedButton(
-                      onPressed: _becomeBabysitter,
+                      onPressed: isEditing ? _saveProfile : _toggleEditing,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromARGB(255, 182, 46, 92),
                         padding: const EdgeInsets.symmetric(
@@ -176,36 +261,26 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
                           borderRadius: BorderRadius.circular(30.0),
                         ),
                       ),
-                      child: const Text(
-                        'Virar Babá',
-                        style: TextStyle(color: Colors.white),
+                      child: Text(
+                        isEditing ? 'Salvar' : 'Editar Perfil',
+                        style: const TextStyle(color: Colors.white),
                       ),
                     ),
-                    const SizedBox(height: 20.0),
                   ],
-                  ElevatedButton(
-                    onPressed: isEditing ? _saveProfile : _toggleEditing,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 182, 46, 92),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 15.0, horizontal: 30.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                    ),
-                    child: Text(
-                      isEditing ? 'Salvar' : 'Editar Perfil',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
     );
   }
 
-  Widget _buildProfileField(IconData icon, String label, String value,
-      {bool editable = false}) {
+  Widget _buildProfileField(
+    IconData icon,
+    String label,
+    String value, {
+    required bool editable,
+    String? Function(String?)? validator,
+    required void Function(String) onChanged,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: Row(
@@ -217,25 +292,8 @@ class _TutorProfileScreenState extends State<TutorProfileScreen> {
             child: editable
                 ? TextFormField(
                     initialValue: value,
-                    onChanged: (newValue) {
-                      switch (label) {
-                        case 'Gênero':
-                          userGender = newValue;
-                          break;
-                        case 'Email':
-                          userEmail = newValue;
-                          break;
-                        case 'Telefone':
-                          phoneController.text = newValue;
-                          break;
-                        case 'Endereço':
-                          addressController.text = newValue;
-                          break;
-                        case 'Quantidade de Crianças':
-                          childrenController.text = newValue;
-                          break;
-                      }
-                    },
+                    onChanged: onChanged,
+                    validator: validator,
                     decoration: InputDecoration(
                       labelText: label,
                       border: OutlineInputBorder(
