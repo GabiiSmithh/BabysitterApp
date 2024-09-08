@@ -252,7 +252,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                           },
                         ),
                         _buildTextField(
-                          label: 'Experiência (em anos)',
+                          label: 'Experiência (em meses)',
                           icon: Icons.timer,
                           keyboardType: TextInputType.number,
                           onChanged: (value) {
@@ -261,9 +261,7 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
                             });
                           },
                           validator: (value) {
-                            return value!.isEmpty
-                                ? 'Por favor, digite seu tempo de experiência'
-                                : null;
+                            return _validateExperience(value);
                           },
                         ),
                         _buildTextField(
@@ -407,6 +405,17 @@ class _BabysitterSignUpPageState extends State<BabysitterSignUpPage> {
     final date = _parseDate(value);
     if (date == null || date.isAfter(DateTime.now())) {
       return 'Data inválida';
+    }
+    return null;
+  }
+
+  String? _validateExperience(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor, digite sua experiência';
+    }
+    final experience = int.tryParse(value);
+    if (experience == null || experience < 0) {
+      return 'Experiência inválida';
     }
     return null;
   }
