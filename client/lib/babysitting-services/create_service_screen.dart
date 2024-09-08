@@ -104,6 +104,9 @@ class _CreateServicePageState extends State<CreateServicePage> {
             });
           },
           validator: (value) {
+            if (double.tryParse(value ?? '0') == null) {
+              return 'Por favor, digite um número válido. Formato: 00.00';
+            }
             return value!.isEmpty ? 'Por favor, digite o valor' : null;
           },
         );
@@ -118,6 +121,9 @@ class _CreateServicePageState extends State<CreateServicePage> {
             });
           },
           validator: (value) {
+            if (int.tryParse(value ?? 'a') == null) {
+              return 'Por favor, digite um número válido.';
+            }
             return value!.isEmpty
                 ? 'Por favor, digite a quantidade de crianças'
                 : null;
