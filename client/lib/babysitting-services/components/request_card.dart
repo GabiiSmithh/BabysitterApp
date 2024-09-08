@@ -1,27 +1,51 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class RequestCard extends StatelessWidget {
+class RequestCard extends StatefulWidget {
   final String tutorName;
   final int childrenCount;
   final DateTime startDate;
   final DateTime endDate;
   final VoidCallback onAccept;
+  final String tutorId;
   final String? id;
-  final String? tutor;
   final int? value;
   final String? address;
 
-  const RequestCard({super.key, 
+  const RequestCard({
+    super.key,
     required this.tutorName,
     required this.childrenCount,
     required this.startDate,
     required this.endDate,
     required this.onAccept,
+    required this.tutorId,
     this.id,
-    this.tutor,
     this.value,
     this.address,
   });
+
+  @override
+  _RequestCardState createState() => _RequestCardState();
+}
+
+class _RequestCardState extends State<RequestCard> {
+  String? _loggedUserId;
+  bool _isButtonDisabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadLoggedUserId();
+  }
+
+  Future<void> _loadLoggedUserId() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _loggedUserId = prefs.getString('user_id');
+      _isButtonDisabled = widget.tutorId == _loggedUserId;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +69,7 @@ class RequestCard extends StatelessWidget {
                       const Icon(Icons.child_care, color: Colors.pinkAccent),
                       const SizedBox(width: 8.0),
                       Text(
-                        '$childrenCount Crianças',
+                        '${widget.childrenCount} Crianças',
                         style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
@@ -56,10 +80,11 @@ class RequestCard extends StatelessWidget {
                   const SizedBox(height: 8.0),
                   Row(
                     children: [
-                      const Icon(Icons.calendar_today, color: Colors.pinkAccent),
+                      const Icon(Icons.calendar_today,
+                          color: Colors.pinkAccent),
                       const SizedBox(width: 8.0),
                       Text(
-                        'Início: ${_formatDateTime(startDate)}',
+                        'Início: ${_formatDateTime(widget.startDate)}',
                         style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
@@ -74,7 +99,7 @@ class RequestCard extends StatelessWidget {
                           color: Colors.pinkAccent),
                       const SizedBox(width: 8.0),
                       Text(
-                        'Término: ${_formatDateTime(endDate)}',
+                        'Término: ${_formatDateTime(widget.endDate)}',
                         style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
@@ -85,10 +110,11 @@ class RequestCard extends StatelessWidget {
                   const SizedBox(height: 16.0),
                   Row(
                     children: [
-                      const Icon(Icons.monetization_on, color: Colors.pinkAccent),
+                      const Icon(Icons.monetization_on,
+                          color: Colors.pinkAccent),
                       const SizedBox(width: 8.0),
                       Text(
-                        'Valor: R\$ $value',
+                        'Valor: R\$ ${widget.value}',
                         style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
@@ -102,7 +128,7 @@ class RequestCard extends StatelessWidget {
                       const Icon(Icons.person, color: Colors.pinkAccent),
                       const SizedBox(width: 8.0),
                       Text(
-                        'Responsável: $tutorName',
+                        'Responsável: ${widget.tutorName}',
                         style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
@@ -116,7 +142,7 @@ class RequestCard extends StatelessWidget {
                       const Icon(Icons.location_pin, color: Colors.pinkAccent),
                       const SizedBox(width: 8.0),
                       Text(
-                        'Endereço: $address',
+                        'Endereço: ${widget.address}',
                         style: const TextStyle(
                           fontSize: 16.0,
                           color: Colors.black54,
@@ -126,7 +152,7 @@ class RequestCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 16.0),
                   ElevatedButton(
-                    onPressed: onAccept,
+                    onPressed: _isButtonDisabled ? null : widget.onAccept,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 182, 46, 92),
                       padding: const EdgeInsets.symmetric(

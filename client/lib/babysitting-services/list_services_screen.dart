@@ -70,6 +70,7 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
                 address: request.address,
                 value: request.value.toInt(),
                 id: request.id,
+                tutorId: request.tutorId,
                 onAccept: () => _acceptService(request.id),
               );
             },
