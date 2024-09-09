@@ -38,7 +38,6 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
   Future<void> _acceptService(String serviceId) async {
     try {
       await BabySittingService.acceptService(serviceId);
-      Navigator.of(context).pushReplacementNamed('/services-provided');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Falha ao aceitar o Serviço')),

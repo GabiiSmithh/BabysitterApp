@@ -11,7 +11,7 @@ class RequestCard extends StatefulWidget {
   final String? id;
   final int? value;
   final String? address;
-  final List<dynamic> enrollments; // New property
+  final List<dynamic> enrollments;
 
   const RequestCard({
     super.key,
@@ -24,7 +24,7 @@ class RequestCard extends StatefulWidget {
     this.id,
     this.value,
     this.address,
-    required this.enrollments, // Initialize enrollments
+    required this.enrollments,
   });
 
   @override
@@ -45,7 +45,7 @@ class _RequestCardState extends State<RequestCard> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _loggedUserId = prefs.getString('user_id');
-      _isButtonDisabled = _hasUserApplied(); // Check if the user has applied
+      _isButtonDisabled = _hasUserApplied();
     });
   }
 
@@ -53,6 +53,33 @@ class _RequestCardState extends State<RequestCard> {
     if (_loggedUserId == null) return false;
     return widget.enrollments
         .any((enrollment) => enrollment['babysitterId'] == _loggedUserId);
+  }
+
+  void _showConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar inscrição'),
+          content: const Text('Você deseja se candidatar para esta vaga?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                widget.onAccept(); // Call the accept callback
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Confirmar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -160,7 +187,11 @@ class _RequestCardState extends State<RequestCard> {
                   ),
                   const SizedBox(height: 16.0),
                   ElevatedButton(
-                    onPressed: _isButtonDisabled ? null : widget.onAccept,
+                    onPressed: _isButtonDisabled
+                        ? null
+                        : () {
+                            _showConfirmationDialog(); // Show the confirmation dialog
+                          },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 182, 46, 92),
                       padding: const EdgeInsets.symmetric(
