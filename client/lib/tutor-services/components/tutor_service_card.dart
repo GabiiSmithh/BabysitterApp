@@ -11,6 +11,7 @@ class TutorServiceCard extends StatefulWidget {
   final DateTime endDate;
   final String address;
   final String serviceId;
+  final List<dynamic> enrollments;
   final String? babysitterId;
   final String? babysitterName;
   final VoidCallback onAccept;
@@ -27,12 +28,15 @@ class TutorServiceCard extends StatefulWidget {
     required this.serviceId,
     required this.babysitterId,
     required this.babysitterName,
+    required this.enrollments,
     required this.onAccept,
     required this.onSave,
   });
 
   @override
   _TutorServiceCardState createState() => _TutorServiceCardState();
+
+  
 }
 
 class _TutorServiceCardState extends State<TutorServiceCard> {
@@ -61,6 +65,47 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
       _isEditing = !_isEditing;
     });
   }
+
+   void _acceptBabysitter (String babysitterId) async {
+    try {
+      await BabySittingService.acceptBabysitter(widget.serviceId, babysitterId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Serviço editado com sucesso!')),
+      );
+      Navigator.of(context).pop();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Falha ao editar serviço: $e')),
+      );
+    }
+  }
+
+void _selectBabysitter() async {
+  final String? selectedBabysitterId = await showDialog<String>(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Selecione uma Babá'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: widget.enrollments.map((enrollment) {
+            return ListTile(
+              title: Text(enrollment['babysitterName'] ?? 'Sem nome'),
+              onTap: () => Navigator.pop(context, enrollment['babysitterId']),  // Retorna o ID da babá
+            );
+          }).toList(),
+        ),
+      );
+    },
+  );
+
+  if (selectedBabysitterId != null) {
+    _acceptBabysitter(selectedBabysitterId); // Chama a função com o ID da babá selecionada
+  }
+}
+
+
+
 
   Future<void> _selectDateTime(BuildContext context, bool isStartDate) async {
     final DateTime initialDateTime = isStartDate ? _startDate : _endDate;
@@ -363,21 +408,39 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
     );
   }
 
-  Widget _buildNonEditableField({
-    required IconData icon,
-    required String label,
-    required String value,
-    bool hasIndicator = false,
-    IconData? indicator,
-    Color? indicatorColor,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.pinkAccent),
-        const SizedBox(width: 8.0),
-        Expanded(
-          child: Row(
-            children: [
+Widget _buildNonEditableField({
+  required IconData icon,
+  required String label,
+  required String value,
+  bool hasIndicator = false,
+  IconData? indicator,
+  Color? indicatorColor,
+}) {
+  return Row(
+    children: [
+      Icon(icon, color: Colors.pinkAccent),
+      const SizedBox(width: 8.0),
+      Expanded(
+        child: Row(
+          children: [
+            if (widget.babysitterId == null)
+              TextButton(
+                onPressed: _selectBabysitter, // Ação de selecionar babá
+                style: TextButton.styleFrom(
+                  side: const BorderSide(color: Colors.pinkAccent), // Contorno rosa
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0), // Bordas arredondadas (opcional)
+                  ),
+                ),
+                child: const Text(
+                  'Escolher Babá',
+                  style: TextStyle(
+                    color: Colors.pinkAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              )
+            else
               Text(
                 '$label: $value',
                 style: const TextStyle(
@@ -385,17 +448,18 @@ class _TutorServiceCardState extends State<TutorServiceCard> {
                   color: Colors.black54,
                 ),
               ),
-              if (hasIndicator && indicator != null)
-                Padding(
-                  padding: const EdgeInsets.only(left: 8.0),
-                  child: Icon(indicator, color: indicatorColor),
-                ),
-            ],
-          ),
+            if (hasIndicator && indicator != null)
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Icon(indicator, color: indicatorColor),
+              ),
+          ],
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 
   Widget _buildStatusIndicator() {
     return Padding(

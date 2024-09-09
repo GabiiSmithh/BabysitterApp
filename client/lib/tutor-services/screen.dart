@@ -91,6 +91,7 @@ class _TutorServicesScreenState extends State<TutorServicesScreen> {
                   return const Center(child: Text('Nenhum serviço cadastrado'));
                 } else {
                   final services = servicesSnapshot.data!;
+                  //print(services);
                   return Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: ListView.builder(
@@ -107,6 +108,7 @@ class _TutorServicesScreenState extends State<TutorServicesScreen> {
                           address: service['address'],
                           babysitterId: service['babysitterId'],
                           serviceId: service["id"],
+                          enrollments: service["enrollments"] as List<dynamic>,
                           onAccept: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(

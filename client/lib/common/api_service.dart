@@ -65,6 +65,7 @@ class ApiService {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return jsonDecode(response.body);
     } else {
+      print(response.statusCode);
       throw Exception('Failed to perform POST request');
     }
   }
