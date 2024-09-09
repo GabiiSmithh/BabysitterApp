@@ -11,6 +11,7 @@ class RequestCard extends StatefulWidget {
   final String? id;
   final int? value;
   final String? address;
+  final List<dynamic> enrollments; // New property
 
   const RequestCard({
     super.key,
@@ -23,6 +24,7 @@ class RequestCard extends StatefulWidget {
     this.id,
     this.value,
     this.address,
+    required this.enrollments, // Initialize enrollments
   });
 
   @override
@@ -43,8 +45,14 @@ class _RequestCardState extends State<RequestCard> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _loggedUserId = prefs.getString('user_id');
-      _isButtonDisabled = widget.tutorId == _loggedUserId;
+      _isButtonDisabled = _hasUserApplied(); // Check if the user has applied
     });
+  }
+
+  bool _hasUserApplied() {
+    if (_loggedUserId == null) return false;
+    return widget.enrollments
+        .any((enrollment) => enrollment['babysitterId'] == _loggedUserId);
   }
 
   @override

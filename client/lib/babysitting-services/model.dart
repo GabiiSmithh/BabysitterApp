@@ -4,6 +4,7 @@ class BabySittingServiceData {
   final String tutorId;
   final String tutorName;
   final String? babysitterName;
+  final List<dynamic> enrollments;
   final DateTime startDate;
   final DateTime endDate;
   final int value;
@@ -11,6 +12,7 @@ class BabySittingServiceData {
   final String address;
 
   const BabySittingServiceData({
+    required this.enrollments,
     required this.id,
     required this.babysitterId,
     required this.tutorId,
@@ -35,6 +37,7 @@ class BabySittingServiceData {
       value: json['value'],
       childrenCount: json['childrenCount'],
       address: json['address'],
+      enrollments: json['enrollments'],
     );
   }
 }

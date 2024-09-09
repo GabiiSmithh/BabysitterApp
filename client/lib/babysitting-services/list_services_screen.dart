@@ -63,6 +63,7 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
             itemBuilder: (context, index) {
               final request = services[index];
               return RequestCard(
+                enrollments: request.enrollments,
                 tutorName: request.tutorName,
                 childrenCount: request.childrenCount,
                 startDate: request.startDate,
