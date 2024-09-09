@@ -11,7 +11,7 @@ class RequestCard extends StatefulWidget {
   final String? id;
   final int? value;
   final String? address;
-  final List<dynamic> enrollments;
+  final List<dynamic> enrollments; // Updated enrollments
 
   const RequestCard({
     super.key,
@@ -39,6 +39,13 @@ class _RequestCardState extends State<RequestCard> {
   void initState() {
     super.initState();
     _loadLoggedUserId();
+  }
+
+  @override
+  void didUpdateWidget(covariant RequestCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Re-check if the user has applied whenever the widget is updated (i.e., list refreshes)
+    _isButtonDisabled = _hasUserApplied();
   }
 
   Future<void> _loadLoggedUserId() async {
