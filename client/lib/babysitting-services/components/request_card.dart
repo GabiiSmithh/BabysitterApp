@@ -9,7 +9,7 @@ class RequestCard extends StatefulWidget {
   final VoidCallback onAccept;
   final String tutorId;
   final String? id;
-  final int? value;
+  final double? value;
   final String? address;
   final List<dynamic> enrollments; // Updated enrollments
 
@@ -44,22 +44,26 @@ class _RequestCardState extends State<RequestCard> {
   @override
   void didUpdateWidget(covariant RequestCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Re-check if the user has applied whenever the widget is updated (i.e., list refreshes)
-    _isButtonDisabled = _hasUserApplied();
+    _isButtonDisabled = _shouldDisableButton();
   }
 
   Future<void> _loadLoggedUserId() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _loggedUserId = prefs.getString('user_id');
-      _isButtonDisabled = _hasUserApplied();
+      _isButtonDisabled = _shouldDisableButton();
     });
   }
 
-  bool _hasUserApplied() {
+  bool _shouldDisableButton() {
     if (_loggedUserId == null) return false;
-    return widget.enrollments
+
+    // Disable if the user has already applied or is the tutor
+    final hasUserApplied = widget.enrollments
         .any((enrollment) => enrollment['babysitterId'] == _loggedUserId);
+    final isTutor = widget.tutorId == _loggedUserId;
+
+    return hasUserApplied || isTutor;
   }
 
   void _showConfirmationDialog() {

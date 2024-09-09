@@ -7,7 +7,7 @@ class BabySittingServiceData {
   final List<dynamic> enrollments;
   final DateTime startDate;
   final DateTime endDate;
-  final int value;
+  final double value;
   final int childrenCount;
   final String address;
 

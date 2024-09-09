@@ -69,7 +69,7 @@ class _BabysittingRequestsPageState extends State<BabysittingRequestsPage> {
                 startDate: request.startDate,
                 endDate: request.endDate,
                 address: request.address,
-                value: request.value.toInt(),
+                value: request.value.toDouble(),
                 id: request.id,
                 tutorId: request.tutorId,
                 onAccept: () => _acceptService(request.id),

@@ -100,7 +100,7 @@ class _CreateServicePageState extends State<CreateServicePage> {
           initialValue: formData[key].toString(),
           onChanged: (value) {
             setState(() {
-              formData[key] = int.tryParse(value ?? '0') ?? 0;
+              formData[key] = double.tryParse(value ?? '0') ?? 0;
             });
           },
           validator: (value) {
