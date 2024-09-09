@@ -73,4 +73,17 @@ class BabySittingService {
       throw Exception('Error creating service: $e');
     }
   }
+
+  static Future<void> acceptBabysitter(String serviceId, String babysitterId) async {
+    try {
+      final payload = {
+        "babysitter_id": babysitterId,
+      };
+      await ApiService.post('services/$serviceId/choose-enrollment', payload);
+    } catch (e) {
+      throw Exception('Error creating service: $e');
+    }
+  }
+
+
 }
