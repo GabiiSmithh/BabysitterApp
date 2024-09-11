@@ -4,42 +4,42 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text2/flutter_masked_text2.dart';
 
-class BabysitterListPage extends StatefulWidget {
-  const BabysitterListPage({super.key});
+class TutorListPage extends StatefulWidget {
+  const TutorListPage({super.key});
 
   @override
-  _BabysitterListPageState createState() => _BabysitterListPageState();
+  _TutorListPageState createState() => _TutorListPageState();
 }
 
-class _BabysitterListPageState extends State<BabysitterListPage> {
+class _TutorListPageState extends State<TutorListPage> {
   final Color _backgroundColor =
       const Color.fromARGB(255, 255, 215, 229); // Rosa claro
   final Color _cardColor = const Color.fromARGB(255, 255, 255, 255); // Branco
   final Color _primaryColor = const Color.fromARGB(255, 182, 46, 92); // Magenta
 
-  List<dynamic> babysitters = [];
+  List<dynamic> Tutors = [];
 
   @override
   void initState() {
     super.initState();
-    _fetchBabysitters();
+    _fetchTutors();
   }
 
-  Future<void> _fetchBabysitters() async {
-    final url = Uri.parse('http://201.23.18.202:3333/babysitters');
+  Future<void> _fetchTutors() async {
+    final url = Uri.parse('http://201.23.18.202:3333/tutors');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
       setState(() {
-        babysitters = json.decode(response.body);
+        Tutors = json.decode(response.body);
       });
     } else {
-      print('Failed to load babysitters');
+      print('Failed to load Tutors');
     }
   }
 
-  Future<void> _updateBabysitter(String id, Map<String, dynamic> data) async {
-    final url = Uri.parse('http://201.23.18.202:3333/babysitters/$id');
+  Future<void> _updateTutor(String id, Map<String, dynamic> data) async {
+    final url = Uri.parse('http://201.23.18.202:3333/tutors/$id');
     final response = await http.patch(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -47,8 +47,8 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
     );
 
     if (response.statusCode == 200) {
-      _fetchBabysitters();
-      _showSuccessSnackBar('Babá atualizada com sucesso!');
+      _fetchTutors();
+      _showSuccessSnackBar('Tutor atualizado com sucesso!');
     } else {
       String errorMessage;
       try {
@@ -96,14 +96,14 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Babás'),
+        title: const Text('Lista de Tutores'),
         backgroundColor: _primaryColor,
       ),
       backgroundColor: _backgroundColor,
       body: ListView.builder(
-        itemCount: babysitters.length,
+        itemCount: Tutors.length,
         itemBuilder: (context, index) {
-          final babysitter = babysitters[index];
+          final Tutor = Tutors[index];
           return Card(
             color: _cardColor,
             margin: const EdgeInsets.all(16.0),
@@ -111,7 +111,7 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
             child: ListTile(
               contentPadding: const EdgeInsets.all(16.0),
               title: Text(
-                babysitter['name'],
+                Tutor['name'],
                 style: TextStyle(
                   color: _primaryColor,
                   fontSize: 18.0,
@@ -121,11 +121,10 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Gênero: ${babysitter['gender']}'),
-                  Text('Email: ${babysitter['email']}'),
-                  Text('Telefone: ${babysitter['cellphone']}'),
-                  Text('Data de Nascimento: ${babysitter['birthDate']}'),
-                  Text('Experiência: ${babysitter['experienceMonths']} meses'),
+                  Text('Gênero: ${Tutor['gender']}'),
+                  Text('Email: ${Tutor['email']}'),
+                  Text('Telefone: ${Tutor['cellphone']}'),
+                  Text('Data de Nascimento: ${Tutor['birthDate']}'),
                 ],
               ),
               trailing: Row(
@@ -134,13 +133,13 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
                   IconButton(
                     icon: Icon(Icons.edit, color: _primaryColor),
                     onPressed: () {
-                      _showUpdateDialog(babysitter['id']);
+                      _showUpdateDialog(Tutor['id']);
                     },
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete, color: Colors.red),
                     onPressed: () {
-                      _showDeleteConfirmationDialog(babysitter['id']);
+                      _showDeleteConfirmationDialog(Tutor['id']);
                     },
                   ),
                 ],
@@ -158,22 +157,27 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
     final emailController = TextEditingController();
     final genderController = TextEditingController();
     final phoneController = MaskedTextController(mask: '(00)00000-0000');
-    final experienceMonthsController = TextEditingController();
+    final  addressController= TextEditingController();
+    final  numberOfChildrenController= TextEditingController();
+
+
 
     // Preencher os campos com os valores atuais
-    final babysitter = babysitters.firstWhere((b) => b['id'] == id);
-    nameController.text = babysitter['name'];
-    emailController.text = babysitter['email'];
-    genderController.text = babysitter['gender'];
-    phoneController.text = babysitter['cellphone'];
-    experienceMonthsController.text = babysitter['experienceMonths'].toString();
+    final Tutor = Tutors.firstWhere((b) => b['id'] == id);
+    nameController.text = Tutor['name'];
+    emailController.text = Tutor['email'];
+    genderController.text = Tutor['gender'];
+    phoneController.text = Tutor['cellphone'];
+    addressController.text = Tutor['address'];
+    numberOfChildrenController.text = Tutor['childrenCount'].toString();
+    //print(Tutor);
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: const Color.fromARGB(255, 255, 215, 229),
-          title: const Text('Atualizar Babá'),
+          title: const Text('Atualizar Tutor'),
           content: SingleChildScrollView(
             child: Form(
               key: formKey,
@@ -223,13 +227,23 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
                     },
                   ),
                   _buildTextField(
-                    controller: experienceMonthsController,
-                    label: 'Experiência (meses)',
-                    icon: Icons.timer,
+                    controller: addressController,
+                    label: 'Endereço',
+                    icon: Icons.home,
+                    validator: (value) {
+                      return value!.isEmpty
+                          ? 'Por favor, digite seu Endereço'
+                          : null;
+                    },
+                  ),
+                  _buildTextField(
+                    controller: numberOfChildrenController,
+                    label: 'Número de Filhos',
+                    icon: Icons.child_care_rounded,
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       return value!.isEmpty
-                          ? 'Por favor, digite seu tempo de experiência'
+                          ? 'Por favor, digite quantidade de filhos'
                           : null;
                     },
                   ),
@@ -254,10 +268,10 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
                     'gender': genderController.text,
                     'cellphone':
                         phoneController.text.replaceAll(RegExp(r'[^\d]'), ''),
-                    'experienceMonths':
-                        int.tryParse(experienceMonthsController.text) ?? 0,
+                    'address': addressController.text,
+                    'children_count': int.tryParse(numberOfChildrenController.text) ?? 0,
                   };
-                  _updateBabysitter(id, updatedData);
+                  _updateTutor(id, updatedData);
                   Navigator.of(context).pop();
                 }
               },
@@ -274,7 +288,7 @@ class _BabysitterListPageState extends State<BabysitterListPage> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmar Exclusão'),
-          content: const Text('Tem certeza de que deseja excluir esta babá?'),
+          content: const Text('Tem certeza de que deseja excluir esta Tutor?'),
           actions: [
             TextButton(
               child: const Text('Cancelar'),
