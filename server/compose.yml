@@ -5,9 +5,9 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: 'babysitter'
-      MYSQL_USER: 'joao.korczovei'
-      MYSQL_PASSWORD: 'fGGZ7uQtK7ECm!l'
-      MYSQL_ROOT_PASSWORD: 'fGGZ7uQtK7ECm!l'
+      MYSQL_USER: 'babysitter_admin'
+      MYSQL_PASSWORD: 'babysitter_password'
+      MYSQL_ROOT_PASSWORD: 'babysitter_password'
     ports:
       - '3306:3306'
     expose:
