@@ -5,7 +5,7 @@ Encontre uma babá para a sua criança!
 ## Trabalho em Grupo 
 Trabalho desenvolvido para a matéria de Desenvolvimento Móvel, no curso de Ciência da Computação na Universidade Tecnológica Federal do Paraná - UTFPR, pelos alunos:
 - Márcio Gabriel Pereira de Campos
-- João Otávio Martini Korczovei
+- João Otavio Martini Korczovei
 - Gabriela Smith Ferreira
 - Hudson Taylor Perrut Cassim
 
@@ -62,29 +62,61 @@ flutter run
 ![image](https://github.com/user-attachments/assets/63d94b5a-c51b-489d-8057-c337804c4587)
 
 
-## Entidades
+# Backend
 
-### Usuario
-- nome
-- genero
-- email
-- senha
-- telefone
-- data de nascimento
-- roles [tutor,baba]
+## Requisitos
+- Node
+  - O desenvolvimento, testes e implantação usaram a versão 22.5.1 do node
+- MySQL
+  - Está disponível via docker compose nesse projeto
 
-### Tutor
-- endereço
-- quantidade filhos
+## Passos para rodar
 
-### Babá
-- tempo de experiencia (meses)
+  Toda as configurações a seguir referenciam arquivos dentro da pasta server ou em pastas em seu interior.
 
-### Serviço
-- id da baba
-- id do tutor
-- data de inicio
-- data de fim
-- valor
-- quantidade de crianças
-- endereço
+  ```bash
+  # Entre na pasta server
+  cd server
+  ```
+
+  ### Configuração do arquivo .env
+
+  Configure o arquivo .env corretamente usando um editor de texto de sua preferência. Ele já está com valores de configuração padrão, mas você pode alterar conforme necessário.
+
+  Os principais valores a se atentar são os de conexão com o banco de dados, garantindo que o banco e usuário existam, bem como o endereço de conexão. Se você for subir o banco de dados via docker compose, não é necessário alterar nada.
+
+  Uma opção é usar o nano para editar o arquivo .env
+
+  ```bash
+  nano .env
+  ```
+
+  ### Para subir o banco de dados via docker compose
+
+  ```bash
+  # Suba o banco de dados
+  docker compose up
+  ```
+
+  ### Para instalar as dependências
+
+  ```bash
+  # Instale as dependências
+  npm install
+  ```
+
+  ### Para executar as migrações que criam as tabelas no banco de dados
+
+  ```bash
+  # Execute as migrações
+  npm run migrate-up
+  ```
+
+  ### Para rodar o servidor
+
+  ```bash
+  # Execute o servidor
+  npm start
+  ```
+
+## Estrutura do banco de dados
