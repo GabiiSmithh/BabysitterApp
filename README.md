@@ -94,8 +94,10 @@ flutter run
   ### Para subir o banco de dados via docker compose
 
   ```bash
-  # Suba o banco de dados
+  # Suba o banco de dados - a depender da versão o comando pode conter hifen entre as palavras docker compose
   docker compose up
+  # ou
+  docker-compose up
   ```
 
   ### Para instalar as dependências
