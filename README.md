@@ -120,3 +120,5 @@ flutter run
   ```
 
 ## Estrutura do banco de dados
+
+![image](https://github.com/user-attachments/assets/77cdecd3-9f25-4f89-84bc-eac673d90e2a)
