@@ -2,8 +2,9 @@ import { Babysitter } from '../entity/babysitter.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export class BabysitterService {
-    constructor({ babysitterRepository }) {
+    constructor({ babysitterRepository, serviceRepository }) {
         this.babysitterRepository = babysitterRepository;
+        this.serviceRepository = serviceRepository;
     }
 
     async getByID(id) {
@@ -12,6 +13,10 @@ export class BabysitterService {
 
     async list() {
         return this.babysitterRepository.list();
+    }
+
+    async listServices (babysitterId) {
+        return this.serviceRepository.listByBabysitterId(babysitterId);
     }
 
     async create(createBabysitterDTO) {
@@ -42,7 +47,7 @@ export class BabysitterService {
         foundBabysitter.name = updateBabysitterDTO.name || foundBabysitter.name;
         foundBabysitter.email = updateBabysitterDTO.email || foundBabysitter.email;
         foundBabysitter.cellphone = updateBabysitterDTO.cellphone || foundBabysitter.cellphone;
-        foundBabysitter.experience_months = updateBabysitterDTO.experience_months || foundBabysitter.experience_months;
+        foundBabysitter.experienceMonths = updateBabysitterDTO.experienceMonths || foundBabysitter.experienceMonths;
         foundBabysitter.rating = updateBabysitterDTO.rating || foundBabysitter.rating;
 
         await this.babysitterRepository.update(foundBabysitter);

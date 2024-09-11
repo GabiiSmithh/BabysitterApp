@@ -19,10 +19,27 @@ export class ExpressAuthHandler {
 
             const token = this.authService.generateToken(user);
             
-            return res.status(200).json({ token });
+            return res.status(200).json({ token, roles: user.roles, user_id: user.id });
         } catch (error) {
             // TODO: return correct status for different cases
             return res.status(400).json({ message: error.message });
+        }
+    }
+
+    async changePassword(req, res) {
+        try {
+            const { email, current_password, new_password } = req.body;
+
+            const updatedUser = await this.userService.changePassword({
+                email: email,
+                currentPassword: current_password,
+                newPassword: new_password,
+            });
+
+            return res.status(204).json();
+        } catch (error) {
+            // TODO: return correct status for different cases
+            return res.status(401).json({ message: 'Invalid credentials.' });
         }
     }
 }

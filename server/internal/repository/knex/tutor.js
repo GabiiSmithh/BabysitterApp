@@ -67,8 +67,12 @@ export class TutorRepository {
                     address: tutor.address,
                     rating: tutor.rating,
                 });
-            });
 
+                await trx('user_has_roles').insert({
+                    user_id: tutor.id,
+                    role_name: 'tutor'
+                });
+            });
             return tutor;
         } catch (error) {
             if (error.code === 'ER_DUP_ENTRY') {

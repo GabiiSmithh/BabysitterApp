@@ -2,8 +2,9 @@ import { Tutor } from '../entity/tutor.js';
 import { v4 as uuidv4 } from 'uuid';
 
 export class TutorService {
-    constructor({ tutorRepository }) {
+    constructor({ tutorRepository, serviceRepository }) {
         this.tutorRepository = tutorRepository;
+        this.serviceRepository = serviceRepository;
     }
 
     async getByID(id) {
@@ -12,6 +13,10 @@ export class TutorService {
 
     async list() {
         return this.tutorRepository.list();
+    }
+
+    async listServices (tutorId) {
+        return this.serviceRepository.listByTutorId(tutorId);
     }
 
     async create(createTutorDTO) {

@@ -14,6 +14,7 @@ import { ServiceRepository } from '../internal/repository/knex/service.js';
 import { ServiceService } from '../internal/service/service.js'
 
 // user imports
+import { ExpressUserHandler } from '../internal/handler/express/user.js'
 import { UserRepository } from '../internal/repository/knex/user.js';
 import { UserService } from '../internal/service/user.js'
 
@@ -43,31 +44,31 @@ const knexDbConnection = knex({
     connection: {
         host: '127.0.0.1',
         port: 3306,
-        user: 'user',
-        password: 'password',
-        database: 'db',
+        user: 'joao.korczovei',
+        password: 'fGGZ7uQtK7ECm!l',
+        database: 'babysitter',
     },
 });
-
-
-// babysitter instances
-const babysitterRepository = new BabysitterRepository({ db: knexDbConnection });
-const babysitterService = new BabysitterService({ babysitterRepository });
-const babysitterHandler = new ExpressBabysitterHandler({ babysitterService });
-
-// tutor instances
-const tutorRepository = new TutorRepository({ db: knexDbConnection });
-const tutorService = new TutorService({ tutorRepository });
-const tutorHandler = new ExpressTutorHandler({ tutorService });
 
 // service instances
 const serviceRepository = new ServiceRepository({ db: knexDbConnection });
 const serviceService = new ServiceService({ serviceRepository });
 const serviceHandler = new ExpressServiceHandler({ serviceService });
 
+// babysitter instances
+const babysitterRepository = new BabysitterRepository({ db: knexDbConnection });
+const babysitterService = new BabysitterService({ babysitterRepository, serviceRepository });
+const babysitterHandler = new ExpressBabysitterHandler({ babysitterService });
+
+// tutor instances
+const tutorRepository = new TutorRepository({ db: knexDbConnection });
+const tutorService = new TutorService({ tutorRepository, serviceRepository });
+const tutorHandler = new ExpressTutorHandler({ tutorService });
+
 // user instances
 const userRepository = new UserRepository({ db: knexDbConnection });
 const userService = new UserService({ userRepository });
+const userHandler = new ExpressUserHandler({ userService });
 
 // auth instances
 const authService = new AuthService({ secretKey: tokenSecret, expiresIn: tokenExpiration });
@@ -80,24 +81,33 @@ app.get('/', (_, res) => {
 
 // babysitter endpoints
 app.get('/babysitters/:user_id', babysitterHandler.getByID.bind(babysitterHandler));
+app.get('/babysitters/:user_id/services', babysitterHandler.listServices.bind(babysitterHandler));
 app.get('/babysitters', babysitterHandler.list.bind(babysitterHandler));
 app.post('/babysitters', babysitterHandler.create.bind(babysitterHandler));
-app.patch('/babysitters/:user_id', authMiddleware.authenticate.bind(authMiddleware), babysitterHandler.update.bind(babysitterHandler));
+app.patch('/babysitters/:user_id', babysitterHandler.update.bind(babysitterHandler));
 
 // tutor endpoints
 app.get('/tutors/:user_id', tutorHandler.getByID.bind(tutorHandler));
+app.get('/tutors/:user_id/services', tutorHandler.listServices.bind(tutorHandler));
 app.get('/tutors', tutorHandler.list.bind(tutorHandler));
 app.post('/tutors', tutorHandler.create.bind(tutorHandler));
-app.patch('/tutors/:user_id', authMiddleware.authenticate.bind(authMiddleware), tutorHandler.update.bind(tutorHandler));
+app.patch('/tutors/:user_id', tutorHandler.update.bind(tutorHandler));
 
 // service endpoints
 app.get('/services/:service_id', serviceHandler.getByID.bind(serviceHandler));
 app.get('/services', serviceHandler.list.bind(serviceHandler));
 app.post('/services', serviceHandler.create.bind(serviceHandler));
-app.patch('/services/:service_id', authMiddleware.authenticate.bind(authMiddleware), serviceHandler.update.bind(serviceHandler));
+app.patch('/services/:service_id', serviceHandler.update.bind(serviceHandler));
+app.post('/services/:service_id/enroll', authMiddleware.authenticate.bind(authMiddleware), serviceHandler.enrollBabysitter.bind(serviceHandler));
+app.post('/services/:service_id/choose-enrollment', authMiddleware.authenticate.bind(authMiddleware), serviceHandler.chooseEnrollment.bind(serviceHandler));
+
+// user endpoints
+app.post('/users/roles/babysitter', authMiddleware.authenticate.bind(authMiddleware), userHandler.assignBabysitter.bind(userHandler));
+app.post('/users/roles/tutor', authMiddleware.authenticate.bind(authMiddleware), userHandler.assignTutor.bind(userHandler));
 
 // auth endpoints
 app.post('/auth/login', authHandler.login.bind(authHandler));
+app.post('/auth/change-password', authHandler.changePassword.bind(authHandler));
 
 app.listen(port, () => {
     console.log(`server starting at http://127.0.0.1:${port}`);

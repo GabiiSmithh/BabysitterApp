@@ -4,10 +4,10 @@ services:
     container_name: mysql
     restart: always
     environment:
-      MYSQL_DATABASE: 'db'   
-      MYSQL_USER: 'user'
-      MYSQL_PASSWORD: 'password'      
-      MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_DATABASE: 'babysitter'
+      MYSQL_USER: 'joao.korczovei'
+      MYSQL_PASSWORD: 'fGGZ7uQtK7ECm!l'
+      MYSQL_ROOT_PASSWORD: 'fGGZ7uQtK7ECm!l'
     ports:
       - '3306:3306'
     expose:
